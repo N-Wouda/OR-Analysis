@@ -1,0 +1,17 @@
+[run]
+omit =
+    */tests/*
+
+    # This is only to set-up the application - this
+    # material is already tested elsewhere
+    */__main__.py
+
+    # Virtualenv packages
+    venv/*
+
+[report]
+exclude_lines =
+    # This excludes all abstract methods from code coverage checks,
+    # as they are never instantiated directly anyway
+    pragma: no cover
+    @abstract

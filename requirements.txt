@@ -1,0 +1,2 @@
+ortools >= 7.5
+numpy >= 1.18
