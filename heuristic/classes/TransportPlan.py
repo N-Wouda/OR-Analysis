@@ -1,0 +1,2 @@
+class TransportPlan:
+    pass

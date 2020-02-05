@@ -1,0 +1,3 @@
+R_OPERATORS = [
+    # TODO
+]
