@@ -26,7 +26,7 @@ class Solution(State):
         """
         Evaluates the current solution.
         """
-        pass  # TODO
+        return sum(route.cost() for route in self.routes)
 
     def plot(self):
         """
