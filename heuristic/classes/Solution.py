@@ -17,10 +17,9 @@ class Solution(State):
         Returns a copy of the current Solution object.
         """
         solution = Solution()
-
         solution.routes = deepcopy(self.routes)
 
-        return Solution()
+        return solution
 
     def objective(self) -> float:
         """
