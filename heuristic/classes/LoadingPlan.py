@@ -1,4 +1,4 @@
-class TransportPlan:
+class LoadingPlan:
     # TODO
 
     def cost(self) -> float:

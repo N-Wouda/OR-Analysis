@@ -1,12 +1,12 @@
 from typing import List
 
-from .TransportPlan import TransportPlan
+from .LoadingPlan import LoadingPlan
 from .Truck import Truck
 
 
 class Route:
     legs: List
-    plan: TransportPlan
+    plan: LoadingPlan
     truck: Truck
 
     def cost(self) -> float:
