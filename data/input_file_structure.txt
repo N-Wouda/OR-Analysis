@@ -1,0 +1,13 @@
+In the input file, each line represents an instance and is formatted as follows:
+
+idx, Q, N, h, sigma, c00, ..., c0N, c10, ..., c1N, ..., cN0, ..., cNN, d1, p1, ..., dN, pN
+
+The variables have the following meaning:
+idx	Instance index
+Q	Vehicle capacity
+N	Number of customers
+h	Handling cost (h_p = h_d = h)
+sigma	Number of stacks
+cij	Cost to travel from node i to node j (Node 0 is the depot)
+di	Delivery demand of customer i
+pi	Pickup demand of customer i
