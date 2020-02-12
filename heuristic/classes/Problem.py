@@ -3,6 +3,8 @@ import numpy as np
 
 
 class Problem:
+    instance: int
+
     capacity: float
     handling_cost: float
 
@@ -13,11 +15,16 @@ class Problem:
     demands: np.ndarray
     pickups: np.ndarray
 
+    @property
+    def stack_capacity(self):
+        return self.capacity / self.num_stacks
+
     @classmethod
     def from_file(cls, location: str, **kwargs) -> Problem:
         """
         Sets-up a problem instance from the passed-in data file location. Any
-        additional arguments are passed to ``numpy.genfromtxt``.
+        additional arguments are passed to ``numpy.genfromtxt``. For the assumed
+        file format, see the data in `/data` - in particular the text file.
 
         Parameters
         ----------
@@ -35,9 +42,12 @@ class Problem:
 
         problem = cls()
 
+        problem.instance = int(data[0])
+
         problem.capacity = data[1]
-        problem.num_customers = int(data[2])
         problem.handling_cost = data[3]
+
+        problem.num_customers = int(data[2])
         problem.num_stacks = int(data[4])
 
         # Distances include depot, so customers + 1
