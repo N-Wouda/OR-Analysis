@@ -6,10 +6,12 @@ from typing import List
 import matplotlib.pyplot as plt
 from alns import State
 
+from .Problem import Problem
 from .Route import Route
 
 
 class Solution(State):
+    _problem: Problem
     routes: List[Route]
 
     def copy(self) -> Solution:
@@ -17,7 +19,19 @@ class Solution(State):
         Returns a copy of the current Solution object.
         """
         solution = Solution()
+        solution._problem = self._problem
         solution.routes = deepcopy(self.routes)
+
+        return solution
+
+    @classmethod
+    def empty(cls, problem: Problem) -> Solution:
+        """
+        Creates an empty Solution object, with the passed-in Problem instance.
+        """
+        solution = cls()
+        solution._problem = problem
+        solution.routes = []
 
         return solution
 
@@ -25,7 +39,7 @@ class Solution(State):
         """
         Evaluates the current solution.
         """
-        return sum(route.cost() for route in self.routes)
+        return sum(route.cost(self._problem) for route in self.routes)
 
     def plot(self):
         """
