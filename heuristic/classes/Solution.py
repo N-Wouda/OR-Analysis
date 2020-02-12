@@ -33,3 +33,10 @@ class Solution(State):
         """
         # TODO
         plt.draw_if_interactive()
+
+    @classmethod
+    def from_file(location: str) -> Solution:
+        pass
+
+    def to_file(self, location: str):
+        pass

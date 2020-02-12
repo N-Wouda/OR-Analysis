@@ -1,0 +1,16 @@
+The output file should be named "oracs_i.csv", where i should be replaced by the right instance number. Hence, the solution of each instance is stored in a separate file. It should be formatted as follows:
+
+On the first line: Your group number
+On the second line: The instance number
+On the third line: Number of vehicles used
+
+Then, for every vehicle, every node visited by that vehicle, and every stack of that vehicle, you should print the following comma-separated line:
+Vehicle index, Node, Stack index, Stack content (front to rear) upon leaving the node
+
+NOTES:
+1. No comma at the end of each line
+2. No spaces before or after commas
+3. Vehicles are indexed as "Vi", where i is the vehicle number
+4. Stacks are indexed as "Si", where i is the stack number
+5. Stack content must be represented as "di", to represent deliveries to customer i, or "pj", to represent pickups from customer j.
+6. Stack content must be ordered from front of the vehicle to the rear.
