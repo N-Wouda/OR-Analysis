@@ -11,7 +11,7 @@ from .Route import Route
 
 
 class Solution(State):
-    _problem: Problem
+    problem: Problem
     routes: List[Route]
 
     def copy(self) -> Solution:
@@ -19,7 +19,7 @@ class Solution(State):
         Returns a copy of the current Solution object.
         """
         solution = Solution()
-        solution._problem = self._problem
+        solution.problem = self.problem
         solution.routes = deepcopy(self.routes)
 
         return solution
@@ -30,7 +30,7 @@ class Solution(State):
         Creates an empty Solution object, with the passed-in Problem instance.
         """
         solution = cls()
-        solution._problem = problem
+        solution.problem = problem
         solution.routes = []
 
         return solution
@@ -39,7 +39,7 @@ class Solution(State):
         """
         Evaluates the current solution.
         """
-        return sum(route.cost(self._problem) for route in self.routes)
+        return sum(route.cost(self.problem) for route in self.routes)
 
     def plot(self):
         """
