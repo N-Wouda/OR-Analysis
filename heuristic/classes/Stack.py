@@ -10,7 +10,7 @@ class Stack:
     """
     stack: deque[Item]
 
-    def place_in_back(self, item):
+    def place_in_back(self, item: Item):
         """
         Adds item to the stack.
         """
@@ -22,7 +22,7 @@ class Stack:
         """
         return self.stack.pop()
 
-    def place_in_front(self, item):
+    def place_in_front(self, item: Item):
         """
         Places the item in the front of the truck.
         For this function the associated costs and further layout of the stack
