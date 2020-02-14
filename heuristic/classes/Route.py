@@ -5,8 +5,11 @@ from .Problem import Problem
 
 
 class Route:
-    legs: List[int]  # customers visited, in order (indices)
+    legs: List  # customers visited, in order (indices)
     plan: LoadingPlan  # loading plan detailing the mutations at each customer
+
+    customers_visited = List
+    customers_destroyed = List
 
     def cost(self, problem: Problem) -> float:
         """
