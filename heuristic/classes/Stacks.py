@@ -7,21 +7,14 @@ from .Stack import Stack
 class Stacks:
     _stacks: List[Stack]
 
-    @classmethod
-    def create(cls, nr_stacks) -> Stacks:
-        stacks = cls()
-        stacks._stacks = [Stack.create(Problem.stack_capacity) for idx in
-                          range(nr_stacks)]
+    def __init__(self, nr_stacks: int):
+        self._stacks = [Stack.create(Problem.stack_capacity) for idx in
+                        range(nr_stacks)]
 
-        return stacks
-
-    def shortest_stack(self) -> int:
+    def shortest_stack(self) -> Stack:
         """
         Returns the index of the shortest stack.
         """
-        index = min(range(len(self._stacks)),
-                    key=lambda idx:
-                    self._stacks[idx].length_items_to_be_moved())
+        index = min(range(len(self._stacks)), key=lambda idx: self._stacks[idx])
+
         return index
-
-

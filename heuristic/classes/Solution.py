@@ -14,6 +14,9 @@ class Solution(State):
     problem: Problem
     routes: List[Route]
 
+    customers_visited = List[int]
+    customers_destroyed = List[int]
+
     def copy(self) -> Solution:
         """
         Returns a copy of the current Solution object.
