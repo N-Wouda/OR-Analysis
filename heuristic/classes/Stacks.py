@@ -1,20 +1,37 @@
 from __future__ import annotations
-from typing import List
-from .Problem import Problem
+
+from typing import Callable, List
+
+from .Item import Item
 from .Stack import Stack
 
 
 class Stacks:
     _stacks: List[Stack]
 
-    def __init__(self, nr_stacks: int):
-        self._stacks = [Stack.create(Problem.stack_capacity) for idx in
-                        range(nr_stacks)]
+    def __init__(self, num_stacks: int):
+        self._stacks = [Stack() for _ in range(num_stacks)]
 
-    def shortest_stack(self) -> Stack:
-        """
-        Returns the index of the shortest stack.
-        """
-        index = min(range(len(self._stacks)), key=lambda idx: self._stacks[idx])
+    @property
+    def num_stacks(self) -> int:
+        return len(self._stacks)
 
-        return index
+    def smallest_stack(self) -> Stack:
+        return self._first_stack(min)
+
+    def largest_stack(self) -> Stack:
+        return self._first_stack(max)
+
+    def find(self, item: Item) -> Stack:
+        """
+        Finds the stack the given item is stored in. Raises a ValueError when
+        the item is not in any stacks.
+        """
+        for stack in self._stacks:
+            if item in stack:
+                return stack
+
+        raise ValueError(f"Item {item} not in any stacks.")
+
+    def _first_stack(self, criterion: Callable[..., Stack]) -> Stack:
+        return criterion(self._stacks, key=lambda stack: stack.volume())
