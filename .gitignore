@@ -413,3 +413,6 @@ TSWLatexianTemp*
 
 # GNU plot sutff
 *.pgf-plot.*
+
+# Solution outputs
+solutions/*.csv
