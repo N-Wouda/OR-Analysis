@@ -74,6 +74,9 @@ class Stack:
         stack = Stack()
 
         for str_item in items:
+            if not str_item:
+                continue
+
             typ, customer = str_item
             assert typ in {"d", "p"}
 
