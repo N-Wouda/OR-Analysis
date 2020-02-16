@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-pipenv shell
+pipenv run
 
 instances="data/small_*.csv"
 
