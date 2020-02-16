@@ -8,8 +8,9 @@ from .Item import Item
 
 class Stack:
     """
-    List of items, the last item in the list is the item in the back of the
-    truck.
+    Wrapper class for a stack of items, maintained as a deque of Items. Such
+    a stack represents a single stack of a truck, from the rear (left) to the
+    front (right).
     """
     stack: deque[Item]
     _set: Set[Item]
@@ -18,52 +19,50 @@ class Stack:
         self.stack = deque()
         self._set = set()
 
-    def place_in_back(self, item: Item):
-        """
-        Adds item to the stack.
-        """
-        self.stack.append(item)
-        self._set.add(item)
-
-    def take_item(self) -> Item:
-        """
-        Removes item from the back of the truck, returns this item.
-        """
-        item = self.stack.pop()
+    def pop_rear(self) -> Item:
+        item = self.stack.popleft()
         self._set.remove(item)
 
         return item
 
-    def place_in_front(self, item: Item):
+    def index(self, item: Item):
+        return self.stack.index(item)
+
+    def remove_volume(self, item: Item) -> float:
         """
-        Places the item in the front of the truck.
-        For this function the associated costs and further layout of the stack
-        are irrelevant.
+        Computes the (excess) volume that needs to be moved to remove the
+        passed-in item.
+        """
+        assert item in self
+        at = self.index(item)
+
+        return sum(self.stack[idx].volume for idx in range(at))
+
+    def insert_volume(self, at: int) -> float:
+        """
+        Computes the volume that needs to be moved in order to insert an item at
+        the given index.
+        """
+        return sum(self.stack[idx].volume
+                   for idx in range(min(at, len(self.stack))))
+
+    def push_front(self, item: Item):
+        """
+        Places the item in the front of the truck (right).
         """
         self._set.add(item)
-        self.stack.appendleft(item)
+        self.stack.append(item)
 
-    def __contains__(self, item):
+    def push_rear(self, item: Item):
+        """
+        Adds item to the rear of the truck (left).
+        """
+        self.stack.appendleft(item)
+        self._set.add(item)
+
+    def __contains__(self, item: Item) -> bool:
         return item in self._set
 
     def volume(self) -> float:
         return sum(self.stack[idx].volume
                    for idx in range(len(self.stack)))
-
-    def length_items_to_be_moved(self) -> float:
-        """
-        Returns the length of items to be moved when placing an item in the
-        front of the truck (Pickup items at the front are never moved). The
-        costs associated with this action are computed later.
-        """
-        # TODO O(1) or O(log n)?
-        total_length = sum(self.stack[idx].volume for idx in
-                           range(len(self.stack)))
-
-        len_pickups_in_front = 0
-        idx = 0
-        while self.stack[idx].destination == 0:
-            len_pickups_in_front += self.stack[idx].volume
-            idx += 1
-
-        return total_length - len_pickups_in_front

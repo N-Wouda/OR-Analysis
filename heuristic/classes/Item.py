@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class Item:
     volume: float
     destination: int
@@ -9,6 +12,14 @@ class Item:
         """
         self.volume = volume
         self.destination = destination
+
+    def __eq__(self, other: Item) -> bool:
+        return isinstance(other, Item) \
+               and self.volume == other.volume \
+               and self.destination == other.destination
+
+    def __hash__(self) -> int:
+        return hash((self.destination, self.volume))
 
     def is_pickup(self) -> bool:
         return self.destination == 0
