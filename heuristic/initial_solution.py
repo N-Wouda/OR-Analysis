@@ -11,7 +11,7 @@ def initial_solution(problem: Problem) -> Solution:
     sol = Solution.empty(problem)
 
     for customer in range(problem.num_customers):
-        delivery = Item(problem.demands[customer], customer, customer)
+        delivery = Item(problem.demands[customer], DEPOT, customer)
         pickup = Item(problem.pickups[customer], customer, DEPOT)
 
         # After depot, and after customer: two configurations in total.

@@ -30,7 +30,7 @@ class Stacks:
         ``Stacks``. This is in O(|num_stacks| * n), where n is the number of
         items in a stack.
         """
-        delivery = Item(problem.demands[customer], customer, customer)
+        delivery = Item(problem.demands[customer], DEPOT, customer)
         pickup = Item(problem.pickups[customer], customer, DEPOT)
 
         volume = before.find_stack(delivery).remove_volume(delivery)
