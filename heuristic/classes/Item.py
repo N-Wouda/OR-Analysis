@@ -17,7 +17,7 @@ class Item:
         self.origin = origin
         self.destination = destination
 
-    def __eq__(self, other: Item) -> bool:
+    def __eq__(self, other) -> bool:
         return isinstance(other, Item) \
                and self.volume == other.volume \
                and self.origin == other.origin \

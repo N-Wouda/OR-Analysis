@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import Set
+from typing import Deque, Set
 
 from .Item import Item
 
@@ -12,7 +12,7 @@ class Stack:
     a stack represents a single stack of a truck, from the rear (left) to the
     front (right).
     """
-    stack: deque[Item]
+    stack: Deque[Item]
     _set: Set[Item]
 
     def __init__(self):
