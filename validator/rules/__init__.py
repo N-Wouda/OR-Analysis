@@ -1,5 +1,9 @@
 from typing import Callable, List, Tuple
 
-RULES: List[Callable[..., Tuple[bool, str]]] = [  # TODO complete type
+from heuristic.classes import Solution
+from .each_route_is_a_tour import each_route_is_a_tour
+
+RULES: List[Callable[[Solution], Tuple[bool, str]]] = [
+    each_route_is_a_tour,
     # TODO
 ]
