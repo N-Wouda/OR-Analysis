@@ -53,22 +53,28 @@ class Solution(State):
         plt.draw_if_interactive()
 
     @classmethod
-    def from_file(cls, location: str) -> Solution:
-        pass
+    def from_file(cls, problem: Problem, location: str) -> Solution:
+        """
+        Reads a solution to the passed-in problem from the file system.
+        """
+        pass  # TODO
 
     def to_file(self, location: str):
-        with open(location, 'w+') as file:
-            print(TEAM_NUMBER, file=file)
-            print(self.problem.instance, file=file)
-            print(len(self.routes), file=file)
+        """
+        Writes this solution to the file system.
+        """
+        file = open(location, 'w+')
 
-            for idx_route, route in enumerate(self.routes, 1):
-                legs = np.array([DEPOT, *route.customers])
-                legs += 1
+        print(TEAM_NUMBER, file=file)
+        print(self.problem.instance, file=file)
+        print(len(self.routes), file=file)
 
-                for idx_leg, leg in enumerate(legs):
-                    stacks = route.plan.snapshots[idx_leg]
+        for idx_route, route in enumerate(self.routes, 1):
+            legs = np.array([DEPOT, *route.customers])
+            legs += 1
 
-                    for idx_stack, stack in enumerate(stacks, 1):
-                        print(f"V{idx_route},{leg},S{idx_stack},{stack}",
-                              file=file)
+            for idx_leg, leg in enumerate(legs):
+                for idx_stack, stack in enumerate(route.plan[idx_leg], 1):
+                    print(f"V{idx_route},{leg},S{idx_stack},{stack}", file=file)
+
+        file.close()

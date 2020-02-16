@@ -25,6 +25,11 @@ class Stacks:
              problem: Problem,
              before: Stacks,
              after: Stacks) -> float:
+        """
+        Determines the cost of the mutations made between the before and after
+        ``Stacks``. This is in O(|num_stacks| * n), where n is the number of
+        items in a stack.
+        """
         delivery = Item(problem.demands[customer], customer, customer)
         pickup = Item(problem.pickups[customer], customer, DEPOT)
 
@@ -34,18 +39,29 @@ class Stacks:
         return problem.handling_cost * volume
 
     def shortest_stack(self) -> Stack:
+        """
+        Returns the shortest stack, that is, the stack that has the smallest
+        capacity in use. O(|num_stacks|).
+        """
         return self._first_stack(min)
 
     def longest_stack(self) -> Stack:
+        """
+        Returns the shortest stack, that is, the stack that has the largest
+        capacity in use. O(|num_stacks|).
+        """
         return self._first_stack(max)
 
     def used_capacity(self) -> float:
+        """
+        Total volume used by all stacks. O(|num_stacks|).
+        """
         return sum(stack.volume() for stack in self._stacks)
 
     def find_stack(self, item: Item) -> Stack:
         """
         Finds the stack the given item is stored in. Raises a ValueError when
-        the item is not in any stacks.
+        the item is not in any stacks. O(|num_stacks|).
         """
         for stack in self._stacks:
             if item in stack:
