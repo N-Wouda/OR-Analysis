@@ -14,4 +14,4 @@ numpy = ">=1.18"
 alns = ">=1.1"
 
 [requires]
-python_version = ">=3.7"
+python_version = "3.7"
