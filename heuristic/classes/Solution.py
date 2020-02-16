@@ -58,6 +58,8 @@ class Solution(State):
 
         fig, axes = plt.subplots(n_rows, n_cols, figsize=(2.5 * n_cols, n_rows))
 
+        # TODO plot handling + route costs, item details
+
         for row, route in enumerate(self.routes):
             for col, stacks in enumerate(route.plan):
                 axes[row, col].barh(np.arange(self.problem.num_stacks),
