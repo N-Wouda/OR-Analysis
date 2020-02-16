@@ -77,7 +77,7 @@ class Stack:
             if not str_item:
                 continue
 
-            typ, customer = str_item
+            typ, customer = str_item[0], str_item[1:]
             assert typ in {"d", "p"}
 
             customer = int(customer) - 1
