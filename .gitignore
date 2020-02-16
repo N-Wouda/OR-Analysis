@@ -408,11 +408,11 @@ TSWLatexianTemp*
 # Compiled documents
 *.pdf
 
-# Outputted CSV files
-*.csv
-
 # Code files for handing in
 *.zip
 
 # GNU plot sutff
 *.pgf-plot.*
+
+# Solution outputs
+solutions/*.csv

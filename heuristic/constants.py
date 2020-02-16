@@ -1,0 +1,2 @@
+DEPOT = -1
+TEAM_NUMBER = 3
