@@ -25,11 +25,10 @@ def main():
     for r_op in R_OPERATORS:
         alns.add_repair_operator(r_op)
 
-    result = alns.iterate(init, [25, 5, 1, 1], 0.8, HillClimbing())
-
+    # result = alns.iterate(init, [25, 5, 1, 1], 0.8, HillClimbing())
     # TODO post-processing?
 
-    init.to_file(f"data/oracs_{problem.instance}.csv")
+    init.to_file(f"solutions/oracs_{problem.instance}.csv")
 
 
 if __name__ == "__main__":

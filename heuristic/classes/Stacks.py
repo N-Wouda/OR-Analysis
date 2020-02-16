@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import Callable, List
 
+from heuristic.constants import DEPOT
 from .Item import Item
-from .Stack import Stack
 from .Problem import Problem
+from .Stack import Stack
 
 
 class Stacks:
@@ -13,28 +14,29 @@ class Stacks:
     def __init__(self, num_stacks: int):
         self._stacks = [Stack() for _ in range(num_stacks)]
 
-    @property
-    def num_stacks(self) -> int:
+    def __len__(self):
         return len(self._stacks)
 
-    def cost(self, customer: int, problem: Problem) -> float:
-        # Pick-up cost (item goes to depot)
-        item = Item(problem.pickups[customer], 0)
-        stack = self.find_stack(item)
+    def __iter__(self):
+        yield from self._stacks
 
-        # TODO Policy?
-        cost = stack.insert_volume(0)
+    @staticmethod
+    def cost(customer: int,
+             problem: Problem,
+             before: Stacks,
+             after: Stacks) -> float:
+        delivery = Item(problem.demands[customer], customer, customer)
+        pickup = Item(problem.pickups[customer], customer, DEPOT)
 
-        # Delivery cost (item goes to customer)
-        item = Item(problem.demands[customer], customer)
-        stack = self.find_stack(item)
+        volume = before.find_stack(delivery).remove_volume(delivery)
+        volume += after.find_stack(pickup).remove_volume(pickup)
 
-        return problem.handling_cost * (cost + stack.remove_volume(item))
+        return problem.handling_cost * volume
 
-    def smallest_stack(self) -> Stack:
+    def shortest_stack(self) -> Stack:
         return self._first_stack(min)
 
-    def largest_stack(self) -> Stack:
+    def longest_stack(self) -> Stack:
         return self._first_stack(max)
 
     def used_capacity(self) -> float:

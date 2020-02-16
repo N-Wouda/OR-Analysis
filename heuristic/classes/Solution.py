@@ -4,8 +4,10 @@ from copy import deepcopy
 from typing import List
 
 import matplotlib.pyplot as plt
+import numpy as np
 from alns import State
 
+from heuristic.constants import DEPOT, TEAM_NUMBER
 from .Problem import Problem
 from .Route import Route
 
@@ -14,8 +16,7 @@ class Solution(State):
     problem: Problem
     routes: List[Route]
 
-    customers_visited = List[int]
-    customers_destroyed = List[int]
+    unassigned: List[int]
 
     def copy(self) -> Solution:
         """
@@ -56,4 +57,18 @@ class Solution(State):
         pass
 
     def to_file(self, location: str):
-        pass
+        with open(location, 'w+') as file:
+            print(TEAM_NUMBER, file=file)
+            print(self.problem.instance, file=file)
+            print(len(self.routes), file=file)
+
+            for idx_route, route in enumerate(self.routes, 1):
+                legs = np.array([DEPOT, *route.customers])
+                legs += 1
+
+                for idx_leg, leg in enumerate(legs):
+                    stacks = route.plan.snapshots[idx_leg]
+
+                    for idx_stack, stack in enumerate(stacks, 1):
+                        print(f"V{idx_route},{leg},S{idx_stack},{stack}",
+                              file=file)

@@ -7,13 +7,21 @@ from .Stacks import Stacks
 class LoadingPlan:
     snapshots: List[Stacks]
 
-    def cost(self, customers: List[int], problem: Problem) -> float:
-        # Customers does not include the start depot, and the final return.
-        # Both such stops incur zero cost, so we can avoid it below.
-        assert len(customers) == len(self.snapshots) - 2
+    def __init__(self, snapshots: List[Stacks]):
+        self.snapshots = snapshots
 
-        return sum(snapshot.cost(customer, problem)
-                   for customer, snapshot in zip(customers, self.snapshots[1:]))
+    def cost(self, customers: List[int], problem: Problem) -> float:
+        assert len(customers) + 1 == len(self.snapshots)
+
+        cost = 0.
+
+        for idx, customer in enumerate(customers):
+            before = self.snapshots[idx]
+            after = self.snapshots[idx + 1]
+
+            cost += Stacks.cost(customer, problem, before, after)
+
+        return cost
 
     def max_capacity_used(self) -> float:
         return max(snapshot.used_capacity() for snapshot in self.snapshots)

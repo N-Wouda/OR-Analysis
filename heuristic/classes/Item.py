@@ -1,16 +1,21 @@
 from __future__ import annotations
 
+from heuristic.constants import DEPOT
+
 
 class Item:
     volume: float
+    customer: int
     destination: int
 
-    def __init__(self, volume: float, destination: int):
+    def __init__(self, volume: float, customer: int, destination: int):
         """
-        Creates an item with a volume and (customer) destination. A pickup
-        will have destination 0 (i.e., the depot).
+        Creates a customer item with a volume and destination. A pickup item
+        will have destination DEPOT. Customer is assumed to be an index - this
+        will be offset in the string representation.
         """
         self.volume = volume
+        self.customer = customer
         self.destination = destination
 
     def __eq__(self, other: Item) -> bool:
@@ -22,7 +27,7 @@ class Item:
         return hash((self.destination, self.volume))
 
     def is_pickup(self) -> bool:
-        return self.destination == 0
+        return self.destination == DEPOT
 
     def is_delivery(self) -> bool:
         return not self.is_pickup()
@@ -31,6 +36,6 @@ class Item:
         assert self.is_pickup() or self.is_delivery()
 
         if self.is_pickup():
-            return "p" + str(self.destination)
+            return "p" + str(self.customer + 1)
 
-        return "d" + str(self.destination)
+        return "d" + str(self.customer + 1)

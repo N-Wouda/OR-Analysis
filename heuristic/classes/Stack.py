@@ -66,3 +66,6 @@ class Stack:
     def volume(self) -> float:
         return sum(self.stack[idx].volume
                    for idx in range(len(self.stack)))
+
+    def __str__(self):
+        return ",".join(str(item) for item in reversed(self.stack))
