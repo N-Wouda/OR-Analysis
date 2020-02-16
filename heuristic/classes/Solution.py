@@ -25,6 +25,7 @@ class Solution(State):
         solution = Solution()
         solution.problem = self.problem
         solution.routes = deepcopy(self.routes)
+        solution.unassigned = deepcopy(self.unassigned)
 
         return solution
 
@@ -36,6 +37,7 @@ class Solution(State):
         solution = cls()
         solution.problem = problem
         solution.routes = []
+        solution.unassigned = []
 
         return solution
 

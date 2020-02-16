@@ -25,4 +25,6 @@ def initial_solution(problem: Problem) -> Solution:
 
         sol.routes.append(Route([customer], stacks))
 
+    assert len(sol.routes) == problem.num_customers
+
     return sol
