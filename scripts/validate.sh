@@ -6,5 +6,6 @@ instances="data/small_*.csv"
 
 for instance in $instances
 do
+  echo $instance
   python -m validator $instance
 done
