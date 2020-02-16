@@ -9,11 +9,14 @@ from .initial_solution import initial_solution
 from .destroy_operators import D_OPERATORS
 from .repair_operators import R_OPERATORS
 
+import random
+
 
 def main():
     if len(sys.argv) < 2:
         raise ValueError(f"{sys.argv[0]}: expected file location.")
 
+    random.seed(3)
     problem = Problem.from_file(sys.argv[1], delimiter=',')
     init = initial_solution(problem)
 
