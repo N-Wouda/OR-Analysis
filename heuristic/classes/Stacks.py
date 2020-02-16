@@ -9,16 +9,16 @@ from .Stack import Stack
 
 
 class Stacks:
-    _stacks: List[Stack]
+    stacks: List[Stack]
 
     def __init__(self, num_stacks: int):
-        self._stacks = [Stack() for _ in range(num_stacks)]
+        self.stacks = [Stack() for _ in range(num_stacks)]
 
     def __len__(self):
-        return len(self._stacks)
+        return len(self.stacks)
 
     def __iter__(self):
-        yield from self._stacks
+        yield from self.stacks
 
     @staticmethod
     def cost(customer: int,
@@ -56,18 +56,18 @@ class Stacks:
         """
         Total volume used by all stacks. O(|num_stacks|).
         """
-        return sum(stack.volume() for stack in self._stacks)
+        return sum(stack.volume() for stack in self.stacks)
 
     def find_stack(self, item: Item) -> Stack:
         """
         Finds the stack the given item is stored in. Raises a ValueError when
         the item is not in any stacks. O(|num_stacks|).
         """
-        for stack in self._stacks:
+        for stack in self.stacks:
             if item in stack:
                 return stack
 
         raise ValueError(f"Item {item} not in any stacks.")
 
     def _first_stack(self, criterion: Callable[..., Stack]) -> Stack:
-        return criterion(self._stacks, key=lambda stack: stack.volume())
+        return criterion(self.stacks, key=lambda stack: stack.volume())

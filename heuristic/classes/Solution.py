@@ -10,6 +10,8 @@ from alns import State
 from heuristic.constants import DEPOT, TEAM_NUMBER
 from .Problem import Problem
 from .Route import Route
+from .Stack import Stack
+from .Stacks import Stacks
 
 
 class Solution(State):
@@ -59,7 +61,38 @@ class Solution(State):
         """
         Reads a solution to the passed-in problem from the file system.
         """
-        pass  # TODO
+        solution = cls.empty(problem)
+
+        with open(location) as file:
+            data = file.readlines()
+
+            solution.routes = [Route([], []) for _ in range(int(data[2]))]
+
+            data = data[3:]  # first three lines are metadata
+
+        for line in data:
+            vehicle, node, stack, *items = line.strip().split(",")
+
+            idx_route = int(vehicle[1]) - 1
+            assert idx_route >= 0
+
+            route = solution.routes[idx_route]
+
+            idx_stack = int(stack[1]) - 1
+            assert idx_stack >= 0
+
+            if idx_stack == 0:
+                route.plan.append(Stacks(problem.num_stacks))
+
+            customer = int(node) - 1
+
+            if customer != DEPOT:
+                route.customers.append(customer)
+
+            route.plan[-1].stacks[idx_stack] = Stack.from_strings(items,
+                                                                  problem)
+
+        return solution
 
     def to_file(self, location: str):
         """
