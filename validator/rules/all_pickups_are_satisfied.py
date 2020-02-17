@@ -4,6 +4,7 @@ from heuristic.classes import Item, Route, Solution
 from heuristic.constants import DEPOT
 
 
+# TODO deduplicate this
 def all_pickups_are_satisfied(solution: Solution) -> Tuple[bool, str]:
     """
     Verifies all demands are satisfied, that is, the demanded items are loaded

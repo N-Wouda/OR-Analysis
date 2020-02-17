@@ -116,7 +116,7 @@ class Solution(State):
 
             if customer != DEPOT and customer not in route:
                 route.customers.append(customer)
-                route._customers.add(customer)  # TODO
+                route._customers.add(customer)  # TODO this is not nice.
 
             route.plan[-1].stacks[idx_stack] = Stack.from_strings(items,
                                                                   problem)
