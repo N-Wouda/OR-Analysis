@@ -100,5 +100,9 @@ class Stack:
         return ",".join(str(item) for item in reversed(self.stack))
 
     def remove(self, item: Item):
+        """
+        Removes the passed-in item from the stack. O(n), where n is the number
+        of items in the stack.
+        """
         self.stack.remove(item)
         self._set.remove(item)

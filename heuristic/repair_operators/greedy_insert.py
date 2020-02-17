@@ -1,13 +1,13 @@
-from heuristic.constants import DEPOT
-from ..classes import Solution, Route, Item, Stacks
 import numpy as np
+from numpy.random import RandomState
+
+from heuristic.classes import Item, Route, Solution, Stacks
+from heuristic.constants import DEPOT
 
 
-def greedy_repair(current: Solution) -> Solution:
+def greedy_insert(current: Solution, rnd_state: RandomState) -> Solution:
     """
-    Makes a copy of the current solution. Randomly selects customer from the
-    unassigned list and places them in a random location in a random route.
-    Returns the resulting solution.
+    TODO.
     """
     assigned = [customer for customer in
                 list(range(current.problem.num_customers)) if customer

@@ -26,11 +26,10 @@ def main():
     for r_op in R_OPERATORS:
         alns.add_repair_operator(r_op)
 
-    #result = alns.iterate(init, WEIGHTS, DECAY, CRITERION, iterations=100)
+    result = alns.iterate(init, WEIGHTS, DECAY, CRITERION, iterations=100)
     # TODO post-processing?
 
-    init.to_file(f"solutions/oracs_{problem.instance}.csv")
-    #result.best_state.to_file(f"solutions/oracs_{problem.instance}.csv")
+    result.best_state.to_file(f"solutions/oracs_{problem.instance}.csv")
 
 
 if __name__ == "__main__":

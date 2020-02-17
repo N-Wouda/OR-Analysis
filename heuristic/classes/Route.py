@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Set
 
 import numpy as np
 
@@ -10,11 +10,16 @@ from .Item import Item
 
 class Route:
     customers: List[int]  # customers visited, in order (indices)
+    _customers: Set[int]  # for customer membership checks
     plan: List[Stacks]  # loading plan
 
     def __init__(self, customers: List[int], plan: List[Stacks]):
         self.customers = customers
+        self._customers = set(customers)
         self.plan = plan
+
+    def __contains__(self, customer: int) -> bool:
+        return customer in self._customers
 
     def cost(self, problem: Problem) -> float:
         """
@@ -53,22 +58,32 @@ class Route:
 
         return cost
 
-    def remove_customer(self, customer: int, demand: float):
+    def add_customer(self, customer: int):
         """
-        Removes customer from route and items with the customer as destination
-        or origin from the loading plan.
+        TODO.
+        """
+        self.customers.append(customer)
+        self._customers.add(customer)
+
+    def remove_customer(self, customer: int, problem: Problem):
+        """
+        TODO.
         """
         idx = self.customers.index(customer)
 
-        delivery_item = Item(demand, DEPOT, customer)
-        pickup_item = Item(demand, customer, DEPOT)
+        delivery = Item(problem.demands[customer], DEPOT, customer)
+        pickup = Item(problem.pickups[customer], customer, DEPOT)
 
+        # Removes customer delivery item from the loading plan.
         for stacks in self.plan[:(idx - 1)]:
-            stack = stacks.find_stack(delivery_item)
-            stack.remove(delivery_item)
+            stack = stacks.find_stack(delivery)
+            stack.remove(delivery)
 
+        # Removes customer pickup item from the loading plan.
         for stacks in self.plan[idx:]:
-            stack = stacks.find_stack(pickup_item)
-            stack.remove(pickup_item)
+            stack = stacks.find_stack(pickup)
+            stack.remove(pickup)
 
-        self.customers.remove(customer)
+        # And finally, removes the customer itself.
+        del self.customers[idx]
+        self._customers.remove(customer)
