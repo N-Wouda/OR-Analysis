@@ -53,8 +53,36 @@ class Solution(State):
         """
         Plots the current solution state.
         """
-        # TODO
-        plt.draw_if_interactive()
+        n_rows = len(self.routes)
+        n_cols = max(len(route.customers) + 1 for route in self.routes)
+
+        _, axes = plt.subplots(n_rows, n_cols, figsize=(2.5 * n_cols, n_rows))
+
+        for row, route in enumerate(self.routes):
+            axes[row, 0].set_ylabel(f"Route {row + 1}")
+
+            for col, stacks in enumerate(route.plan):
+                ax = axes[row, col]
+
+                ax.barh(np.arange(self.problem.num_stacks),
+                        [stack.volume() for stack in stacks])
+
+                ax.set_xlim(right=self.problem.stack_capacity)
+                ax.set_yticks(np.arange(self.problem.num_stacks))
+                ax.margins(x=0, y=0)
+
+                ax.set_xlabel(f"DEPOT" if col == 0 else
+                              f"CUST {route.customers[col - 1] + 1}")
+
+                for idx in range(self.problem.num_stacks):
+                    ax.text(self.problem.stack_capacity / 2,
+                            idx,
+                            str(stacks[idx]),
+                            ha='center',
+                            va='center',
+                            color='darkgrey')
+
+        plt.show()
 
     @classmethod
     def from_file(cls, problem: Problem, location: str) -> Solution:
