@@ -58,21 +58,19 @@ class Route:
 
         return cost
 
-    def add_customer(self, customer: int):
-        """
-        TODO.
-        """
-        self.customers.append(customer)
-        self._customers.add(customer)
-
     def remove_customer(self, customer: int, problem: Problem):
         """
-        TODO.
-        """
-        idx = self.customers.index(customer)
+        Removes the passed-in customer from this route, and updates the
+        loading plan to reflect this change. O(n * m), where n is the number
+        of customers, and m the length of the longest stack (in number of
+        items).
 
+        TODO this must be done faster.
+        """
         delivery = Item(problem.demands[customer], DEPOT, customer)
         pickup = Item(problem.pickups[customer], customer, DEPOT)
+
+        idx = self.customers.index(customer)
 
         # Removes customer delivery item from the loading plan.
         for stacks in self.plan[:(idx - 1)]:
