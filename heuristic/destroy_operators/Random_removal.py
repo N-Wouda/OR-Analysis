@@ -10,14 +10,16 @@ def random_removal(current: Solution, random_state: RandomState) -> Solution:
     and removes them from the solution.
     """
     destroyed = current.copy()
-    number_to_remove = customers_to_remove(Solution.problem)
+    number_to_remove = customers_to_remove(current.problem)
 
     for customer in random_state.choice(destroyed.problem.num_customers,
                                         number_to_remove,
                                         replace=False):
         destroyed.unassigned.append(customer)
+        customer_demand = current.problem.demands[customer]
 
         for route_number in range(len(destroyed.routes)):
-            destroyed.routes[route_number].remove_customer(customer)
+            destroyed.routes[route_number].\
+                remove_customer(customer, customer_demand)
 
     return destroyed

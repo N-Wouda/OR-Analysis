@@ -53,21 +53,22 @@ class Route:
 
         return cost
 
-    def remove_customer(self, customer: int):
+    def remove_customer(self, customer: int, demand: float):
         """
         Removes customer from route and items with the customer as destination
         or origin from the loading plan.
         """
         idx = self.customers.index(customer)
-        delivery_item = Item(Problem.demands[customer], DEPOT, customer)
-        pickup_item = Item(Problem.demands[customer], customer, DEPOT)
+
+        delivery_item = Item(demand, DEPOT, customer)
+        pickup_item = Item(demand, customer, DEPOT)
 
         for stacks in self.plan[:(idx - 1)]:
             stack = stacks.find_stack(delivery_item)
-            stack.stack.remove(delivery_item)
+            stack.remove(delivery_item)
 
         for stacks in self.plan[idx:]:
             stack = stacks.find_stack(pickup_item)
-            stack.stack.remove(pickup_item)
+            stack.remove(pickup_item)
 
         self.customers.remove(customer)

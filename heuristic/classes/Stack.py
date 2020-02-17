@@ -98,3 +98,7 @@ class Stack:
         items.
         """
         return ",".join(str(item) for item in reversed(self.stack))
+
+    def remove(self, item: Item):
+        self.stack.remove(item)
+        self._set.remove(item)
