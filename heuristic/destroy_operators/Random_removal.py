@@ -1,21 +1,23 @@
 from ..classes import Solution
-from random import randrange
+from numpy.random import RandomState
 
 
-def random_removal(old_solution: Solution, q: int) -> Solution:
+def random_removal(current: Solution,
+                   random_state: RandomState,
+                   q: int) -> Solution:
     """
-    Copies the old solution, randomly removes q customers from the solution and
-    places them in the unassigned list.
+    Copies the old solution, randomly places q customers in the unassigned list
+    and removes them from their routes.
     """
-    solution = old_solution.copy()
+    destroyed = current.copy()
 
-    for idx in range(q):
-        random_route = randrange(0, len(solution.routes))
-        random_customer = randrange(0, len(solution.routes[random_route]))
+    for idx in random_state.choice(destroyed.problem.num_customers,
+                                   q,
+                                   replace=False):
 
-        removed_customer = solution.routes[random_route].customers.\
-            pop(random_customer)
+        destroyed.unassigned.append(idx)
 
-        solution.unassigned.append(removed_customer)
+        for route_number in range(len(destroyed.routes)):
+            destroyed.routes[route_number].customers.remove(idx)
 
-    return solution
+    return destroyed
