@@ -5,6 +5,7 @@ import numpy as np
 from heuristic.constants import DEPOT
 from .Problem import Problem
 from .Stacks import Stacks
+from .Item import Item
 
 
 class Route:
@@ -57,10 +58,16 @@ class Route:
         Removes customer from route and items with the customer as destination
         or origin from the loading plan.
         """
-        self.customers.remove(customer)
+        idx = self.customers.index(customer)
+        delivery_item = Item(Problem.demands[customer], DEPOT, customer)
+        pickup_item = Item(Problem.demands[customer], customer, DEPOT)
 
-        for stacks in self.plan:
-            for stack in stacks:
-                for item in stack.stack:
-                    if item.destination == customer or item.origin == customer:
-                        stack.stack.remove(item)
+        for stacks in self.plan[:(idx - 1)]:
+            stack = stacks.find_stack(delivery_item)
+            stack.stack.remove(delivery_item)
+
+        for stacks in self.plan[idx:]:
+            stack = stacks.find_stack(pickup_item)
+            stack.stack.remove(pickup_item)
+
+        self.customers.remove(customer)
