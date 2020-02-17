@@ -9,16 +9,16 @@ from .Stacks import Stacks
 
 class Route:
     customers: List[int]  # customers visited, in order (indices)
-    _customers: Set[int]
+    _set: Set[int]
     plan: List[Stacks]  # loading plan
 
     def __init__(self, customers: List[int], plan: List[Stacks]):
         self.customers = customers
-        self._customers = set(customers)
+        self._set = set(customers)
         self.plan = plan
 
     def __contains__(self, customer: int):
-        return customer in self._customers
+        return customer in self._set
 
     def cost(self, problem: Problem) -> float:
         """
