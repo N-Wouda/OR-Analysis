@@ -20,6 +20,9 @@ class Stacks:
     def __iter__(self):
         yield from self.stacks
 
+    def __getitem__(self, idx: int):
+        return self.stacks[idx]
+
     @staticmethod
     def cost(customer: int,
              problem: Problem,
