@@ -10,6 +10,8 @@ from alns import State
 from heuristic.constants import DEPOT, TEAM_NUMBER
 from .Problem import Problem
 from .Route import Route
+from .Stack import Stack
+from .Stacks import Stacks
 
 
 class Solution(State):
@@ -51,15 +53,74 @@ class Solution(State):
         """
         Plots the current solution state.
         """
-        # TODO
-        plt.draw_if_interactive()
+        n_rows = len(self.routes)
+        n_cols = max(len(route.customers) + 1 for route in self.routes)
+
+        _, axes = plt.subplots(n_rows, n_cols, figsize=(2.5 * n_cols, n_rows))
+
+        for row, route in enumerate(self.routes):
+            axes[row, 0].set_ylabel(f"Route {row + 1}")
+
+            for col, stacks in enumerate(route.plan):
+                ax = axes[row, col]
+
+                ax.barh(np.arange(self.problem.num_stacks),
+                        [stack.volume() for stack in stacks])
+
+                ax.set_xlim(right=self.problem.stack_capacity)
+                ax.set_yticks(np.arange(self.problem.num_stacks))
+                ax.margins(x=0, y=0)
+
+                ax.set_xlabel(f"DEPOT" if col == 0 else
+                              f"CUST {route.customers[col - 1] + 1}")
+
+                for idx in range(self.problem.num_stacks):
+                    ax.text(self.problem.stack_capacity / 2,
+                            idx,
+                            str(stacks[idx]),
+                            ha='center',
+                            va='center',
+                            color='darkgrey')
+
+        plt.show()
 
     @classmethod
     def from_file(cls, problem: Problem, location: str) -> Solution:
         """
         Reads a solution to the passed-in problem from the file system.
         """
-        pass  # TODO
+        solution = cls.empty(problem)
+
+        with open(location) as file:
+            data = file.readlines()
+
+            solution.routes = [Route([], []) for _ in range(int(data[2]))]
+
+            data = data[3:]  # first three lines are metadata
+
+        for line in data:
+            vehicle, node, stack, *items = line.strip().split(",")
+
+            idx_route = int(vehicle[1]) - 1
+            assert idx_route >= 0
+
+            route = solution.routes[idx_route]
+
+            idx_stack = int(stack[1]) - 1
+            assert idx_stack >= 0
+
+            if idx_stack == 0:
+                route.plan.append(Stacks(problem.num_stacks))
+
+            customer = int(node) - 1
+
+            if customer != DEPOT:
+                route.customers.append(customer)
+
+            route.plan[-1].stacks[idx_stack] = Stack.from_strings(items,
+                                                                  problem)
+
+        return solution
 
     def to_file(self, location: str):
         """

@@ -1,12 +1,12 @@
 import sys
 
 from alns import ALNS
-from alns.criteria import HillClimbing
 from numpy.random import RandomState
 
 from .classes import Problem
-from .initial_solution import initial_solution
+from .constants import CRITERION, DECAY, WEIGHTS
 from .destroy_operators import D_OPERATORS
+from .initial_solution import initial_solution
 from .repair_operators import R_OPERATORS
 
 
@@ -16,6 +16,7 @@ def main():
 
     problem = Problem.from_file(sys.argv[1], delimiter=',')
     init = initial_solution(problem)
+    init.plot()
 
     alns = ALNS(RandomState(problem.instance))
 
@@ -25,10 +26,11 @@ def main():
     for r_op in R_OPERATORS:
         alns.add_repair_operator(r_op)
 
-    # result = alns.iterate(init, [25, 5, 1, 1], 0.8, HillClimbing())
+    #result = alns.iterate(init, WEIGHTS, DECAY, CRITERION, iterations=100)
     # TODO post-processing?
 
     init.to_file(f"solutions/oracs_{problem.instance}.csv")
+    #result.best_state.to_file(f"solutions/oracs_{problem.instance}.csv")
 
 
 if __name__ == "__main__":

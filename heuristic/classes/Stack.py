@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import Deque, Set
+from typing import Deque, List, Set
 
+from heuristic.constants import DEPOT
 from .Item import Item
+from .Problem import Problem
 
 
 class Stack:
@@ -62,6 +64,32 @@ class Stack:
     def volume(self) -> float:
         return sum(self.stack[idx].volume
                    for idx in range(len(self.stack)))
+
+    @classmethod
+    def from_strings(cls, items: List[str], problem: Problem) -> Stack:
+        """
+        (Re)constructs a Stack instance from the string representation of a
+        solution output.
+        """
+        stack = Stack()
+
+        for str_item in items:
+            if not str_item:
+                continue
+
+            typ, cust = str_item[0], str_item[1:]
+            assert typ in {"d", "p"}
+
+            customer = int(cust) - 1
+
+            if typ == "d":
+                item = Item(problem.demands[customer], DEPOT, customer)
+            else:
+                item = Item(problem.pickups[customer], customer, DEPOT)
+
+            stack.push_rear(item)
+
+        return stack
 
     def __str__(self):
         """
