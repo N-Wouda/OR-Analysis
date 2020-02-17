@@ -7,6 +7,8 @@ from .Item import Item
 from .Problem import Problem
 from .Stack import Stack
 
+import copy
+
 
 class Stacks:
     stacks: List[Stack]
@@ -22,6 +24,10 @@ class Stacks:
 
     def __getitem__(self, idx: int):
         return self.stacks[idx]
+
+    def copy(self):
+        tmp = copy.deepcopy(self)
+        return tmp
 
     @staticmethod
     def cost(customer: int,

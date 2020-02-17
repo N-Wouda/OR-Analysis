@@ -73,15 +73,16 @@ class Route:
         idx = self.customers.index(customer)
 
         # Removes customer delivery item from the loading plan.
-        for stacks in self.plan[:(idx - 1)]:
+        for stacks in self.plan[:idx]:
             stack = stacks.find_stack(delivery)
             stack.remove(delivery)
 
         # Removes customer pickup item from the loading plan.
-        for stacks in self.plan[idx:]:
+        for stacks in self.plan[(idx + 1):]:
             stack = stacks.find_stack(pickup)
             stack.remove(pickup)
 
         # And finally, removes the customer itself.
         del self.customers[idx]
+        del self.plan[idx]
         self._customers.remove(customer)

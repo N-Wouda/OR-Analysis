@@ -21,5 +21,8 @@ def random_customer_removal(current: Solution,
         for route in destroyed.routes:
             if customer in route:
                 route.remove_customer(customer, destroyed.problem)
+            if not route.customers:
+                # remove route if empty
+                destroyed.routes.remove(route)
 
     return destroyed
