@@ -18,6 +18,8 @@ def all_demands_are_satisfied(solution: Solution) -> Tuple[bool, str]:
 
         for stacks in route.plan[:route.customers.index(customer) + 1]:
             try:
+                # Quickly finds the stack this item is stored in, or raises
+                # if no such stack exists. Just the existence is sufficient.
                 stacks.find_stack(delivery)
             except ValueError:
                 return False, f"{delivery} is not in the solution for all " \

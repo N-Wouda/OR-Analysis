@@ -7,7 +7,7 @@ from heuristic.constants import DEPOT
 # TODO deduplicate this
 def all_pickups_are_satisfied(solution: Solution) -> Tuple[bool, str]:
     """
-    Verifies all demands are satisfied, that is, the demanded items are loaded
+    Verifies all pickups are satisfied, that is, the pickup items are loaded
     according to a feasible loading plan for each customer.
     """
     for customer in range(solution.problem.num_customers):
@@ -18,6 +18,8 @@ def all_pickups_are_satisfied(solution: Solution) -> Tuple[bool, str]:
 
         for stacks in route.plan[route.customers.index(customer) + 1:]:
             try:
+                # Quickly finds the stack this item is stored in, or raises
+                # if no such stack exists. Just the existence is sufficient.
                 stacks.find_stack(pickup)
             except ValueError:
                 return False, f"{pickup} is not in the solution for all " \
