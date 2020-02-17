@@ -101,12 +101,12 @@ class Solution(State):
         for line in data:
             vehicle, node, stack, *items = line.strip().split(",")
 
-            idx_route = int(vehicle[1]) - 1
+            idx_route = int(vehicle[1:]) - 1
             assert idx_route >= 0
 
             route = solution.routes[idx_route]
 
-            idx_stack = int(stack[1]) - 1
+            idx_stack = int(stack[1:]) - 1
             assert idx_stack >= 0
 
             if idx_stack == 0:
