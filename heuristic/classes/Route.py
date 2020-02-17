@@ -51,3 +51,16 @@ class Route:
             cost += Stacks.cost(customer, problem, before, after)
 
         return cost
+
+    def remove_customer(self, customer: int):
+        """
+        Removes customer from route and items with the customer as destination
+        or origin from the loading plan.
+        """
+        self.customers.remove(customer)
+
+        for stacks in self.plan:
+            for stack in stacks:
+                for item in stack.stack:
+                    if item.destination == customer or item.origin == customer:
+                        stack.stack.remove(item)
