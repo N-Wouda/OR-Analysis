@@ -44,8 +44,7 @@ class Route:
         """
         Computes the handling cost of the current loading plan. This is done
         by determining the cost of the mutations at each customer. Runs in
-        about O(|customers| * num_stacks * n), where n is the number of items
-        in a stack.
+        about O(|customers| * n), where n is the number of items in a stack.
         """
         assert len(self.customers) + 1 == len(self.plan)
 

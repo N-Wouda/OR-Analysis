@@ -34,8 +34,7 @@ class Stacks:
              after: Stacks) -> float:
         """
         Determines the cost of the mutations made between the before and after
-        ``Stacks``. This is in O(num_stacks * n), where n is the number of
-        items in a stack.
+        ``Stacks``. This is in O(n), where n is the number of items in a stack.
         """
         delivery = Item(problem.demands[customer], DEPOT, customer)
         pickup = Item(problem.pickups[customer], customer, DEPOT)
