@@ -3,9 +3,11 @@ from typing import Callable, List
 from numpy.random import RandomState
 
 from heuristic.classes import Solution
-from .random_customer_removal import random_customer_removal
+from .random_customers import random_customers
+from .random_route import random_route
 
 D_OPERATORS: List[Callable[[Solution, RandomState], Solution]] = [
-    random_customer_removal,
+    random_customers,
+    random_route,
     # TODO
 ]

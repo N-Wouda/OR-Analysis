@@ -4,8 +4,7 @@ from heuristic.classes import Solution
 from heuristic.functions import customers_to_remove
 
 
-def random_customer_removal(current: Solution,
-                            rnd_state: RandomState) -> Solution:
+def random_customers(current: Solution, rnd_state: RandomState) -> Solution:
     """
     Removes a number of randomly selected customers from the passed-in solution.
     See ``customers_to_remove`` for the degree of destruction done.
