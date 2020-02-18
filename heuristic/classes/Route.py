@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List, Set, Tuple
 
 import numpy as np
 
@@ -57,50 +57,54 @@ class Route:
 
         return cost
 
-    def is_feasible(self, problem: Problem, customer: int) -> bool:
+    def can_insert(self, customer: int, at: int, problem: Problem) -> bool:
         """
-        Checks if inserting a customer in this route is feasible.
+        Checks if inserting a customer into this route at the given index at is
+        feasible, that is, there is sufficient stack capacity to store the
+        delivery and pickup items for the appropriate legs of the tour.
+
+        O(n * |num_stacks|), where n is the number of customers in the route.
         """
-        delivery = Item(problem.demands[customer], DEPOT, customer)
-        pickup = Item(problem.pickups[customer], customer, DEPOT)
+        d_volume = problem.demands[customer]
+        p_volume = problem.pickups[customer]
+        max_capacity = problem.stack_capacity
 
-        if all(stacks.shortest_stack().volume() + delivery.volume <=
-               problem.stack_capacity for stacks in self.plan[:customer]) and \
-                all(stacks.shortest_stack().volume() + pickup.volume <=
-                    problem.stack_capacity for stacks in self.plan[customer:]):
-            return True
-        return False
+        can_pickup = all(stacks.shortest_stack().volume() + p_volume <=
+                         max_capacity for stacks in self.plan[at + 1:])
 
-    def insert_cost(self, problem: Problem, idx: int, customer: int) -> float:
+        can_deliver = all(stacks.shortest_stack().volume() + d_volume <=
+                          max_capacity for stacks in self.plan[:at + 1])
+
+        return can_pickup and can_deliver
+
+    def insert_cost(self, customer: int, at: int, problem: Problem) -> float:
         """
-        Computes cost of inserting customer in route at idx.
+        Computes cost of inserting customer in route at position at.
         """
-        full_route = np.array([DEPOT, *self.customers, DEPOT])
-        full_route += 1
+        if at == 0:
+            route = [DEPOT, customer, self.customers[0]]
+        elif at == len(self.customers):
+            route = [self.customers[-1], customer, DEPOT]
+        else:
+            route = [self.customers[at - 1], customer, self.customers[at]]
 
-        idx += 1
+        route = np.array(route) + 1
 
-        result = problem.distances[full_route[idx - 1], customer + 1] + \
-                 problem.distances[customer + 1, full_route[idx]]
+        return problem.distances[route[0], route[1]] \
+               + problem.distances[route[1], route[2]]
 
-        return result
-
-    def opt_insert(self, problem: Problem, customer: int) -> int:
+    def opt_insert(self, customer: int, problem: Problem) -> Tuple[int, float]:
         """
         Optimal location and cost to input customer in route, does not check
         feasibility.
         """
-        full_route = np.array([DEPOT, *self.customers, DEPOT])
-        full_route += 1
+        costs = [self.insert_cost(customer, at, problem)
+                 for at in range(len(self.customers) + 1)]
 
-        insertion_costs = np.full(len(full_route) - 1, np.inf)
+        opt_idx = np.argmin(costs).item()
+        opt_cost = costs[opt_idx]
 
-        for it, (first, second) in enumerate(zip(full_route, full_route[1:])):
-            insertion_costs[it] = \
-                problem.distances[first, customer + 1] \
-                + problem.distances[customer + 1, second]
-
-        return np.argmin(insertion_costs)
+        return opt_idx, opt_cost
 
     def remove_customer(self, customer: int, problem: Problem):
         """

@@ -20,15 +20,14 @@ def greedy_insert(current: Solution, rnd_state: RandomState) -> Solution:
         routes = []
 
         for route in current.routes:
-            idx = route.opt_insert(current.problem, customer)
-            cost = route.insert_cost(current.problem, idx, customer)
+            idx, cost = route.opt_insert(customer, current.problem)
 
-            if route.is_feasible(current.problem, idx):
+            if route.can_insert(customer, idx, current.problem):
                 routes.append((cost, idx, route))
 
         heapify(routes)
 
-        cost, idx_customer, route = heappop(routes)
+        cost, insert_idx, route = heappop(routes)
         cost_new = Route([DEPOT, customer], []).routing_cost(current.problem)
 
         if cost_new < cost:  # a new route is the cheapest action
@@ -45,20 +44,19 @@ def greedy_insert(current: Solution, rnd_state: RandomState) -> Solution:
             delivery = Item(current.problem.demands[customer], DEPOT, customer)
             pickup = Item(current.problem.pickups[customer], customer, DEPOT)
 
-            route.customers.insert(idx_customer, customer)
+            route.customers.insert(insert_idx, customer)
             route._set.add(customer)  # TODO this is not very nice
 
             # insert handling plan at added customer
-            stack_after_customer = Stacks.copy(route.plan[idx_customer])
-
-            route.plan.insert(idx_customer + 1, stack_after_customer)
+            stack_after_customer = Stacks.copy(route.plan[insert_idx])
+            route.plan.insert(insert_idx + 1, stack_after_customer)
 
             # insert for delivery in all stacks before customer
-            for plan in route.plan[:idx_customer + 1]:
+            for plan in route.plan[:insert_idx + 1]:
                 plan.shortest_stack().push_rear(delivery)
 
             # insert pickup for all stacks after customer
-            for plan in route.plan[idx_customer + 1:]:
+            for plan in route.plan[insert_idx + 1:]:
                 plan.shortest_stack().push_rear(pickup)
 
     return current
