@@ -57,6 +57,51 @@ class Route:
 
         return cost
 
+    def is_feasible(self, problem: Problem, customer: int) -> bool:
+        """
+        Checks if inserting a customer in this route is feasible.
+        """
+        delivery = Item(problem.demands[customer], DEPOT, customer)
+        pickup = Item(problem.pickups[customer], customer, DEPOT)
+
+        if all(stacks.shortest_stack().volume() + delivery.volume <=
+               problem.stack_capacity for stacks in self.plan[:customer]) and \
+                all(stacks.shortest_stack().volume() + pickup.volume <=
+                    problem.stack_capacity for stacks in self.plan[customer:]):
+            return True
+        return False
+
+    def insert_cost(self, problem: Problem, idx: int, customer: int) -> float:
+        """
+        Computes cost of inserting customer in route at idx.
+        """
+        full_route = np.array([DEPOT, *self.customers, DEPOT])
+        full_route += 1
+
+        idx += 1
+
+        result = problem.distances[full_route[idx - 1], customer + 1] + \
+                 problem.distances[customer + 1, full_route[idx]]
+
+        return result
+
+    def opt_insert(self, problem: Problem, customer: int) -> int:
+        """
+        Optimal location and cost to input customer in route, does not check
+        feasibility.
+        """
+        full_route = np.array([DEPOT, *self.customers, DEPOT])
+        full_route += 1
+
+        insertion_costs = np.full(len(full_route) - 1, np.inf)
+
+        for it, (first, second) in enumerate(zip(full_route, full_route[1:])):
+            insertion_costs[it] = \
+                problem.distances[first, customer + 1] \
+                + problem.distances[customer + 1, second]
+
+        return np.argmin(insertion_costs)
+
     def remove_customer(self, customer: int, problem: Problem):
         """
         Removes the passed-in customer from this route, and updates the
