@@ -26,21 +26,21 @@ class Route:
         Computes the cost (objective) value of this route, based on the
         distance and handling costs.
         """
-        return self._route_cost(problem) + self._plan_cost(problem)
+        return self.routing_cost(problem) + self.handling_cost(problem)
 
-    def _route_cost(self, problem: Problem) -> float:
+    def routing_cost(self, problem: Problem) -> float:
         """
         Determines the route cost connecting the passed-in customers. Assumes
         the DEPOT is excluded in the customers list; it will be added here.
         O(|customers|).
         """
-        customers = np.array([DEPOT, *self.customers, DEPOT])
+        customers = np.array(self.customers + [DEPOT])
         customers += 1
 
-        return sum(problem.distances[first, second]
-                   for first, second in zip(customers, customers[1:]))
+        # See e.g. https://stackoverflow.com/a/53276900/4316405
+        return problem.distances[customers, np.roll(customers, 1)].sum()
 
-    def _plan_cost(self, problem: Problem) -> float:
+    def handling_cost(self, problem: Problem) -> float:
         """
         Computes the handling cost of the current loading plan. This is done
         by determining the cost of the mutations at each customer. Runs in
