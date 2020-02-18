@@ -38,7 +38,7 @@ class Route:
         customers += 1
 
         # See e.g. https://stackoverflow.com/a/53276900/4316405
-        return problem.distances[customers, np.roll(customers, 1)].sum()
+        return problem.distances[np.roll(customers, 1), customers].sum()
 
     def handling_cost(self, problem: Problem) -> float:
         """
