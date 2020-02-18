@@ -69,14 +69,14 @@ class Stacks:
 
     def find_stack(self, item: Item) -> Stack:
         """
-        Finds the stack the given item is stored in. Raises a ValueError when
+        Finds the stack the given item is stored in. Raises a LookupError when
         the item is not in any stacks. O(num_stacks).
         """
         for stack in self.stacks:
             if item in stack:
                 return stack
 
-        raise ValueError(f"Item {item} not in any stacks.")
+        raise LookupError(f"Item {item} not in any stacks.")
 
     def _first_stack(self, criterion: Callable[..., Stack]) -> Stack:
         return criterion(self.stacks, key=lambda stack: stack.volume())

@@ -16,7 +16,6 @@ def main():
 
     problem = Problem.from_file(sys.argv[1], delimiter=',')
     init = initial_solution(problem)
-    init.plot()
 
     alns = ALNS(RandomState(problem.instance))
 
