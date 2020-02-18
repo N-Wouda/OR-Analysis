@@ -4,7 +4,7 @@ from alns import ALNS
 from numpy.random import RandomState
 
 from .classes import Problem
-from .constants import CRITERION, DECAY, WEIGHTS
+from .constants import CRITERION, DECAY, ITERATIONS, WEIGHTS
 from .destroy_operators import D_OPERATORS
 from .initial_solution import initial_solution
 from .repair_operators import R_OPERATORS
@@ -25,7 +25,7 @@ def main():
     for r_op in R_OPERATORS:
         alns.add_repair_operator(r_op)
 
-    result = alns.iterate(init, WEIGHTS, DECAY, CRITERION, iterations=100)
+    result = alns.iterate(init, WEIGHTS, DECAY, CRITERION, ITERATIONS)
     # TODO post-processing?
 
     result.best_state.to_file(f"solutions/oracs_{problem.instance}.csv")
