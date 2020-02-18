@@ -28,23 +28,23 @@ def greedy_insert(current: Solution, rnd_state: RandomState) -> Solution:
 
         heapify(routes)
 
-        cost_new = current.problem.distances[DEPOT + 1, customer + 1] \
-                   + current.problem.distances[customer + 1, DEPOT + 1]
-
         cost, idx_customer, route = heappop(routes)
-
-        delivery = Item(current.problem.demands[customer], DEPOT, customer)
-        pickup = Item(current.problem.pickups[customer], customer, DEPOT)
+        cost_new = Route([DEPOT, customer], []).routing_cost(current.problem)
 
         if cost_new < cost:  # a new route is the cheapest action
             stacks = [Stacks(current.problem.num_stacks) for _ in range(2)]
+
+            delivery = Item(current.problem.demands[customer], DEPOT, customer)
+            pickup = Item(current.problem.pickups[customer], customer, DEPOT)
 
             stacks[0].shortest_stack().push_rear(delivery)
             stacks[1].shortest_stack().push_rear(pickup)
 
             current.routes.append(Route([customer], stacks))
         else:  # insert into lowest-cost, feasible route
-            # insert in cheapest route
+            delivery = Item(current.problem.demands[customer], DEPOT, customer)
+            pickup = Item(current.problem.pickups[customer], customer, DEPOT)
+
             route.customers.insert(idx_customer, customer)
             route._set.add(customer)  # TODO this is not very nice
 
