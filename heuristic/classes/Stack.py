@@ -16,10 +16,12 @@ class Stack:
     """
     stack: Deque[Item]
     _set: Set[Item]
+    _volume: float
 
     def __init__(self):
         self.stack = deque()
         self._set = set()
+        self._volume = 0.
 
     def __contains__(self, item: Item) -> bool:
         """
@@ -51,8 +53,9 @@ class Stack:
         """
         Places the item in the front of the truck (right). O(1).
         """
-        self._set.add(item)
         self.stack.append(item)
+        self._set.add(item)
+        self._volume += item.volume
 
     def push_rear(self, item: Item):
         """
@@ -60,10 +63,22 @@ class Stack:
         """
         self.stack.appendleft(item)
         self._set.add(item)
+        self._volume += item.volume
+
+    def remove(self, item: Item):
+        """
+        Removes the passed-in item from the stack. O(n), where n is the number
+        of items in the stack.
+        """
+        self.stack.remove(item)
+        self._set.remove(item)
+        self._volume -= item.volume
 
     def volume(self) -> float:
-        return sum(self.stack[idx].volume
-                   for idx in range(len(self.stack)))
+        """
+        Returns the currently used volume by the items in this stack. O(1).
+        """
+        return self._volume
 
     @classmethod
     def from_strings(cls, items: List[str], problem: Problem) -> Stack:
@@ -98,11 +113,3 @@ class Stack:
         items.
         """
         return ",".join(str(item) for item in reversed(self.stack))
-
-    def remove(self, item: Item):
-        """
-        Removes the passed-in item from the stack. O(n), where n is the number
-        of items in the stack.
-        """
-        self.stack.remove(item)
-        self._set.remove(item)
