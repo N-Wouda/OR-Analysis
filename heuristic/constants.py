@@ -7,4 +7,3 @@ DEGREE_OF_DESTRUCTION = 0.25
 WEIGHTS = [25, 5, 1, 1]
 DECAY = 0.8
 CRITERION = HillClimbing()
-

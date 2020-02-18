@@ -3,9 +3,9 @@ from typing import List, Set
 import numpy as np
 
 from heuristic.constants import DEPOT
+from .Item import Item
 from .Problem import Problem
 from .Stacks import Stacks
-from .Item import Item
 
 
 class Route:

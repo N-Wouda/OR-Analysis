@@ -1,4 +1,4 @@
-from ..constants import DEGREE_OF_DESTRUCTION
+from heuristic.constants import DEGREE_OF_DESTRUCTION
 
 
 def customers_to_remove(num_customers: int) -> int:

@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.random import RandomState
 
-from heuristic.classes import Item, Route, Solution, Stacks, Stack
+from heuristic.classes import Item, Route, Solution, Stacks
 from heuristic.constants import DEPOT
 
 
