@@ -1,5 +1,5 @@
+from heuristic.classes import Item, Problem, Route, Solution, Stacks
 from heuristic.constants import DEPOT
-from .classes import Item, Problem, Route, Solution, Stacks
 
 
 def initial_solution(problem: Problem) -> Solution:

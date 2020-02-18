@@ -1,8 +1,9 @@
-from typing import List, Set
+from typing import List, Set, Tuple
 
 import numpy as np
 
 from heuristic.constants import DEPOT
+from .Item import Item
 from .Problem import Problem
 from .Stacks import Stacks
 
@@ -17,7 +18,7 @@ class Route:
         self._set = set(customers)
         self.plan = plan
 
-    def __contains__(self, customer: int):
+    def __contains__(self, customer: int) -> bool:
         return customer in self._set
 
     def cost(self, problem: Problem) -> float:
@@ -25,26 +26,25 @@ class Route:
         Computes the cost (objective) value of this route, based on the
         distance and handling costs.
         """
-        return self._route_cost(problem) + self._plan_cost(problem)
+        return self.routing_cost(problem) + self.handling_cost(problem)
 
-    def _route_cost(self, problem: Problem) -> float:
+    def routing_cost(self, problem: Problem) -> float:
         """
         Determines the route cost connecting the passed-in customers. Assumes
         the DEPOT is excluded in the customers list; it will be added here.
         O(|customers|).
         """
-        customers = np.array([DEPOT, *self.customers, DEPOT])
+        customers = np.array(self.customers + [DEPOT])
         customers += 1
 
-        return sum(problem.distances[first, second]
-                   for first, second in zip(customers, customers[1:]))
+        # See e.g. https://stackoverflow.com/a/53276900/4316405
+        return problem.distances[np.roll(customers, 1), customers].sum()
 
-    def _plan_cost(self, problem: Problem) -> float:
+    def handling_cost(self, problem: Problem) -> float:
         """
         Computes the handling cost of the current loading plan. This is done
         by determining the cost of the mutations at each customer. Runs in
-        about O(|customers| * num_stacks * n), where n is the number of items
-        in a stack.
+        about O(|customers| * n), where n is the number of items in a stack.
         """
         assert len(self.customers) + 1 == len(self.plan)
 
@@ -56,3 +56,76 @@ class Route:
             cost += Stacks.cost(customer, problem, before, after)
 
         return cost
+
+    def can_insert(self, customer: int, at: int, problem: Problem) -> bool:
+        """
+        Checks if inserting a customer into this route at the given index at is
+        feasible, that is, there is sufficient stack capacity to store the
+        delivery and pickup items for the appropriate legs of the tour.
+
+        O(n * |num_stacks|), where n is the number of customers in the route.
+        """
+        d_volume = problem.demands[customer]
+        p_volume = problem.pickups[customer]
+        max_capacity = problem.stack_capacity
+
+        can_pickup = all(stacks.shortest_stack().volume() + p_volume <=
+                         max_capacity for stacks in self.plan[at + 1:])
+
+        can_deliver = all(stacks.shortest_stack().volume() + d_volume <=
+                          max_capacity for stacks in self.plan[:at + 1])
+
+        return can_pickup and can_deliver
+
+    def insert_cost(self, customer: int, at: int, problem: Problem) -> float:
+        """
+        Computes cost of inserting customer in route at position at.
+        """
+        if at == 0:
+            route = [DEPOT, customer, self.customers[0]]
+        elif at == len(self.customers):
+            route = [self.customers[-1], customer, DEPOT]
+        else:
+            route = [self.customers[at - 1], customer, self.customers[at]]
+
+        route = np.array(route) + 1
+
+        return problem.distances[route[0], route[1]] \
+               + problem.distances[route[1], route[2]]
+
+    def opt_insert(self, customer: int, problem: Problem) -> Tuple[int, float]:
+        """
+        Optimal location and cost to input customer in route, does not check
+        feasibility.
+        """
+        costs = [self.insert_cost(customer, at, problem)
+                 for at in range(len(self.customers) + 1)]
+
+        opt_idx = np.argmin(costs).item()
+        opt_cost = costs[opt_idx]
+
+        return opt_idx, opt_cost
+
+    def remove_customer(self, customer: int, problem: Problem):
+        """
+        Removes the passed-in customer from this route, and updates the
+        loading plan to reflect this change. O(n * m), where n is the tour
+        length, and m the length of the longest stack (in number of items).
+        """
+        delivery = Item(problem.demands[customer], DEPOT, customer)
+        pickup = Item(problem.pickups[customer], customer, DEPOT)
+
+        idx = self.customers.index(customer)
+
+        # Removes customer delivery item from the loading plan.
+        for stacks in self.plan[:idx + 1]:
+            stacks.find_stack(delivery).remove(delivery)
+
+        # Removes customer pickup item from the loading plan.
+        for stacks in self.plan[idx + 1:]:
+            stacks.find_stack(pickup).remove(pickup)
+
+        # Removes the customer and its loading plan.
+        del self.customers[idx]
+        self._set.remove(customer)
+        del self.plan[idx + 1]

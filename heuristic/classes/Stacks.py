@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Callable, List
+import copy
+from typing import Callable, List, Union
 
 from heuristic.constants import DEPOT
 from .Item import Item
@@ -23,6 +24,9 @@ class Stacks:
     def __getitem__(self, idx: int):
         return self.stacks[idx]
 
+    def copy(self) -> Stacks:
+        return copy.deepcopy(self)
+
     @staticmethod
     def cost(customer: int,
              problem: Problem,
@@ -30,16 +34,27 @@ class Stacks:
              after: Stacks) -> float:
         """
         Determines the cost of the mutations made between the before and after
-        ``Stacks``. This is in O(num_stacks * n), where n is the number of
-        items in a stack.
+        ``Stacks``. This is in O(n), where n is the number of items in a stack.
         """
         delivery = Item(problem.demands[customer], DEPOT, customer)
         pickup = Item(problem.pickups[customer], customer, DEPOT)
 
-        volume = before.find_stack(delivery).remove_volume(delivery)
-        volume += after.find_stack(pickup).remove_volume(pickup)
+        d_stack_idx = before.find_stack_index(delivery)
+        p_stack_idx = after.find_stack_index(pickup)
 
-        return problem.handling_cost * volume
+        d_volume = before[d_stack_idx].remove_volume(delivery)
+        p_volume = after[p_stack_idx].remove_volume(pickup)
+
+        if d_stack_idx != p_stack_idx:
+            # The delivery and pickup items are stored in different stacks. We
+            # pay for both delivery removal, and pickup insertion.
+            return problem.handling_cost * (d_volume + p_volume)
+        else:
+            # But now we have some synergy: those items removed to access the
+            # delivery item do not need to be removed *again* - only any excess
+            # volume must. This implies we only pay for the maximum volume
+            # actually removed from the stack.
+            return problem.handling_cost * max(d_volume, p_volume)
 
     def shortest_stack(self) -> Stack:
         """
@@ -66,11 +81,21 @@ class Stacks:
         Finds the stack the given item is stored in. Raises a LookupError when
         the item is not in any stacks. O(num_stacks).
         """
-        for stack in self.stacks:
-            if item in stack:
-                return stack
+        return self._find_stack(item, False)
 
-        raise LookupError(f"Item {item} not in any stacks.")
+    def find_stack_index(self, item: Item) -> int:
+        """
+        Finds the stack index the given item is stored in. Raises a LookupError
+        when the item is not in any stacks. O(num_stacks).
+        """
+        return self._find_stack(item, True)
 
     def _first_stack(self, criterion: Callable[..., Stack]) -> Stack:
         return criterion(self.stacks, key=lambda stack: stack.volume())
+
+    def _find_stack(self, item: Item, return_idx: bool) -> Union[Stack, int]:
+        for idx, stack in enumerate(self.stacks):
+            if item in stack:
+                return idx if return_idx else stack
+
+        raise LookupError(f"Item {item} not in any stacks.")
