@@ -43,6 +43,17 @@ class Solution(State):
 
         return solution
 
+    def find_route(self, customer: int) -> Route:
+        """
+        Finds and returns the Route containing the passed-in customer. Raises
+        a LookupError if no such Route exists. O(num_routes).
+        """
+        for route in self.routes:
+            if customer in route:
+                return route
+
+        raise LookupError(f"Customer {customer} is not understood.")
+
     def objective(self) -> float:
         """
         Evaluates the current solution.
@@ -94,32 +105,31 @@ class Solution(State):
         with open(location) as file:
             data = file.readlines()
 
-            solution.routes = [Route([], []) for _ in range(int(data[2]))]
-
-            data = data[3:]  # first three lines are metadata
+        routes = [([], []) for _ in range(int(data[2]))]
+        data = data[3:]  # first three lines are metadata
 
         for line in data:
             vehicle, node, stack, *items = line.strip().split(",")
 
-            idx_route = int(vehicle[1]) - 1
+            idx_route = int(vehicle[1:]) - 1
             assert idx_route >= 0
 
-            route = solution.routes[idx_route]
+            route = routes[idx_route]
 
-            idx_stack = int(stack[1]) - 1
+            idx_stack = int(stack[1:]) - 1
             assert idx_stack >= 0
 
             if idx_stack == 0:
-                route.plan.append(Stacks(problem.num_stacks))
+                route[1].append(Stacks(problem.num_stacks))
 
             customer = int(node) - 1
 
-            if customer != DEPOT:
-                route.customers.append(customer)
+            if customer != DEPOT and customer not in route:
+                route[0].append(customer)
 
-            route.plan[-1].stacks[idx_stack] = Stack.from_strings(items,
-                                                                  problem)
+            route[1][-1].stacks[idx_stack] = Stack.from_strings(items, problem)
 
+        solution.routes = [Route(*route) for route in routes]
         return solution
 
     def to_file(self, location: str):
