@@ -1,7 +1,6 @@
-import numpy as np
-from numpy.random import RandomState
-import heapq
+from heapq import heapify, heappop
 
+from numpy.random import RandomState
 
 from heuristic.classes import Item, Route, Solution, Stacks
 from heuristic.constants import DEPOT
@@ -9,41 +8,42 @@ from heuristic.constants import DEPOT
 
 def greedy_insert(current: Solution, rnd_state: RandomState) -> Solution:
     """
-    TODO.
+    Sequentially inserts each a random permutation of the unassigned customers
+    into their best, feasible route at a locally optimal leg of the tour.
+
+    Sequential best insertion in Hornstra et al. (2020).
     """
+    rnd_state.shuffle(current.unassigned)
 
     while len(current.unassigned) != 0:
         customer = current.unassigned.pop()
-        insertion_heap = []
+        routes = []
 
-        for idx_route, route in enumerate(current.routes):
+        for route in current.routes:
             idx = route.opt_insert(current.problem, customer)
             cost = route.insert_cost(current.problem, idx, customer)
 
             if route.is_feasible(current.problem, idx):
-                heapq.heappush(insertion_heap, (cost, idx, idx_route))
+                routes.append((cost, idx, route))
 
-        # Costs new route
-        cost_new_route = ([current.problem.distances[DEPOT + 1, customer + 1] +
-                           current.problem.distances[customer + 1, DEPOT + 1]])
-        heapq.heappush(insertion_heap, (cost_new_route, 0, len(current.routes)))
+        heapify(routes)
 
-        cost, idx_customer, idx_route = heapq.heappop(insertion_heap)
+        cost_new = current.problem.distances[DEPOT + 1, customer + 1] \
+                   + current.problem.distances[customer + 1, DEPOT + 1]
+
+        cost, idx_customer, route = heappop(routes)
 
         delivery = Item(current.problem.demands[customer], DEPOT, customer)
         pickup = Item(current.problem.pickups[customer], customer, DEPOT)
 
-        # If creating a new route is cheapest
-        if idx_route == len(current.routes):
+        if cost_new < cost:  # a new route is the cheapest action
             stacks = [Stacks(current.problem.num_stacks) for _ in range(2)]
 
             stacks[0].shortest_stack().push_rear(delivery)
             stacks[1].shortest_stack().push_rear(pickup)
 
             current.routes.append(Route([customer], stacks))
-        else:
-            route = current.routes[idx_route]
-
+        else:  # insert into lowest-cost, feasible route
             # insert in cheapest route
             route.customers.insert(idx_customer, customer)
             route._set.add(customer)  # TODO this is not very nice
