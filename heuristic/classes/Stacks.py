@@ -24,9 +24,8 @@ class Stacks:
     def __getitem__(self, idx: int):
         return self.stacks[idx]
 
-    def copy(self):
-        tmp = copy.deepcopy(self)
-        return tmp
+    def copy(self) -> Stacks:
+        return copy.deepcopy(self)
 
     @staticmethod
     def cost(customer: int,
