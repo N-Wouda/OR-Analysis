@@ -77,6 +77,29 @@ class Route:
 
         return can_pickup and can_deliver
 
+    def insert_customer(self, customer: int, at: int, problem: Problem):
+        """
+        Inserts customer in route at locotion at. Includes adding deliveries
+        and pickups to relevant stacks.
+        """
+        delivery = Item(problem.demands[customer], DEPOT, customer)
+        pickup = Item(problem.pickups[customer], customer, DEPOT)
+
+        self.customers.insert(at, customer)
+        self._set.add(customer)
+
+        # insert handling plan at added customer
+        stack_after_customer = Stacks.copy(self.plan[at])
+        self.plan.insert(at + 1, stack_after_customer)
+
+        # insert for delivery in all stacks before customer
+        for plan in self.plan[:at + 1]:
+            plan.shortest_stack().push_rear(delivery)
+
+        # insert pickup for all stacks after customer
+        for plan in self.plan[at + 1:]:
+            plan.shortest_stack().push_rear(pickup)
+
     def insert_cost(self, customer: int, at: int, problem: Problem) -> float:
         """
         Computes cost of inserting customer in route at position at.
