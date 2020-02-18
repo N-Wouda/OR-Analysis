@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from functools import lru_cache
+
 import numpy as np
 
 
@@ -19,6 +21,16 @@ class Problem:
     @property
     def stack_capacity(self):
         return self.capacity / self.num_stacks
+
+    @property
+    @lru_cache(1)
+    def inverse_distances(self):
+        """
+        Returns the inverse (reciprocal) of the distances matrix. This is used
+        as a measure of relatedness between customers.
+        """
+        distances = self.distances[1:, 1:]
+        return np.reciprocal(distances, where=distances > 0)
 
     @classmethod
     def from_file(cls, location: str, **kwargs) -> Problem:
