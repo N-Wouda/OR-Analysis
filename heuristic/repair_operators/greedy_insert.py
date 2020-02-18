@@ -41,22 +41,6 @@ def greedy_insert(current: Solution, rnd_state: RandomState) -> Solution:
 
             current.routes.append(Route([customer], stacks))
         else:  # insert into lowest-cost, feasible route
-            delivery = Item(current.problem.demands[customer], DEPOT, customer)
-            pickup = Item(current.problem.pickups[customer], customer, DEPOT)
-
-            route.customers.insert(insert_idx, customer)
-            route._set.add(customer)  # TODO this is not very nice
-
-            # insert handling plan at added customer
-            stack_after_customer = Stacks.copy(route.plan[insert_idx])
-            route.plan.insert(insert_idx + 1, stack_after_customer)
-
-            # insert for delivery in all stacks before customer
-            for plan in route.plan[:insert_idx + 1]:
-                plan.shortest_stack().push_rear(delivery)
-
-            # insert pickup for all stacks after customer
-            for plan in route.plan[insert_idx + 1:]:
-                plan.shortest_stack().push_rear(pickup)
+            route.insert_customer(customer, insert_idx, current.problem)
 
     return current

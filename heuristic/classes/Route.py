@@ -77,34 +77,43 @@ class Route:
 
         return can_pickup and can_deliver
 
-    def insert_cost(self, customer: int, at: int, problem: Problem) -> float:
-        """
-        Computes cost of inserting customer in route at position at.
-        """
-        if at == 0:
-            route = [DEPOT, customer, self.customers[0]]
-        elif at == len(self.customers):
-            route = [self.customers[-1], customer, DEPOT]
-        else:
-            route = [self.customers[at - 1], customer, self.customers[at]]
-
-        route = np.array(route) + 1
-
-        return problem.distances[route[0], route[1]] \
-               + problem.distances[route[1], route[2]]
-
     def opt_insert(self, customer: int, problem: Problem) -> Tuple[int, float]:
         """
-        Optimal location and cost to input customer in route, does not check
-        feasibility.
+        Optimal location and cost to insert customer into this route. Assumes it
+        is feasible to do so.
         """
-        costs = [self.insert_cost(customer, at, problem)
+        costs = [self._insert_cost(customer, at, problem)
                  for at in range(len(self.customers) + 1)]
 
         opt_idx = np.argmin(costs).item()
         opt_cost = costs[opt_idx]
 
         return opt_idx, opt_cost
+
+    def insert_customer(self, customer: int, at: int, problem: Problem):
+        """
+        Inserts customer in route at index at. Inserts customer delivery and
+        pickup items into the appropriate parts of the loading plan. Assumes it
+        is feasible to do so.
+        """
+        delivery = Item(problem.demands[customer], DEPOT, customer)
+        pickup = Item(problem.pickups[customer], customer, DEPOT)
+
+        self.customers.insert(at, customer)
+        self._set.add(customer)
+
+        # Makes a new loading plan for the just-inserted customer. This
+        # initially looks like the loading plan for the previous customer.
+        stack_after_customer = self.plan[at].copy()
+        self.plan.insert(at + 1, stack_after_customer)
+
+        # Inserts customer delivery item into the loading plan.
+        for plan in self.plan[:at + 1]:
+            plan.shortest_stack().push_rear(delivery)
+
+        # Inserts customer pickup item into the loading plan.
+        for plan in self.plan[at + 1:]:
+            plan.shortest_stack().push_rear(pickup)
 
     def remove_customer(self, customer: int, problem: Problem):
         """
@@ -129,3 +138,19 @@ class Route:
         del self.customers[idx]
         self._set.remove(customer)
         del self.plan[idx + 1]
+
+    def _insert_cost(self, customer: int, at: int, problem: Problem) -> float:
+        """
+        Computes cost of inserting customer in route at position at.
+        """
+        if at == 0:
+            route = [DEPOT, customer, self.customers[0]]
+        elif at == len(self.customers):
+            route = [self.customers[-1], customer, DEPOT]
+        else:
+            route = [self.customers[at - 1], customer, self.customers[at]]
+
+        route = np.array(route) + 1
+
+        return problem.distances[route[0], route[1]] \
+               + problem.distances[route[1], route[2]]
