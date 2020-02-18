@@ -60,9 +60,8 @@ class Route:
     def remove_customer(self, customer: int, problem: Problem):
         """
         Removes the passed-in customer from this route, and updates the
-        loading plan to reflect this change. O(n * m), where n is the number
-        of customers, and m the length of the longest stack (in number of
-        items).
+        loading plan to reflect this change. O(n * m), where n is the tour
+        length, and m the length of the longest stack (in number of items).
         """
         delivery = Item(problem.demands[customer], DEPOT, customer)
         pickup = Item(problem.pickups[customer], customer, DEPOT)
