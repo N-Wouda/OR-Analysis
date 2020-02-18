@@ -104,6 +104,8 @@ class Solution(State):
     def from_file(cls, problem: Problem, location: str) -> Solution:
         """
         Reads a solution to the passed-in problem from the file system.
+
+        TODO perhaps rewrite this.
         """
         solution = cls.empty(problem)
 
@@ -129,7 +131,8 @@ class Solution(State):
 
             customer = int(node) - 1
 
-            if customer != DEPOT and customer not in route:
+            # TODO this is slow - check if this works for larger instances.
+            if customer != DEPOT and customer not in route[0]:
                 route[0].append(customer)
 
             route[1][-1].stacks[idx_stack] = Stack.from_strings(items, problem)
