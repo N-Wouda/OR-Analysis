@@ -64,8 +64,6 @@ class Route:
         loading plan to reflect this change. O(n * m), where n is the number
         of customers, and m the length of the longest stack (in number of
         items).
-
-        TODO this must be done faster.
         """
         delivery = Item(problem.demands[customer], DEPOT, customer)
         pickup = Item(problem.pickups[customer], customer, DEPOT)
@@ -73,16 +71,16 @@ class Route:
         idx = self.customers.index(customer)
 
         # Removes customer delivery item from the loading plan.
-        for stacks in self.plan[:idx]:
+        for stacks in self.plan[:idx + 1]:
             stack = stacks.find_stack(delivery)
             stack.remove(delivery)
 
         # Removes customer pickup item from the loading plan.
-        for stacks in self.plan[(idx + 1):]:
+        for stacks in self.plan[idx + 1:]:
             stack = stacks.find_stack(pickup)
             stack.remove(pickup)
 
-        # And finally, removes the customer itself.
+        # Removes the customer and its loading plan.
         del self.customers[idx]
-        del self.plan[idx]
-        self._customers.remove(customer)
+        self._set.remove(customer)
+        del self.plan[idx + 1]

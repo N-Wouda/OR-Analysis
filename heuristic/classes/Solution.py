@@ -93,6 +93,11 @@ class Solution(State):
                             va='center',
                             color='darkgrey')
 
+            # Hide empty route cells (these are used by some routes, but not
+            # all).
+            for col in range(len(route.plan), n_cols):
+                axes[row, col].set_axis_off()
+
         plt.show()
 
     @classmethod
