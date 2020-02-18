@@ -28,7 +28,7 @@ def greedy_insert(current: Solution, rnd_state: RandomState) -> Solution:
         heapify(routes)
 
         cost, insert_idx, route = heappop(routes)
-        cost_new = Route([DEPOT, customer], []).routing_cost(current.problem)
+        cost_new = Route([customer], []).routing_cost(current.problem)
 
         if cost_new < cost:  # a new route is the cheapest action
             stacks = [Stacks(current.problem.num_stacks) for _ in range(2)]
