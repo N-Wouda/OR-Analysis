@@ -1,4 +1,5 @@
 from numpy.random import RandomState
+import numpy as np
 
 from heuristic.classes import Solution
 from heuristic.functions import create_single_customer_route
@@ -10,26 +11,33 @@ def random_repair(current: Solution, rnd_state: RandomState) -> Solution:
     feasible location in the Solution.
 
     Random repair in Hornstra et al. (2020).
+
+    Tries inserting in one location per route, if it is non feasible for every
+    route, creates a new route.
     """
     rnd_state.shuffle(current.unassigned)
 
     while len(current.unassigned) != 0:
         customer = current.unassigned.pop()
 
-        while True:
-            idx_route = rnd_state.randint(len(current.routes) + 1)
+        indices_routes = np.arange(len(current.routes))
+        rnd_state.shuffle(indices_routes)
 
-            if idx_route < len(current.routes):
-                route = current.routes[idx_route]
-                insert_idx = rnd_state.randint(len(route.customers))
+        inserted = False
 
-                if route.can_insert(customer, insert_idx, current.problem):
-                    route.insert_customer(customer, insert_idx, current.problem)
+        for idx_route in indices_routes:
+            route = current.routes[idx_route]
 
-                    return current
+            insert_idx = rnd_state.randint(
+                len(current.routes[idx_route].customers))
 
-            else:
-                route = create_single_customer_route(customer, current.problem)
-                current.routes.append(route)
+            if route.can_insert(customer, insert_idx, current.problem):
+                route.insert_customer(customer, insert_idx, current.problem)
+                inserted = True
+                break
 
-                return current
+        if not inserted:
+            route = create_single_customer_route(customer, current.problem)
+            current.routes.append(route)
+
+    return current

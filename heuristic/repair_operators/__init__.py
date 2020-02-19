@@ -8,6 +8,6 @@ from .random_repair import random_repair
 
 R_OPERATORS: List[Callable[[Solution, RandomState], Solution]] = [
     greedy_insert,
-    random_repair,
+    random_repair
     # TODO
 ]
