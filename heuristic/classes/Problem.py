@@ -27,7 +27,8 @@ class Problem:
     def inverse_distances(self):
         """
         Returns the inverse (reciprocal) of the distances matrix. This is used
-        as a measure of relatedness between customers.
+        as a measure of relatedness between customers. Only returns distances
+        *between* customers, that is, excludes the depot.
         """
         distances = self.distances[1:, 1:]
         return np.reciprocal(distances, where=distances > 0)
