@@ -8,6 +8,8 @@ def random_route(current: Solution, rnd_state: RandomState) -> Solution:
     Randomly removes a single route from the current solution. This runs in time
     O(n), where n is the number of customers.
 
+    # TODO make this work exactly like in the Hornstra paper?
+
     Similar to route removal in Hornstra et al. (2020).
     """
     destroyed = current.copy()

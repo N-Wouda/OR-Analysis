@@ -24,14 +24,16 @@ class Problem:
 
     @property
     @lru_cache(1)
-    def inverse_distances(self):
+    def nearest_customers(self) -> np.ndarray:
         """
-        Returns the inverse (reciprocal) of the distances matrix. This is used
-        as a measure of relatedness between customers. Only returns distances
-        *between* customers, that is, excludes the depot.
+        Returns the customers nearest to each other customer, as a matrix. Each
+        row gives a customer, all columns values the nearest customers in
+        increasing order.
+
+        Note: first column is the customer itself, as the distance to self is
+        zero.
         """
-        distances = self.distances[1:, 1:]
-        return np.reciprocal(distances, where=distances > 0)
+        return np.argsort(self.distances[1:, 1:], axis=1)
 
     @classmethod
     def from_file(cls, location: str, **kwargs) -> Problem:

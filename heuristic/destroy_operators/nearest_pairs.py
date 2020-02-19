@@ -9,24 +9,34 @@ from heuristic.functions import customers_to_remove, remove_empty_routes
 def nearest_pairs(current: Solution, rnd_state: RandomState) -> Solution:
     """
     Removes customers from the solution that are near each other in distance.
-    # TODO verify and think a bit more about this
 
     Related removal in Hornstra et al. (2020).
     """
     destroyed = current.copy()
-    num_customers = current.problem.num_customers
 
-    closest = np.argmax(current.problem.inverse_distances, axis=1)
-    relatedness = current.problem.inverse_distances[np.arange(num_customers),
-                                                    closest]
+    to_remove = customers_to_remove(destroyed.problem.num_customers)
+    customer = rnd_state.randint(destroyed.problem.num_customers)
 
-    customers = np.argsort(relatedness)
+    removed_set = {customer}
+    removed_list = [customer]
+    _remove(customer, destroyed)
 
-    for idx in range(customers_to_remove(num_customers)):
-        customer = customers[-idx - 1]
-        destroyed.unassigned.append(customer)
+    while len(removed_set) != to_remove:
+        customer = rnd_state.choice(removed_list)
 
-        route = destroyed.find_route(customer)
-        route.remove_customer(customer, destroyed.problem)
+        for other in destroyed.problem.nearest_customers[customer]:
+            if other not in removed_set:
+                removed_set.add(other)
+                removed_list.append(other)
+                _remove(other, destroyed)
+
+                break
+
+    destroyed.unassigned = removed_list
 
     return destroyed
+
+
+def _remove(customer: int, destroyed: Solution):
+    route = destroyed.find_route(customer)
+    route.remove_customer(customer, destroyed.problem)
