@@ -1,9 +1,7 @@
-from heapq import heapify, heappop
-
 from numpy.random import RandomState
 
-from heuristic.classes import Item, Route, Solution, Stacks
-from heuristic.constants import DEPOT
+from heuristic.classes import Route, Solution
+from heuristic.functions import create_single_customer_route
 
 
 def greedy_insert(current: Solution, rnd_state: RandomState) -> Solution:
@@ -17,30 +15,23 @@ def greedy_insert(current: Solution, rnd_state: RandomState) -> Solution:
 
     while len(current.unassigned) != 0:
         customer = current.unassigned.pop()
-        routes = []
+        feasible_routes = []
 
         for route in current.routes:
-            idx, cost = route.opt_insert(customer, current.problem)
+            insert_idx, cost = route.opt_insert(customer, current.problem)
 
-            if route.can_insert(customer, idx, current.problem):
-                routes.append((cost, idx, route))
+            if route.can_insert(customer, insert_idx, current.problem):
+                feasible_routes.append((cost, insert_idx, route))
 
-        heapify(routes)
+        if len(feasible_routes) != 0:
+            cost, insert_idx, route = min(feasible_routes)
+            cost_new = Route([customer], []).routing_cost(current.problem)
 
-        cost, insert_idx, route = heappop(routes)
-        cost_new = Route([customer], []).routing_cost(current.problem)
+            if cost_new > cost:
+                route.insert_customer(customer, insert_idx, current.problem)
+                continue
 
-        if cost_new < cost:  # a new route is the cheapest action
-            stacks = [Stacks(current.problem.num_stacks) for _ in range(2)]
-
-            delivery = Item(current.problem.demands[customer], DEPOT, customer)
-            pickup = Item(current.problem.pickups[customer], customer, DEPOT)
-
-            stacks[0].shortest_stack().push_rear(delivery)
-            stacks[1].shortest_stack().push_rear(pickup)
-
-            current.routes.append(Route([customer], stacks))
-        else:  # insert into lowest-cost, feasible route
-            route.insert_customer(customer, insert_idx, current.problem)
+        route = create_single_customer_route(customer, current.problem)
+        current.routes.append(route)
 
     return current
