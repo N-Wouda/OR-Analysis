@@ -10,6 +10,6 @@ from .random_route import random_route
 D_OPERATORS: List[Callable[[Solution, RandomState], Solution]] = [
     nearest_pairs,
     random_customers,
-    random_route
+    random_route,
     # TODO
 ]
