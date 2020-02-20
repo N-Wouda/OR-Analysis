@@ -28,16 +28,15 @@ class Stacks:
         return copy.deepcopy(self)
 
     @staticmethod
-    def cost(customer: int,
-             problem: Problem,
-             before: Stacks,
-             after: Stacks) -> float:
+    def cost(customer: int, before: Stacks, after: Stacks) -> float:
         """
         Determines the cost of the mutations made between the before and after
         ``Stacks``. This is in O(n), where n is the number of items in a stack.
         """
-        delivery = Item(problem.demands[customer], DEPOT, customer)
-        pickup = Item(problem.pickups[customer], customer, DEPOT)
+        problem = Problem()
+
+        delivery = problem.demands[customer]
+        pickup = problem.pickups[customer]
 
         d_stack_idx = before.find_stack_index(delivery)
         p_stack_idx = after.find_stack_index(pickup)

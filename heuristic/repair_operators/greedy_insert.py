@@ -18,20 +18,20 @@ def greedy_insert(current: Solution, rnd_state: RandomState) -> Solution:
         feasible_routes = []
 
         for route in current.routes:
-            insert_idx, cost = route.opt_insert(customer, current.problem)
+            insert_idx, cost = route.opt_insert(customer)
 
-            if route.can_insert(customer, insert_idx, current.problem):
+            if route.can_insert(customer, insert_idx):
                 feasible_routes.append((cost, insert_idx, route))
 
         if len(feasible_routes) != 0:
             cost, insert_idx, route = min(feasible_routes)
-            cost_new = Route([customer], []).routing_cost(current.problem)
+            cost_new = Route([customer], []).routing_cost()
 
             if cost_new > cost:
-                route.insert_customer(customer, insert_idx, current.problem)
+                route.insert_customer(customer, insert_idx)
                 continue
 
-        route = create_single_customer_route(customer, current.problem)
+        route = create_single_customer_route(customer)
         current.routes.append(route)
 
     return current

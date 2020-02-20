@@ -15,9 +15,7 @@ from .Stacks import Stacks
 
 
 class Solution(State):
-    problem: Problem
     routes: List[Route]
-
     unassigned: List[int]
 
     def copy(self) -> Solution:
@@ -25,19 +23,17 @@ class Solution(State):
         Returns a copy of the current Solution object.
         """
         solution = Solution()
-        solution.problem = self.problem
         solution.routes = deepcopy(self.routes)
         solution.unassigned = deepcopy(self.unassigned)
 
         return solution
 
     @classmethod
-    def empty(cls, problem: Problem) -> Solution:
+    def empty(cls) -> Solution:
         """
         Creates an empty Solution object, with the passed-in Problem instance.
         """
         solution = cls()
-        solution.problem = problem
         solution.routes = []
         solution.unassigned = []
 
@@ -58,7 +54,7 @@ class Solution(State):
         """
         Evaluates the current solution.
         """
-        return sum(route.cost(self.problem) for route in self.routes)
+        return sum(route.cost() for route in self.routes)
 
     def plot(self):
         """
@@ -69,24 +65,26 @@ class Solution(State):
 
         _, axes = plt.subplots(n_rows, n_cols, figsize=(2.5 * n_cols, n_rows))
 
+        problem = Problem()
+
         for row, route in enumerate(self.routes):
             axes[row, 0].set_ylabel(f"Route {row + 1}")
 
             for col, stacks in enumerate(route.plan):
                 ax = axes[row, col]
 
-                ax.barh(np.arange(self.problem.num_stacks),
+                ax.barh(np.arange(problem.num_stacks),
                         [stack.volume() for stack in stacks])
 
-                ax.set_xlim(right=self.problem.stack_capacity)
-                ax.set_yticks(np.arange(self.problem.num_stacks))
+                ax.set_xlim(right=problem.stack_capacity)
+                ax.set_yticks(np.arange(problem.num_stacks))
                 ax.margins(x=0, y=0)
 
                 ax.set_xlabel(f"DEPOT" if col == 0 else
                               f"CUST {route.customers[col - 1] + 1}")
 
-                for idx in range(self.problem.num_stacks):
-                    ax.text(self.problem.stack_capacity / 2,
+                for idx in range(problem.num_stacks):
+                    ax.text(problem.stack_capacity / 2,
                             idx,
                             str(stacks[idx]),
                             ha='center',
@@ -101,13 +99,14 @@ class Solution(State):
         plt.show()
 
     @classmethod
-    def from_file(cls, problem: Problem, location: str) -> Solution:
+    def from_file(cls, location: str) -> Solution:
         """
-        Reads a solution to the passed-in problem from the file system.
+        Reads a solution from the file system.
 
         TODO perhaps rewrite this.
         """
-        solution = cls.empty(problem)
+        solution = cls.empty()
+        problem = Problem()
 
         with open(location) as file:
             data = file.readlines()
@@ -135,7 +134,7 @@ class Solution(State):
             if customer != DEPOT and customer not in route[0]:
                 route[0].append(customer)
 
-            route[1][-1].stacks[idx_stack] = Stack.from_strings(items, problem)
+            route[1][-1].stacks[idx_stack] = Stack.from_strings(items)
 
         solution.routes = [Route(*route) for route in routes]
         return solution
@@ -147,7 +146,7 @@ class Solution(State):
         file = open(location, 'w+')
 
         print(TEAM_NUMBER, file=file)
-        print(self.problem.instance, file=file)
+        print(Problem().instance, file=file)
         print(len(self.routes), file=file)
 
         for idx_route, route in enumerate(self.routes, 1):

@@ -1,7 +1,6 @@
 from typing import Tuple
 
-from heuristic.classes import Item, Solution
-from heuristic.constants import DEPOT
+from heuristic.classes import Problem, Solution
 
 
 def all_demands_are_satisfied(solution: Solution) -> Tuple[bool, str]:
@@ -9,9 +8,11 @@ def all_demands_are_satisfied(solution: Solution) -> Tuple[bool, str]:
     Verifies all demands are satisfied, that is, the demanded items are loaded
     according to a feasible loading plan for each customer.
     """
-    for customer in range(solution.problem.num_customers):
+    problem = Problem()
+
+    for customer in range(problem.num_customers):
         route = solution.find_route(customer)
-        delivery = Item(solution.problem.demands[customer], DEPOT, customer)
+        delivery = problem.demands[customer]
 
         for stacks in route.plan[:route.customers.index(customer) + 1]:
             try:
