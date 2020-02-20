@@ -1,6 +1,8 @@
 from typing import List, Set, Tuple
 
+from _collections import deque
 import numpy as np
+from copy import deepcopy
 
 from heuristic.constants import DEPOT
 from .Problem import Problem
@@ -157,3 +159,14 @@ class Route:
 
         return problem.distances[route[0], route[1]] \
                + problem.distances[route[1], route[2]]
+
+    def sort_start(self):
+        """
+
+        """
+        for stack in self.plan[0]:
+            order = list(reversed(self.customers))
+            stack.stack = deque(sorted(stack.stack,
+                                       key=lambda item: order.index(
+                                           item.destination)))
+            print(stack)

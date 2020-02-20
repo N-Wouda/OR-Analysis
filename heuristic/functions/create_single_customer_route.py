@@ -1,5 +1,4 @@
-from heuristic.classes import Item, Problem, Route, Stacks
-from heuristic.constants import DEPOT
+from heuristic.classes import Problem, Route, Stacks
 
 
 def create_single_customer_route(customer: int) -> Route:
