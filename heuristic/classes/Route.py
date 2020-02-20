@@ -63,7 +63,7 @@ class Route:
         feasible, that is, there is sufficient stack capacity to store the
         delivery and pickup items for the appropriate legs of the tour.
 
-        O(n * |num_stacks|), where n is the number of customers in the route.
+        O(n), where n is the number of customers in the route.
         """
         d_volume = problem.demands[customer]
         p_volume = problem.pickups[customer]

@@ -9,7 +9,7 @@ mypy = "*"
 [packages]
 ortools = ">=7.5"
 numpy = ">=1.18"
-alns = ">=1.1"
+alns = ">=1.2"
 
 [requires]
 python_version = "3.7"
