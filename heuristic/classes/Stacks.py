@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import copy
+import pickle
 from typing import Callable, List, Union
 
 from .Item import Item
@@ -24,7 +24,7 @@ class Stacks:
         return self.stacks[idx]
 
     def copy(self) -> Stacks:
-        return copy.deepcopy(self)
+        return pickle.loads(pickle.dumps(self))
 
     @staticmethod
     def cost(customer: int, before: Stacks, after: Stacks) -> float:
