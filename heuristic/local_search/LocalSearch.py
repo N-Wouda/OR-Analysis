@@ -14,4 +14,6 @@ class LocalSearch:
         self.operators.append(operator)
 
     def __call__(self, current: Solution, rnd_state: RandomState) -> Solution:
+        for operator in self.operators:
+            operator(current, rnd_state)
         return current  # TODO

@@ -159,14 +159,14 @@ class Route:
 
     def sort_start(self):
         """
-
+        Sorts the stacks at the depot such that the deliveries are sorted in
+        the reverse order in which the customers are visited.
         """
         for stack in self.plan[0]:
             order = list(reversed(self.customers))
             stack.stack = deque(sorted(stack.stack,
                                        key=lambda item: order.index(
                                            item.destination)))
-            print(stack)
 
     def _compute_routing_cost(self) -> float:
         """
