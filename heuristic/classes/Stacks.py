@@ -59,34 +59,34 @@ class Stacks:
     def shortest_stack(self) -> Stack:
         """
         Returns the shortest stack, that is, the stack that has the smallest
-        capacity in use. O(num_stacks).
+        capacity in use. O(1).
         """
         return self._first_stack(min)
 
     def longest_stack(self) -> Stack:
         """
         Returns the shortest stack, that is, the stack that has the largest
-        capacity in use. O(num_stacks).
+        capacity in use. O(1).
         """
         return self._first_stack(max)
 
     def used_capacity(self) -> float:
         """
-        Total volume used by all stacks. O(num_stacks).
+        Total volume used by all stacks. O(1).
         """
         return sum(stack.volume() for stack in self.stacks)
 
     def find_stack(self, item: Item) -> Stack:
         """
         Finds the stack the given item is stored in. Raises a LookupError when
-        the item is not in any stacks. O(num_stacks).
+        the item is not in any stacks. O(1).
         """
         return self._find_stack(item, False)
 
     def find_stack_index(self, item: Item) -> int:
         """
         Finds the stack index the given item is stored in. Raises a LookupError
-        when the item is not in any stacks. O(num_stacks).
+        when the item is not in any stacks. O(1).
         """
         return self._find_stack(item, True)
 

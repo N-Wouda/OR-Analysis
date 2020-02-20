@@ -7,6 +7,7 @@ from .classes import Problem
 from .constants import CRITERION, DECAY, ITERATIONS, WEIGHTS
 from .destroy_operators import D_OPERATORS
 from .initial_solution import initial_solution
+from .local_search import L_OPERATORS, LocalSearch
 from .repair_operators import R_OPERATORS
 
 
@@ -24,6 +25,13 @@ def main():
 
     for r_op in R_OPERATORS:
         alns.add_repair_operator(r_op)
+
+    local_search = LocalSearch()
+
+    for op in L_OPERATORS:
+        local_search.add_operator(op)
+
+    alns.on_best(local_search)
 
     result = alns.iterate(init, WEIGHTS, DECAY, CRITERION, ITERATIONS)
     # TODO post-processing?
