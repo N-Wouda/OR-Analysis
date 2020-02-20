@@ -81,11 +81,12 @@ class Stack:
         return self._volume
 
     @classmethod
-    def from_strings(cls, items: List[str], problem: Problem) -> Stack:
+    def from_strings(cls, items: List[str]) -> Stack:
         """
         (Re)constructs a Stack instance from the string representation of a
         solution output.
         """
+        problem = Problem()
         stack = Stack()
 
         for str_item in items:
@@ -98,11 +99,9 @@ class Stack:
             customer = int(cust) - 1
 
             if typ == "d":
-                item = Item(problem.demands[customer], DEPOT, customer)
+                stack.push_rear(problem.demands[customer])
             else:
-                item = Item(problem.pickups[customer], customer, DEPOT)
-
-            stack.push_rear(item)
+                stack.push_rear(problem.pickups[customer])
 
         return stack
 

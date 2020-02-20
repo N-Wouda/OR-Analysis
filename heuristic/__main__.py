@@ -6,7 +6,7 @@ from numpy.random import RandomState
 from .classes import Problem
 from .constants import CRITERION, DECAY, ITERATIONS, WEIGHTS
 from .destroy_operators import D_OPERATORS
-from .initial_solution import initial_solution
+from .functions import initial_solution
 from .local_search import L_OPERATORS, LocalSearch
 from .repair_operators import R_OPERATORS
 
@@ -16,7 +16,6 @@ def main():
         raise ValueError(f"{sys.argv[0]}: expected file location.")
 
     problem = Problem.from_file(sys.argv[1], delimiter=',')
-    init = initial_solution(problem)
 
     alns = ALNS(RandomState(problem.instance))
 
@@ -33,6 +32,7 @@ def main():
 
     alns.on_best(local_search)
 
+    init = initial_solution()
     result = alns.iterate(init, WEIGHTS, DECAY, CRITERION, ITERATIONS)
     # TODO post-processing?
 

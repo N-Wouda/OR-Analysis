@@ -1,25 +1,66 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from typing import List
 
 import numpy as np
 
+from heuristic.constants import DEPOT
+from .Item import Item
+from .Singleton import Singleton
 
-class Problem:
-    instance: int
 
-    capacity: float
-    handling_cost: float
+class Problem(metaclass=Singleton):
+    _instance: int
 
-    num_customers: int
-    num_stacks: int
+    _capacity: float
+    _handling_cost: float
 
-    distances: np.ndarray
-    demands: np.ndarray
-    pickups: np.ndarray
+    _num_customers: int
+    _num_stacks: int
+
+    _distances: np.ndarray
+    _demands: np.ndarray
+    _pickups: np.ndarray
 
     @property
-    def stack_capacity(self):
+    def instance(self) -> int:
+        return self._instance
+
+    @property
+    def capacity(self) -> float:
+        return self._capacity
+
+    @property
+    def handling_cost(self) -> float:
+        return self._handling_cost
+
+    @property
+    def num_customers(self) -> int:
+        return self._num_customers
+
+    @property
+    def num_stacks(self) -> int:
+        return self._num_stacks
+
+    @property
+    def distances(self) -> np.ndarray:
+        return self._distances
+
+    @property
+    @lru_cache(1)
+    def demands(self) -> List[Item]:
+        return [Item(demand, DEPOT, customer)
+                for customer, demand in enumerate(self._demands)]
+
+    @property
+    @lru_cache(1)
+    def pickups(self) -> List[Item]:
+        return [Item(pickup, customer, DEPOT)
+                for customer, pickup in enumerate(self._pickups)]
+
+    @property
+    def stack_capacity(self) -> float:
         return self.capacity / self.num_stacks
 
     @property
@@ -58,18 +99,18 @@ class Problem:
 
         problem = cls()
 
-        problem.instance = int(data[0])
+        problem._instance = int(data[0])
 
-        problem.capacity = data[1]
-        problem.handling_cost = data[3]
+        problem._capacity = data[1]
+        problem._handling_cost = data[3]
 
-        problem.num_customers = int(data[2])
-        problem.num_stacks = int(data[4])
+        problem._num_customers = int(data[2])
+        problem._num_stacks = int(data[4])
 
         # Distances include depot, so customers + 1
         distances = data[5:5 + (problem.num_customers + 1) ** 2]
-        problem.distances = distances.reshape((problem.num_customers + 1,
-                                               problem.num_customers + 1))
+        problem._distances = distances.reshape((problem.num_customers + 1,
+                                                problem.num_customers + 1))
 
         demands = np.empty(problem.num_customers)
         pickups = np.empty(problem.num_customers)
@@ -78,7 +119,7 @@ class Problem:
             demands[idx] = data[-2 * problem.num_customers + 2 * idx]
             pickups[idx] = data[-2 * problem.num_customers + 2 * idx + 1]
 
-        problem.demands = demands
-        problem.pickups = pickups
+        problem._demands = demands
+        problem._pickups = pickups
 
         return problem
