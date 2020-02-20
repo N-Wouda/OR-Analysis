@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from copy import deepcopy
+import pickle
 from typing import List
 
 import matplotlib.pyplot as plt
@@ -22,11 +22,7 @@ class Solution(State):
         """
         Returns a copy of the current Solution object.
         """
-        solution = Solution()
-        solution.routes = deepcopy(self.routes)
-        solution.unassigned = deepcopy(self.unassigned)
-
-        return solution
+        return pickle.loads(pickle.dumps(self))
 
     @classmethod
     def empty(cls) -> Solution:

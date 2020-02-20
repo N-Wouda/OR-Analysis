@@ -1,4 +1,4 @@
-from typing import List, Set, Tuple
+from typing import List, Optional, Set, Tuple
 
 import numpy as np
 
@@ -12,6 +12,9 @@ class Route:
     _set: Set[int]
     plan: List[Stacks]  # loading plan
 
+    _route_cost: Optional[float] = None
+    _handling_cost: Optional[float] = None
+
     def __init__(self, customers: List[int], plan: List[Stacks]):
         self.customers = customers
         self._set = set(customers)
@@ -22,39 +25,29 @@ class Route:
 
     def cost(self) -> float:
         """
-        Computes the cost (objective) value of this route, based on the
+        Returns the cost (objective) value of this route, based on the
         distance and handling costs.
         """
         return self.routing_cost() + self.handling_cost()
 
     def routing_cost(self) -> float:
         """
-        Determines the route cost connecting the passed-in customers. Assumes
-        the DEPOT is excluded in the customers list; it will be added here.
-        O(|customers|).
+        Determines the route cost connecting this route's customers, and the
+        DEPOT. O(1).
         """
-        customers = np.array(self.customers + [DEPOT])
-        customers += 1
+        if self._route_cost is None:
+            self._route_cost = self._compute_routing_cost()
 
-        # See e.g. https://stackoverflow.com/a/53276900/4316405
-        return Problem().distances[np.roll(customers, 1), customers].sum()
+        return self._route_cost
 
     def handling_cost(self) -> float:
         """
-        Computes the handling cost of the current loading plan. This is done
-        by determining the cost of the mutations at each customer. Runs in
-        about O(|customers| * n), where n is the number of items in a stack.
+        Determines the handling cost for this route. O(1).
         """
-        assert len(self.customers) + 1 == len(self.plan)
+        if self._handling_cost is None:
+            self._handling_cost = self._compute_handling_cost()
 
-        cost = 0.
-
-        for idx, customer in enumerate(self.customers):
-            # Stack lay-outs before and after the current customer.
-            before, after = self.plan[idx:idx + 2]
-            cost += Stacks.cost(customer, before, after)
-
-        return cost
+        return self._handling_cost
 
     def can_insert(self, customer: int, at: int) -> bool:
         """
@@ -115,6 +108,8 @@ class Route:
         for plan in self.plan[at + 1:]:
             plan.shortest_stack().push_rear(problem.pickups[customer])
 
+        self._invalidate_cached_costs()
+
     def remove_customer(self, customer: int):
         """
         Removes the passed-in customer from this route, and updates the
@@ -141,6 +136,8 @@ class Route:
         self._set.remove(customer)
         del self.plan[idx + 1]
 
+        self._invalidate_cached_costs()
+
     def _insert_cost(self, customer: int, at: int) -> float:
         """
         Computes cost of inserting customer in route at position at.
@@ -157,3 +154,39 @@ class Route:
 
         return problem.distances[route[0], route[1]] \
                + problem.distances[route[1], route[2]]
+
+    def _compute_routing_cost(self) -> float:
+        """
+        Determines the route cost connecting the passed-in customers. Assumes
+        the DEPOT is excluded in the customers list; it will be added here.
+        O(|customers|).
+        """
+        customers = np.array(self.customers + [DEPOT])
+        customers += 1
+
+        # See e.g. https://stackoverflow.com/a/53276900/4316405
+        return Problem().distances[np.roll(customers, 1), customers].sum()
+
+    def _compute_handling_cost(self) -> float:
+        """
+        Computes the handling cost of the current loading plan. This is done
+        by determining the cost of the mutations at each customer. Runs in
+        about O(|customers| * n), where n is the number of items in a stack.
+        """
+        assert len(self.customers) + 1 == len(self.plan)
+
+        cost = 0.
+
+        for idx, customer in enumerate(self.customers):
+            # Stack lay-outs before and after the current customer.
+            before, after = self.plan[idx:idx + 2]
+            cost += Stacks.cost(customer, before, after)
+
+        return cost
+
+    def _invalidate_cached_costs(self):
+        """
+        Resets the cached handling and routing costs.
+        """
+        self._handling_cost = None
+        self._route_cost = None
