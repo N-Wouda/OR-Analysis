@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 from typing import Callable, List, Union
 
-from heuristic.constants import DEPOT
 from .Item import Item
 from .Problem import Problem
 from .Stack import Stack

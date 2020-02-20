@@ -3,7 +3,6 @@ from typing import List, Set, Tuple
 import numpy as np
 
 from heuristic.constants import DEPOT
-from .Item import Item
 from .Problem import Problem
 from .Stacks import Stacks
 

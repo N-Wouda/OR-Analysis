@@ -3,7 +3,6 @@ from __future__ import annotations
 from collections import deque
 from typing import Deque, List, Set
 
-from heuristic.constants import DEPOT
 from .Item import Item
 from .Problem import Problem
 
