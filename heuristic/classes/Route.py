@@ -163,10 +163,39 @@ class Route:
         the reverse order in which the customers are visited.
         """
         for stack in self.plan[0]:
-            order = list(reversed(self.customers))
+            order = self.customers
             stack.stack = deque(sorted(stack.stack,
                                        key=lambda item: order.index(
                                            item.destination)))
+
+    def sort_rest(self):
+        """
+        Sorts stacks by the following policy: if the cost of moving the pickup
+        at every customer after the current one is smaller than the cost of
+        placing it in the front of the stack at the current customer, it is
+        placed in the rear otherwise it is placed in the front.
+        """
+        problem = Problem()
+        for idx in range(1, len(self.plan)):
+
+            self.plan[idx] = deepcopy(self.plan[idx - 1])
+
+            customer = self.customers[idx - 1]
+            delivery = problem.demands[customer]
+            stack = self.plan[idx].find_stack(delivery)
+            stack.remove(delivery)
+
+            volume_rest = sum(
+                problem.pickups[it].volume for it in
+                range(idx + 1, len(self.plan)))
+
+            if problem.pickups[customer].volume * len(
+                    self.customers[idx:]) <= volume_rest:
+                self.plan[idx].shortest_stack().push_rear(
+                    problem.pickups[customer])
+            else:
+                self.plan[idx].shortest_stack().push_effective_front(
+                    problem.pickups[customer])
 
     def _compute_routing_cost(self) -> float:
         """

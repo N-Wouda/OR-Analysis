@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import deque
 from typing import Deque, List, Set
 
+from ..constants import DEPOT
 from .Item import Item
 from .Problem import Problem
 
@@ -55,6 +56,23 @@ class Stack:
         self.stack.append(item)
         self._set.add(item)
         self._volume += item.volume
+
+    def push_effective_front(self, item: Item):
+        """
+        Places the item in the front of the truck (right). If there are pickups
+        in the front already, places them behind them. # TODO O(n)?.
+        """
+        if self.stack[-1].destination != DEPOT:
+            self.push_front(item)
+        else:
+            stack = list(reversed(self.stack))
+            idx = next(
+                (stack.index(x) for x in stack if x.destination != DEPOT), -2)
+            stack.insert(idx, item)
+
+            self.stack = deque(reversed(stack))
+            self._set.add(item)
+            self._volume += item.volume
 
     def push_rear(self, item: Item):
         """

@@ -7,7 +7,6 @@ def loading_order(current: Solution, rnd_state: RandomState) -> Solution:
 
     for route in current.routes:
         route.sort_start()
-
-    # TODO handling for subsequent customers
+        route.sort_rest()
 
     return current
