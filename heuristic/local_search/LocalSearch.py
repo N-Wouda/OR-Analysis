@@ -19,8 +19,7 @@ class LocalSearch:
                 new_solution = operator(solution, rnd_state)
 
                 if new_solution.objective() < solution.objective():
-                    solution = improve(new_solution)
-                    break
+                    return improve(new_solution)
 
             return solution
 
