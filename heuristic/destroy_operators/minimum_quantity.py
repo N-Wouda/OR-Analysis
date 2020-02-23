@@ -1,29 +1,48 @@
+import numpy as np
 from numpy.random import RandomState
+from scipy.stats import geom
 
 from heuristic.classes import Problem, Solution
-from heuristic.functions import remove_empty_routes, customers_to_remove
+from heuristic.constants import MIN_QUANTITY_SAMPLE_SHAPE
+from heuristic.functions import customers_to_remove, remove_empty_routes
 
 
 @remove_empty_routes
 def minimum_quantity(current: Solution, rnd_state: RandomState) -> Solution:
     """
-    TODO.
+    Removes customers based on quantity (demand + pickup). Randomly selects q
+    customers based on a distribution over these quantities, favouring smaller
+    over larger quantity customers.
+
+    Similar - but not equivalent - to minimum quantity removal in Hornstra et
+    al. (2020).
     """
-    problem = Problem()
     destroyed = current.copy()
 
-    # Selects the q smallest customers to remove from the solution pool, and
-    # randomly shuffles the list (the customers are always the same, but the
-    # order in which they are removed is not).
-    # TODO make this better?
-    to_remove = customers_to_remove(problem.num_customers)
-    customers = problem.smallest_quantity_customers[:to_remove]
-    rnd_state.shuffle(customers)
+    for customer in _customers(rnd_state):
+        destroyed.unassigned.append(customer)
 
-    for customer in customers:
         route = destroyed.find_route(customer)
         route.remove_customer(customer)
 
-    destroyed.unassigned = customers.tolist()
-
     return destroyed
+
+
+def _customers(rnd_state: RandomState) -> np.ndarray:
+    """
+    Determines a probability distribution over the customers with smallest
+    quantity (sum of pickup and delivery). The distribution is geometric over
+    the customers, from smallest to largest quantity, and then normalised to
+    one. This ensures in general the smallest quantities are selected, *but*
+    there is some randomness involved.
+    """
+    problem = Problem()
+
+    to_remove = customers_to_remove(problem.num_customers)
+    probabilities = geom.pmf(np.arange(1, problem.num_customers + 1),
+                             MIN_QUANTITY_SAMPLE_SHAPE)
+
+    return rnd_state.choice(problem.smallest_quantity_customers,
+                            to_remove,
+                            replace=False,
+                            p=probabilities / np.sum(probabilities))

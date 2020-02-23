@@ -7,11 +7,13 @@ from .minimum_quantity import minimum_quantity
 from .random_customers import random_customers
 from .random_nearest import random_nearest
 from .random_routes import random_routes
+from .worst_removal import worst_removal
 
 D_OPERATORS: List[Callable[[Solution, RandomState], Solution]] = [
     minimum_quantity,
     random_customers,
     random_nearest,
     random_routes,
+    worst_removal
     # TODO
 ]
