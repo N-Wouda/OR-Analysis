@@ -32,6 +32,4 @@ def random_repair(current: Solution, rnd_state: RandomState) -> Solution:
             route = create_single_customer_route(customer)
             current.routes.append(route)
 
-    for route in current.routes:
-        route.sort_start()
     return current

@@ -1,6 +1,6 @@
 from typing import List, Optional, Set, Tuple
 
-from _collections import deque
+from collections import deque
 import numpy as np
 from copy import deepcopy
 
@@ -157,7 +157,7 @@ class Route:
         return problem.distances[route[0], route[1]] \
                + problem.distances[route[1], route[2]]
 
-    def sort_start(self):
+    def sort_depot_deliveries(self):
         """
         Sorts the stacks at the depot such that the deliveries are sorted in
         the reverse order in which the customers are visited.
@@ -168,17 +168,17 @@ class Route:
                                        key=lambda item: order.index(
                                            item.destination)))
 
-    def sort_rest(self):
+    def sort_customer_quantities(self):
         """
         Sorts stacks by the following policy: if the cost of moving the pickup
         at every customer after the current one is smaller than the cost of
         placing it in the front of the stack at the current customer, it is
-        placed in the rear otherwise it is placed in the front.
+        placed in the rear; otherwise it is placed in the front.
         """
         problem = Problem()
         for idx in range(1, len(self.plan)):
 
-            self.plan[idx] = deepcopy(self.plan[idx - 1])
+            self.plan[idx] = self.plan[idx - 1].copy()
 
             customer = self.customers[idx - 1]
             delivery = problem.demands[customer]
@@ -190,7 +190,7 @@ class Route:
                 range(idx + 1, len(self.plan)))
 
             if problem.pickups[customer].volume * len(
-                    self.customers[idx:]) <= volume_rest:
+                    self.customers[idx:]) >= volume_rest:
                 self.plan[idx].shortest_stack().push_rear(
                     problem.pickups[customer])
             else:

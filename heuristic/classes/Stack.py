@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import deque
 from typing import Deque, List, Set
 
-from ..constants import DEPOT
+from heuristic.constants import DEPOT
 from .Item import Item
 from .Problem import Problem
 
@@ -66,7 +66,7 @@ class Stack:
             self.push_front(item)
 
             return
-        
+
         if self.stack[-1].destination != DEPOT:
             self.push_front(item)
         else:
