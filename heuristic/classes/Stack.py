@@ -62,6 +62,11 @@ class Stack:
         Places the item in the front of the truck (right). If there are pickups
         in the front already, places them behind them. # TODO O(n)?.
         """
+        if len(self.stack) == 0:
+            self.push_front(item)
+
+            return
+        
         if self.stack[-1].destination != DEPOT:
             self.push_front(item)
         else:
