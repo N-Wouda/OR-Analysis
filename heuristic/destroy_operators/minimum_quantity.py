@@ -38,6 +38,8 @@ def _customers(rnd_state: RandomState) -> np.ndarray:
     """
     problem = Problem()
 
+    # TODO think about whether this should be geometric. Maybe a simpler
+    #   distribution suffices? Maybe move this to a separate function?
     to_remove = customers_to_remove(problem.num_customers)
     probabilities = geom.pmf(np.arange(1, problem.num_customers + 1),
                              MIN_QUANTITY_SAMPLE_SHAPE)
