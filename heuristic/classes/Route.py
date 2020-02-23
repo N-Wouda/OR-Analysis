@@ -190,7 +190,7 @@ class Route:
                 range(idx + 1, len(self.plan)))
 
             if problem.pickups[customer].volume * len(
-                    self.customers[idx:]) >= volume_rest:
+                    self.customers[idx:]) <= volume_rest:
                 self.plan[idx].shortest_stack().push_rear(
                     problem.pickups[customer])
             else:
