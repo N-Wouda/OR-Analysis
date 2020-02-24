@@ -2,7 +2,6 @@ from typing import List, Optional, Set, Tuple
 
 from collections import deque
 import numpy as np
-from copy import deepcopy
 
 from heuristic.constants import DEPOT
 from .Problem import Problem
@@ -183,19 +182,28 @@ class Route:
             customer = self.customers[idx - 1]
             delivery = problem.demands[customer]
             stack = self.plan[idx].find_stack(delivery)
+
+            at = stack.stack.index(delivery)
             stack.remove(delivery)
 
-            volume_rest = sum(
-                problem.pickups[it].volume for it in
-                range(idx + 1, len(self.plan)))
+            if stack != self.plan[idx].shortest_stack():
+                stack = self.plan[idx].shortest_stack()
+                at = 0
 
-            if problem.pickups[customer].volume * len(
-                    self.customers[idx:]) <= volume_rest:
-                self.plan[idx].shortest_stack().push_rear(
-                    problem.pickups[customer])
+            # The total extra volume to be moved in order to place the current
+            # pickup in the (effective) front of the stack.
+            volume_rest_stack = stack.effective_front_push_cost(at)
+
+            # The cumulative volume to be moved: If the current pickup is placed
+            # in the back, the pickup will have to be moved at every subsequent
+            # stop.
+            cumulative_volume_current_customer =\
+                problem.pickups[customer].volume * stack.nr_items_blocked(at)
+
+            if cumulative_volume_current_customer < volume_rest_stack:
+                stack.push_rear(problem.pickups[customer])
             else:
-                self.plan[idx].shortest_stack().push_effective_front(
-                    problem.pickups[customer])
+                stack.push_effective_front(problem.pickups[customer])
 
     def _compute_routing_cost(self) -> float:
         """

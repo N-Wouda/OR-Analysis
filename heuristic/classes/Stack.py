@@ -29,6 +29,44 @@ class Stack:
         """
         return item in self._set
 
+    def effective_front_push_cost(self, idx: int) -> float:
+        """
+        The total extra volume to be moved in order to place the current
+        pickup in the (effective) front of the stack.
+        """
+        if len(self.stack) == 0:
+            return 0
+
+        if self.stack[-1].destination != DEPOT:
+            volume_to_be_moved = sum(self.stack[it].volume for it in
+                                     range(idx, len(self.stack)))
+        else:
+            idx_effective_front = self.find_effective_front_idx()
+
+            volume_to_be_moved = \
+                sum(self.stack[it].volume for it in
+                    range(idx, idx_effective_front))
+
+        return volume_to_be_moved
+
+    def find_effective_front_idx(self) -> int:
+        """
+        Finds the index of the first delivery starting from the front of the
+        stack.
+        """
+        if len(self.stack) == 0:
+            return 0
+
+        if self.stack[-1].destination != DEPOT:
+            return len(self.stack) - 1
+
+        # TODO next
+        stack = list(reversed(self.stack))
+        rev_idx = next((stack.index(item)
+                        for item in stack if item.destination != DEPOT),
+                       len(stack))
+        return len(stack) - rev_idx
+
     def insert_volume(self, at: int) -> float:
         """
         Computes the volume that needs to be moved in order to insert an item at
@@ -60,7 +98,9 @@ class Stack:
     def push_effective_front(self, item: Item):
         """
         Places the item in the front of the truck (right). If there are pickups
-        in the front already, places them behind them. # TODO O(n)?.
+        in the front already, places them behind them. It is the effective front
+        in the way that pickups in the front of the truck never have to be moved
+        again. TODO O(n)?.
         """
         if len(self.stack) == 0:
             self.push_front(item)
@@ -70,12 +110,12 @@ class Stack:
         if self.stack[-1].destination != DEPOT:
             self.push_front(item)
         else:
-            stack = list(reversed(self.stack))
-            idx = next(
-                (stack.index(x) for x in stack if x.destination != DEPOT), -2)
+            idx = self.find_effective_front_idx()
+
+            stack = list(self.stack)
             stack.insert(idx, item)
 
-            self.stack = deque(reversed(stack))
+            self.stack = deque(stack)
             self._set.add(item)
             self._volume += item.volume
 
@@ -86,6 +126,15 @@ class Stack:
         self.stack.appendleft(item)
         self._set.add(item)
         self._volume += item.volume
+
+    def nr_items_blocked(self, at: int) -> int:
+        """
+        Computes the number of times the item would have to be moved to access
+        items placed between it and the front of the truck.
+        TODO taking into account the order of these items
+        """
+        idx = self.find_effective_front_idx()
+        return max(idx - at, 0)
 
     def remove(self, item: Item):
         """
