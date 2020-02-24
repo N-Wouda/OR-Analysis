@@ -1,4 +1,6 @@
 from .create_single_customer_route import create_single_customer_route
+from .customer_handling_costs import customer_handling_costs
+from .customer_routing_costs import customer_routing_costs
 from .customers_to_remove import customers_to_remove
 from .initial_solution import initial_solution
 from .remove_empty_routes import remove_empty_routes
