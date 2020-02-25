@@ -1,25 +1,26 @@
 import numpy as np
 from numpy.random import RandomState
 
-from heuristic.classes import Problem, Solution
-from heuristic.functions import customers_to_remove, remove_empty_routes
+from heuristic.classes import Solution
+from heuristic.functions import random_selection, remove_empty_routes
 
 
 @remove_empty_routes
 def _worst(costs: np.ndarray, current: Solution,
            rnd_state: RandomState) -> Solution:
     """
-    Removes the worst customers based on the passed-in costs array. TODO.
+    Randomly removes the worst customers based on the passed-in costs array.
+    The random distribution is skewed to favour worst-cost customers.
 
     Internal - should not be exposed outside this module.
     """
-    problem = Problem()
     destroyed = current.copy()
 
-    to_remove = -customers_to_remove(problem.num_customers)
-    customers = np.argsort(costs)[-to_remove:]
+    # First we sort the costs to obtain the customers by increasing cost. We
+    # then randomly select customers, favouring worst customers.
+    customers = np.argsort(costs)
+    customers = customers[-random_selection(rnd_state)]
 
-    # TODO some randomness
     for customer in customers:
         destroyed.unassigned.append(customer)
 
