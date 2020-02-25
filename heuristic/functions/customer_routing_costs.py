@@ -26,9 +26,8 @@ def _customer_route_cost(route: Route, customer: int, idx: int) -> float:
     assert 0 <= idx < len(route.customers)
     customers = route.customers
 
-    # There is just once customer, which, once removed, would result in a cost
-    # of zero. Hence the cost of this single customer is just the route's
-    # routing cost.
+    # There is just one customer, which, once removed, would result in a cost
+    # of zero. Hence the cost for this single customer is just the route cost.
     if len(customers) == 1:
         return route.routing_cost()
 
@@ -46,7 +45,5 @@ def _customer_route_cost(route: Route, customer: int, idx: int) -> float:
 
 
 def _leg_cost(*customers: int) -> float:
-    problem = Problem()
     customers = np.array(customers) + 1
-
-    return problem.distances[np.roll(customers, 1), customers].sum()
+    return Problem().distances[np.roll(customers, 1), customers].sum()
