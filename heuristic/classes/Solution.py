@@ -56,8 +56,8 @@ class Solution(State):
         """
         Plots the current solution state.
         """
-        n_rows = len(self.routes)
-        n_cols = max(len(route.customers) + 1 for route in self.routes)
+        n_rows = len(self.routes)  # number of columns is customers + depot
+        n_cols = max(len(route.customers) for route in self.routes) + 1
 
         _, axes = plt.subplots(n_rows, n_cols, figsize=(2.5 * n_cols, n_rows))
 
