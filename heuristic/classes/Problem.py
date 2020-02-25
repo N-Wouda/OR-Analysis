@@ -76,6 +76,15 @@ class Problem(metaclass=Singleton):
         """
         return np.argsort(self.distances[1:, 1:], axis=1)
 
+    @property
+    @lru_cache(1)
+    def smallest_quantity_customers(self) -> np.ndarray:
+        """
+        Returns the customers sorted by the smallest quantities of demand and
+        pickup (summed), ascending.
+        """
+        return np.argsort(self._demands + self._pickups)
+
     @classmethod
     def from_file(cls, location: str, **kwargs) -> Problem:
         """
