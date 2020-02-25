@@ -98,8 +98,8 @@ class Route:
 
         # Makes a new loading plan for the just-inserted customer. This
         # initially looks like the loading plan for the previous customer.
-        stack_after_customer = self.plan[at].copy()
-        self.plan.insert(at + 1, stack_after_customer)
+        stack_before_customer = self.plan[at].copy()
+        self.plan.insert(at + 1, stack_before_customer)
 
         # Inserts customer delivery item into the loading plan.
         for plan in self.plan[:at + 1]:
