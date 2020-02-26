@@ -5,11 +5,11 @@ from numpy.random import RandomState
 from heuristic.classes import Solution
 from .LocalSearch import LocalSearch
 from .loading_order import loading_order
-from .reinsertion import reinsertion
+from .opt_reinsert_customer import opt_reinsert_customer
 
 
 L_OPERATORS: List[Callable[[Solution, RandomState], Solution]] = [
-    reinsertion,
+    # opt_reinsert_customer,
     # loading_order,
     # TODO
 ]

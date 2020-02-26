@@ -1,10 +1,12 @@
 from numpy.random import RandomState
+import numpy as np
 
 from heuristic.classes import Solution, Problem
 from heuristic.repair_operators import greedy_insert
 
 
-def reinsertion(current: Solution, rnd_state: RandomState) -> Solution:
+def opt_reinsert_customer(current: Solution, rnd_state: RandomState) \
+        -> Solution:
     """
     Attempts to find an improvement in the current solution by removing a
     customer and reinserting this customer at the optimal location. If an
@@ -12,7 +14,10 @@ def reinsertion(current: Solution, rnd_state: RandomState) -> Solution:
     """
     problem = Problem()
 
-    for customer in range(problem.num_customers):
+    customers = np.arange(problem.num_customers)
+    rnd_state.shuffle(customers)
+
+    for customer in customers:
         destroyed = current.copy()
 
         route = destroyed.find_route(customer)

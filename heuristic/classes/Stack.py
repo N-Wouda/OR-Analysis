@@ -38,16 +38,13 @@ class Stack:
             return 0
 
         if self.stack[-1].destination != DEPOT:
-            volume_to_be_moved = sum(self.stack[it].volume for it in
-                                     range(idx, len(self.stack)))
+            return sum(self.stack[it].volume for it in
+                       range(idx, len(self.stack)))
         else:
             idx_effective_front = self.find_effective_front_idx()
 
-            volume_to_be_moved = \
-                sum(self.stack[it].volume for it in
-                    range(idx, idx_effective_front))
-
-        return volume_to_be_moved
+            return sum(self.stack[it].volume for it in
+                       range(idx, idx_effective_front))
 
     def find_effective_front_idx(self) -> int:
         """
