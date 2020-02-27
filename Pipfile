@@ -11,6 +11,7 @@ ortools = ">=7.5"
 numpy = ">=1.18"
 alns = ">=1.2"
 scipy = ">=1.4"
+pandas = "*"
 
 [requires]
 python_version = "3.7"

@@ -5,6 +5,7 @@ from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 from alns import State
 
 from heuristic.constants import DEPOT, TEAM_NUMBER
