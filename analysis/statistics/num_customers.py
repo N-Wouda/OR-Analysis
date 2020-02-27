@@ -7,6 +7,6 @@ def num_customers(solution: Solution) -> Tuple[str, float]:
     """
     Returns instance's number of customers.
     """
-    problem = Problem
+    problem = Problem()
 
     return "num_customers", problem.num_customers

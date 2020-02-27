@@ -9,7 +9,7 @@ mypy = "*"
 [packages]
 numpy = ">=1.18"
 scipy = ">=1.4"
-pandas = "*"
+pandas = "1.0.1"
 alns = ">=1.2"
 
 [requires]

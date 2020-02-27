@@ -86,6 +86,13 @@ class Problem(metaclass=Singleton):
         return np.argsort(self._demands + self._pickups)
 
     @classmethod
+    def clear(cls):
+        cls.demands.fget.cache_clear()
+        cls.pickups.fget.cache_clear()
+        cls.nearest_customers.fget.cache_clear()
+        cls.smallest_quantity_customers.fget.cache_clear()
+
+    @classmethod
     def from_file(cls, location: str, **kwargs) -> Problem:
         """
         Sets-up a problem instance from the passed-in data file location. Any
