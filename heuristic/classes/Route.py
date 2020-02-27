@@ -59,17 +59,21 @@ class Route:
         """
         problem = Problem()
 
-        d_item = problem.demands[customer]
-        p_item = problem.pickups[customer]
+        d_volume = problem.demands[customer].volume
+        p_volume = problem.pickups[customer].volume
         max_capacity = problem.stack_capacity
 
-        # TODO this should focus on a single stack, not the shortest stack -
-        #  items are inserted into the same stack, and this thinks we may
-        #  switch freely (we do not).
-        can_pickup = all(stacks.shortest_stack().volume() + d_item.volume
+        # Similarly, we insert the customer pick-up item into the shortest
+        # stack at the customer. This should be feasible for all appropriate
+        # legs of the tour.
+        shortest_customer = self.plan[at].shortest_stack()
+        can_pickup = all(stacks[shortest_customer.index].volume() + d_volume
                          <= max_capacity for stacks in self.plan[at + 1:])
 
-        can_deliver = all(stacks.shortest_stack().volume() + p_item.volume
+        # We insert the customer's delivery item into the shortest stack at the
+        # depot. This should be feasible for all appropriate legs of the tour.
+        shortest_depot = self.plan[0].shortest_stack()
+        can_deliver = all(stacks[shortest_depot.index].volume() + p_volume
                           <= max_capacity for stacks in self.plan[:at + 1])
 
         return can_pickup and can_deliver
@@ -93,6 +97,7 @@ class Route:
         pickup items into the appropriate parts of the loading plan. Assumes it
         is feasible to do so.
         """
+        # TODO policy?
         problem = Problem()
 
         self.customers.insert(at, customer)

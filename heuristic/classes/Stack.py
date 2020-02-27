@@ -76,11 +76,14 @@ class Stack:
         self._set.add(item)
         self._volume += item.volume
 
-        # Find the index of the last demand item TODO fix this
+        # Find the index of the last demand item, and insert the pickup item
+        # just in front of it, so it never needs to be moved again.
+        # TODO maybe check that we are not inserting items before pickups
+        #  taken later in the tour (as those would incur handling costs).
         demand_idx = next((idx for idx, item in enumerate(reversed(self.stack))
                            if item.is_delivery()), len(self.stack))
 
-        self.stack.insert(len(self.stack) - demand_idx - 1, item)
+        self.stack.insert(len(self.stack) - demand_idx, item)
 
     def push_rear(self, item: Item):
         """
