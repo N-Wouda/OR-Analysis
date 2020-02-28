@@ -208,3 +208,9 @@ class Route:
         """
         self._handling_cost = None
         self._route_cost = None
+
+    def __str__(self):
+        return str(np.array([DEPOT] + self.customers + [DEPOT]) + 1)
+
+    def __repr__(self):
+        return f"Route({str(self)}"
