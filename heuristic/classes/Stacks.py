@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import pickle
-from typing import Callable, List, Union
+from typing import Callable, List
 
 from .Item import Item
 from .Problem import Problem
@@ -12,7 +12,7 @@ class Stacks:
     stacks: List[Stack]
 
     def __init__(self, num_stacks: int):
-        self.stacks = [Stack() for _ in range(num_stacks)]
+        self.stacks = [Stack(idx) for idx in range(num_stacks)]
 
     def __len__(self):
         return len(self.stacks)
@@ -37,8 +37,8 @@ class Stacks:
         delivery = problem.demands[customer]
         pickup = problem.pickups[customer]
 
-        d_stack_idx = before.find_stack_index(delivery)
-        p_stack_idx = after.find_stack_index(pickup)
+        d_stack_idx = before.find_stack(delivery).index
+        p_stack_idx = after.find_stack(pickup).index
 
         d_volume = before[d_stack_idx].remove_volume(delivery)
         p_volume = after[p_stack_idx].remove_volume(pickup)
@@ -79,21 +79,11 @@ class Stacks:
         Finds the stack the given item is stored in. Raises a LookupError when
         the item is not in any stacks. O(1).
         """
-        return self._find_stack(item, False)
+        for idx, stack in enumerate(self.stacks):
+            if item in stack:
+                return stack
 
-    def find_stack_index(self, item: Item) -> int:
-        """
-        Finds the stack index the given item is stored in. Raises a LookupError
-        when the item is not in any stacks. O(1).
-        """
-        return self._find_stack(item, True)
+        raise LookupError(f"Item {item} not in any stacks.")
 
     def _first_stack(self, criterion: Callable[..., Stack]) -> Stack:
         return criterion(self.stacks, key=lambda stack: stack.volume())
-
-    def _find_stack(self, item: Item, return_idx: bool) -> Union[Stack, int]:
-        for idx, stack in enumerate(self.stacks):
-            if item in stack:
-                return idx if return_idx else stack
-
-        raise LookupError(f"Item {item} not in any stacks.")

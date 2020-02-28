@@ -130,7 +130,8 @@ class Solution(State):
             if customer != DEPOT and customer not in route[0]:
                 route[0].append(customer)
 
-            route[1][-1].stacks[idx_stack] = Stack.from_strings(items)
+            route[1][-1].stacks[idx_stack] = Stack.from_strings(idx_stack,
+                                                                items)
 
         solution.routes = [Route(*route) for route in routes]
         return solution
