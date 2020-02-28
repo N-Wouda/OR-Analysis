@@ -2,6 +2,7 @@ import glob
 import sys
 
 import pandas as pd
+import numpy as np
 
 from heuristic.classes import Problem, Solution
 from .statistics import STATISTICS
@@ -33,12 +34,18 @@ def main():
     instances.sort_index(inplace=True)
 
     instances = pd.pivot_table(instances, index=['instance'])
+    pivoted_instances = pd.pivot_table(instances,
+                                       margins=True,
+                                       margins_name='average',
+                                       index=['num_customers', 'handling'],
+                                       values=list(instances),
+                                       aggfunc=[np.mean, min, max])
 
     instances.to_csv("statistics/summary.csv", sep='\t')
-    instances.describe().\
-        to_csv("statistics/summary.csv", mode='a', sep='\t')
+    pivoted_instances.to_csv("statistics/summary.csv", mode='a', sep='\t')
 
     print(instances)
+    print(pivoted_instances)
 
 
 if __name__ == "__main__":
