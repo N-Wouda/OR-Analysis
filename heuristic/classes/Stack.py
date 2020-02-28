@@ -15,11 +15,15 @@ class Stack:
     """
     stack: Deque[Item]
     _set: Set[Item]
+
+    _index: int
     _volume: float
 
-    def __init__(self):
+    def __init__(self, index: int):
         self.stack = deque()
         self._set = set()
+
+        self._index = index
         self._volume = 0.
 
     def __contains__(self, item: Item) -> bool:
@@ -27,6 +31,13 @@ class Stack:
         Tests if this stack contains the passed-in item. O(1).
         """
         return item in self._set
+
+    @property
+    def index(self):
+        """
+        Returns this stack's index in the truck.
+        """
+        return self._index
 
     def insert_volume(self, at: int) -> float:
         """
@@ -56,6 +67,24 @@ class Stack:
         self._set.add(item)
         self._volume += item.volume
 
+    def push_front_demands(self, item: Item):
+        """
+        Places an item just before the most-near-the-front demand item. This
+        is useful to e.g. insert pickup items, as those are then never again
+        unloaded (except at the depot).
+        """
+        self._set.add(item)
+        self._volume += item.volume
+
+        # Find the index of the last demand item, and insert the pickup item
+        # just in front of it, so it never needs to be moved again.
+        # TODO maybe check that we are not inserting items before pickups
+        #  taken later in the tour (as those would incur handling costs).
+        demand_idx = next((idx for idx, item in enumerate(reversed(self.stack))
+                           if item.is_delivery()), len(self.stack))
+
+        self.stack.insert(len(self.stack) - demand_idx, item)
+
     def push_rear(self, item: Item):
         """
         Adds item to the rear of the truck (left). O(1).
@@ -80,13 +109,13 @@ class Stack:
         return self._volume
 
     @classmethod
-    def from_strings(cls, items: List[str]) -> Stack:
+    def from_strings(cls, idx: int, items: List[str]) -> Stack:
         """
         (Re)constructs a Stack instance from the string representation of a
         solution output.
         """
         problem = Problem()
-        stack = Stack()
+        stack = Stack(idx)
 
         for str_item in items:
             if not str_item:

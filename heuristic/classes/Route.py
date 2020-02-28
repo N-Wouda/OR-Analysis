@@ -59,14 +59,21 @@ class Route:
         """
         problem = Problem()
 
-        d_item = problem.demands[customer]
-        p_item = problem.pickups[customer]
+        d_volume = problem.demands[customer].volume
+        p_volume = problem.pickups[customer].volume
         max_capacity = problem.stack_capacity
 
-        can_pickup = all(stacks.shortest_stack().volume() + d_item.volume
+        # Similarly, we insert the customer pick-up item into the shortest
+        # stack at the customer. This should be feasible for all appropriate
+        # legs of the tour.
+        shortest_customer = self.plan[at].shortest_stack()
+        can_pickup = all(stacks[shortest_customer.index].volume() + d_volume
                          <= max_capacity for stacks in self.plan[at + 1:])
 
-        can_deliver = all(stacks.shortest_stack().volume() + p_item.volume
+        # We insert the customer's delivery item into the shortest stack at the
+        # depot. This should be feasible for all appropriate legs of the tour.
+        shortest_depot = self.plan[0].shortest_stack()
+        can_deliver = all(stacks[shortest_depot.index].volume() + p_volume
                           <= max_capacity for stacks in self.plan[:at + 1])
 
         return can_pickup and can_deliver
@@ -90,23 +97,34 @@ class Route:
         pickup items into the appropriate parts of the loading plan. Assumes it
         is feasible to do so.
         """
+        # TODO policy?
         problem = Problem()
 
         self.customers.insert(at, customer)
         self._set.add(customer)
 
-        # Makes a new loading plan for the just-inserted customer. This
-        # initially looks like the loading plan for the previous customer.
-        stack_after_customer = self.plan[at].copy()
-        self.plan.insert(at + 1, stack_after_customer)
+        # Makes a new loading plan for the just-inserted customer, by copying
+        # the previous customer's loading plan and inserting customer items.
+        self.plan.insert(at + 1, self.plan[at].copy())
 
-        # Inserts customer delivery item into the loading plan.
+        # Inserts customer delivery item into the loading plan. The stack to
+        # insert into is the shortest stack at the depot (since the delivery
+        # item is carried from the depot to the customer).
+        stack_idx = self.plan[0].shortest_stack().index
+
         for plan in self.plan[:at + 1]:
-            plan.shortest_stack().push_rear(problem.demands[customer])
+            plan.stacks[stack_idx].push_rear(problem.demands[customer])
 
-        # Inserts customer pickup item into the loading plan.
+        # Inserts customer pickup item into the loading plan. The stack to
+        # insert into is the shortest stack at the customer (since the pickup
+        # item is carried from the customer to the depot).
+        stack_idx = self.plan[at + 1].shortest_stack().index
+
         for plan in self.plan[at + 1:]:
-            plan.shortest_stack().push_rear(problem.pickups[customer])
+            # This pushes the pickup item nearest to the front, such that no
+            # demand items follow it (this is useful, as it ensures the pickup
+            # item is first removed again at the depot, not before).
+            plan.stacks[stack_idx].push_front_demands(problem.pickups[customer])
 
         self._invalidate_cached_costs()
 
