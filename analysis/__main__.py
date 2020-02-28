@@ -1,59 +1,36 @@
-import glob
-import sys
-from datetime import datetime
-from pathlib import Path
+import argparse
 
-import numpy as np
 import pandas as pd
 
-from heuristic.classes import Problem, Solution
-from .parameters import PARAMETERS
-from .statistics import STATISTICS
+from .analyse import analyse
+from .diff import diff
 
+pd.set_option('display.float_format', "{:.2f}".format)
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
-pd.set_option('precision', 2)
 
 
 def main():
-    if len(sys.argv) < 3:
-        raise ValueError(f"{sys.argv[0]}: expected in- and output files.")
+    parser = argparse.ArgumentParser(description="Analyses heuristic outputs.")
 
-    file = Path(sys.argv[2])
+    parser.add_argument("input",
+                        help="Input data file locations (glob string).")
 
-    if file.exists():
-        last_modified = file.lstat().st_mtime
-        timestamp = datetime.fromtimestamp(last_modified)
+    parser.add_argument("output",
+                        help="Output data location.")
 
-        print(f"Printing {sys.argv[2]} (last modified {timestamp})")
-        instances = pd.read_csv(sys.argv[2])
+    parser.add_argument("--diff", action="store_true", dest="diff",
+                        help="Displays the difference between two analyses"
+                             " result files. Second file is subtracted from"
+                             " the first.")
+
+    args = parser.parse_args()
+
+    if args.diff:
+        diff(args.input, args.output)
     else:
-        instances = pd.DataFrame()
-
-        for location in glob.iglob(sys.argv[1]):
-            problem = Problem.from_file(location, delimiter=',')
-            sol = Solution.from_file(f"solutions/oracs_{problem.instance}.csv")
-
-            instance = dict([(func.__name__, func(sol))
-                             for func in PARAMETERS + STATISTICS])
-
-            instances = instances.append(instance, ignore_index=True)
-
-    values = [func.__name__ for func in STATISTICS]
-    indices = [func.__name__ for func in PARAMETERS]
-
-    report = instances.pivot_table(index=indices,
-                                   values=values,
-                                   margins=True,
-                                   margins_name='Avg',
-                                   aggfunc=np.mean)
-    report = report.reindex(values, axis=1)
-
-    if not file.exists():
-        report.to_csv(sys.argv[2])
-
-    print(report)
+        analyse(args.input, args.output)
 
 
 if __name__ == "__main__":
