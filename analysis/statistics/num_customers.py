@@ -5,7 +5,7 @@ from heuristic.classes import Problem, Solution
 
 def num_customers(solution: Solution) -> Tuple[str, float]:
     """
-    Returns instance's number of customers.
+    Returns the number of customers in the problem instance.
     """
     problem = Problem()
 

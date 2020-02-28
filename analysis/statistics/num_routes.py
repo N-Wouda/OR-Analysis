@@ -5,6 +5,6 @@ from heuristic.classes import Solution
 
 def num_routes(solution: Solution) -> Tuple[str, float]:
     """
-    Returns instance's number of routes used.
+    Returns number of routes in the Solution.
     """
-    return "nr_routes", len(solution.routes)
+    return "num_routes", len(solution.routes)

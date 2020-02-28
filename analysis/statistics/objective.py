@@ -5,6 +5,6 @@ from heuristic.classes import Solution
 
 def objective(solution: Solution) -> Tuple[str, float]:
     """
-    Returns instance's objective.
+    Returns Solution objective.
     """
     return "objective", solution.objective()

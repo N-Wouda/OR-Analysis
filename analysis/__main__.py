@@ -9,6 +9,7 @@ from .statistics import STATISTICS
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
+pd.set_option('precision', 2)
 
 
 def main():
@@ -31,11 +32,12 @@ def main():
     instances.set_index('instance', inplace=True)
     instances.sort_index(inplace=True)
 
+    instances = pd.pivot_table(instances, index=['instance'])
+
     instances.to_csv("statistics/summary.csv", sep='\t')
     instances.describe().\
         to_csv("statistics/summary.csv", mode='a', sep='\t')
 
-    pd.set_option('precision', 3)
     print(instances)
 
 

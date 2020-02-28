@@ -5,7 +5,7 @@ from heuristic.classes import Problem, Solution
 
 def handling(solution: Solution) -> Tuple[str, float]:
     """
-    Returns instance's handling.
+    Returns the problem's handling cost parameter.
     """
     problem = Problem()
 

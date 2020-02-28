@@ -5,7 +5,7 @@ from heuristic.classes import Problem, Solution
 
 def instance(solution: Solution) -> Tuple[str, float]:
     """
-    Returns instance index.
+    Returns instance's number.
     """
     problem = Problem()
 

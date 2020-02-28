@@ -9,7 +9,6 @@ class Singleton(type):
 
         return cls._instances[cls]
 
-    @classmethod
     def clear(cls):
         try:
             del Singleton._instances[cls]
