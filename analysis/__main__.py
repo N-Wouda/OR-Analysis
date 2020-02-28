@@ -6,6 +6,10 @@ import pandas as pd
 from heuristic.classes import Problem, Solution
 from .statistics import STATISTICS
 
+pd.set_option('display.max_rows', 500)
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.width', 1000)
+
 
 def main():
     """
@@ -15,28 +19,24 @@ def main():
     if len(sys.argv) < 2:
         raise ValueError(f"{sys.argv[0]}: expected file location.")
 
-    cumulative_df = pd.DataFrame()
+    instances = pd.DataFrame()
 
-    for instance in glob.glob(sys.argv[1]):
-        problem = Problem.from_file(instance, delimiter=',')
+    for file in glob.glob(sys.argv[1]):
+        problem = Problem.from_file(file, delimiter=',')
         solution = Solution.from_file(f"solutions/oracs_{problem.instance}.csv")
-        instance_df = pd.DataFrame()
 
-        for statistic in STATISTICS:
-            statistic_value = statistic(solution)
-            instance_df[statistic_value[0]] = [statistic_value[1]]
+        instance = dict([statistic(solution) for statistic in STATISTICS])
+        instances = instances.append(instance, ignore_index=True)
 
-        cumulative_df = pd.concat([cumulative_df, instance_df])
+    instances.set_index('instance', inplace=True)
+    instances.sort_index(inplace=True)
 
-        problem.clear()
-        del problem
-
-    cumulative_df.set_index('instance', inplace=True)
-    cumulative_df.sort_index(inplace=True)
-
-    cumulative_df.to_csv("statistics/summary.csv", sep='\t')
-    cumulative_df.describe().\
+    instances.to_csv("statistics/summary.csv", sep='\t')
+    instances.describe().\
         to_csv("statistics/summary.csv", mode='a', sep='\t')
+
+    pd.set_option('precision', 3)
+    print(instances)
 
 
 if __name__ == "__main__":

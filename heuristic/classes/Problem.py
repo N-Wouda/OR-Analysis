@@ -85,12 +85,12 @@ class Problem(metaclass=Singleton):
         """
         return np.argsort(self._demands + self._pickups)
 
-    @classmethod
-    def clear(cls):
-        cls.demands.fget.cache_clear()
-        cls.pickups.fget.cache_clear()
-        cls.nearest_customers.fget.cache_clear()
-        cls.smallest_quantity_customers.fget.cache_clear()
+    # @classmethod
+    # def clear(cls):
+    #     cls.demands.fget.cache_clear()
+    #     cls.pickups.fget.cache_clear()
+    #     cls.nearest_customers.fget.cache_clear()
+    #     cls.smallest_quantity_customers.fget.cache_clear()
 
     @classmethod
     def from_file(cls, location: str, **kwargs) -> Problem:
@@ -111,6 +111,8 @@ class Problem(metaclass=Singleton):
         Problem
             Problem instance for the data file.
         """
+        cls.clear()
+
         data = np.genfromtxt(location, **kwargs)
 
         problem = cls()
