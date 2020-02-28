@@ -8,3 +8,9 @@ class Singleton(type):
             cls._instances[cls] = up
 
         return cls._instances[cls]
+
+    def clear(cls):
+        try:
+            del Singleton._instances[cls]
+        except KeyError:
+            pass

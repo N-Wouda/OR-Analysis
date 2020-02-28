@@ -413,3 +413,6 @@ TSWLatexianTemp*
 
 # Solution outputs
 solutions/*.csv
+
+# Statistics output
+statistics/*.csv

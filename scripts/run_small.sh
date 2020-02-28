@@ -7,3 +7,5 @@ do
   echo $instance
   pipenv run python -m heuristic $instance
 done
+
+pipenv run python -m analysis $instances summary.csv

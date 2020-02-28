@@ -104,6 +104,8 @@ class Problem(metaclass=Singleton):
         Problem
             Problem instance for the data file.
         """
+        cls.clear()
+
         data = np.genfromtxt(location, **kwargs)
 
         problem = cls()
