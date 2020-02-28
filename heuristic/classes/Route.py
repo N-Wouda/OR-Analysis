@@ -97,7 +97,7 @@ class Route:
         pickup items into the appropriate parts of the loading plan. Assumes it
         is feasible to do so.
         """
-        # TODO policy?
+        # TODO policy? We currently always push onto the rear.
         problem = Problem()
 
         self.customers.insert(at, customer)
@@ -121,10 +121,7 @@ class Route:
         stack_idx = self.plan[at + 1].shortest_stack().index
 
         for plan in self.plan[at + 1:]:
-            # This pushes the pickup item nearest to the front, such that no
-            # demand items follow it (this is useful, as it ensures the pickup
-            # item is first removed again at the depot, not before).
-            plan.stacks[stack_idx].push_front_demands(problem.pickups[customer])
+            plan.stacks[stack_idx].push_rear(problem.pickups[customer])
 
         self._invalidate_cached_costs()
 
