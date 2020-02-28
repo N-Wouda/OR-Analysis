@@ -41,3 +41,6 @@ class Item:
 
         # Delivery item, so this is going to a customer.
         return "d" + str(self.destination + 1)
+
+    def __repr__(self):
+        return f"{str(self)} ({self.volume:.2f})"
