@@ -56,8 +56,10 @@ class Solution(State):
         """
         Plots the current solution state.
         """
-        n_rows = len(self.routes)  # number of columns is customers + depot
-        n_cols = max(len(route.customers) for route in self.routes) + 1
+        # Number of columns is customers + depot, and a final column for route
+        # cost.
+        n_cols = max(len(route.customers) for route in self.routes) + 2
+        n_rows = len(self.routes)
 
         _, axes = plt.subplots(n_rows, n_cols, figsize=(2.5 * n_cols, n_rows))
 
@@ -87,10 +89,18 @@ class Solution(State):
                             va='center',
                             color='darkgrey')
 
+            last = len(route.plan)
+
             # Hide empty route cells (these are used by some routes, but not
             # all).
-            for col in range(len(route.plan), n_cols):
+            for col in range(last, n_cols):
                 axes[row, col].set_axis_off()
+
+            # These lines display some route statistics (routing and handling
+            # costs). Default size is [0, 1] x [0, 1] - these numbers place the
+            # text nicely centered.
+            axes[row, last].text(0, .6, f"[RC] {route.routing_cost():.2f}")
+            axes[row, last].text(0, .2, f"[HC] {route.handling_cost():.2f}")
 
         plt.show()
 
