@@ -19,11 +19,11 @@ def main():
 
     alns = ALNS(RandomState(problem.instance))
 
-    for d_op in D_OPERATORS:
-        alns.add_destroy_operator(d_op)
+    for op in D_OPERATORS:
+        alns.add_destroy_operator(op)
 
-    for r_op in R_OPERATORS:
-        alns.add_repair_operator(r_op)
+    for op in R_OPERATORS:
+        alns.add_repair_operator(op)
 
     local_search = LocalSearch()
 
