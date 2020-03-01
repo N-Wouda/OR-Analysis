@@ -1,3 +1,4 @@
+import itertools
 from typing import List, Optional, Tuple
 
 import numpy as np
@@ -38,10 +39,14 @@ class Route:
         Does not assume this list forms a tour. O(|customers|).
         """
         problem = Problem()
-        customers = np.array(customers) + 1
 
-        return sum(problem.distances[first, second]
-                   for first, second in zip(customers, customers[1:]))
+        # Constructs two iterators from the passed-in customers. This is fairly
+        # efficient, as it avoids copying.
+        from_custs, to_custs = itertools.tee(customers)
+        next(to_custs, None)
+
+        return sum(problem.distances[first + 1, second + 1]
+                   for first, second in zip(from_custs, to_custs))
 
     def routing_cost(self) -> float:
         """

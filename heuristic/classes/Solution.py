@@ -11,7 +11,6 @@ from alns import State
 from heuristic.constants import DEPOT, TEAM_NUMBER
 from .Problem import Problem
 from .Route import Route
-from .Stack import Stack
 from .Stacks import Stacks
 
 
@@ -32,7 +31,7 @@ class Solution(State):
             return Solution(copy.copy(self.routes),
                             copy.copy(self.unassigned))
 
-        return pickle.loads(pickle.dumps(self))
+        return pickle.loads(pickle.dumps(self, pickle.HIGHEST_PROTOCOL))
 
     def find_route(self, customer: int) -> Route:
         """

@@ -54,9 +54,8 @@ class Stack:
         n is the number of stack items.
         """
         assert item in self
-        at = self.stack.index(item)
-
-        return sum(self.stack[idx].volume for idx in range(at))
+        return sum(self.stack[idx].volume
+                   for idx in range(self.stack.index(item)))
 
     def push_front(self, item: Item):
         """
