@@ -14,6 +14,8 @@ class LocalSearch:
         self.operators.append(operator)
 
     def __call__(self, current: Solution, rnd_state: RandomState) -> Solution:
+        # TODO this needs to be changed to allow for adaptive local search
+        #  based on route costs.
         def improve(solution):
             for operator in self.operators:
                 new_solution = operator(solution, rnd_state)
