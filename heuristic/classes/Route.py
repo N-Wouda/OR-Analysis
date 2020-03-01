@@ -1,29 +1,28 @@
-from typing import List, Optional, Set, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 
 from heuristic.constants import DEPOT
 from .Problem import Problem
+from .SetList import SetList
 from .Stacks import Stacks
 
 
 class Route:
-    customers: List[int]  # customers visited, in order (indices)
-    _set: Set[int]
+    customers: SetList[int]  # visited customers
     plan: List[Stacks]  # loading plan
 
     _route_cost: Optional[float] = None
     _handling_cost: Optional[float] = None
 
     def __init__(self, customers: List[int], plan: List[Stacks]):
-        self.customers = customers
-        self._set = set(customers)
+        self.customers = SetList(customers)
         self.plan = plan
 
         self._route_cost = Route.distance([DEPOT] + customers + [DEPOT])
 
     def __contains__(self, customer: int) -> bool:
-        return customer in self._set
+        return customer in self.customers
 
     def cost(self) -> float:
         """
@@ -112,7 +111,6 @@ class Route:
         problem = Problem()
 
         self.customers.insert(at, customer)
-        self._set.add(customer)
 
         # Makes a new loading plan for the just-inserted customer, by copying
         # the previous customer's loading plan and inserting customer items.
@@ -162,7 +160,6 @@ class Route:
 
         # Removes the customer and its loading plan.
         del self.customers[idx]
-        self._set.remove(customer)
         del self.plan[idx + 1]
 
         # Updates routing costs. Handling costs are more complicated, and best

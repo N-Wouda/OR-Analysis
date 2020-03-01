@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import Deque, List, Set
+from typing import Deque, Set
 
 from .Item import Item
-from .Problem import Problem
 
 
 class Stack:
@@ -89,31 +88,6 @@ class Stack:
         Returns the currently used volume by the items in this stack. O(1).
         """
         return self._volume
-
-    @classmethod
-    def from_strings(cls, idx: int, items: List[str]) -> Stack:
-        """
-        (Re)constructs a Stack instance from the string representation of a
-        solution output.
-        """
-        problem = Problem()
-        stack = Stack(idx)
-
-        for str_item in items:
-            if not str_item:
-                continue
-
-            typ, cust = str_item[0], str_item[1:]
-            assert typ in {"d", "p"}
-
-            customer = int(cust) - 1
-
-            if typ == "d":
-                stack.push_rear(problem.demands[customer])
-            else:
-                stack.push_rear(problem.pickups[customer])
-
-        return stack
 
     def __str__(self):
         """

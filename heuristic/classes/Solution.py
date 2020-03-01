@@ -107,43 +107,46 @@ class Solution(State):
     def from_file(cls, location: str) -> Solution:
         """
         Reads a solution from the file system.
-
-        TODO perhaps rewrite this.
         """
-        solution = Solution([], [])
         problem = Problem()
 
         with open(location) as file:
             data = file.readlines()
 
-        routes = [([], []) for _ in range(int(data[2]))]
+        routes = [Route([], []) for _ in range(int(data[2]))]
         data = data[3:]  # first three lines are metadata
 
         for line in data:
             vehicle, node, stack, *items = line.strip().split(",")
 
             idx_route = int(vehicle[1:]) - 1
-            assert idx_route >= 0
-
             route = routes[idx_route]
-
-            idx_stack = int(stack[1:]) - 1
-            assert idx_stack >= 0
-
-            if idx_stack == 0:
-                route[1].append(Stacks(problem.num_stacks))
 
             customer = int(node) - 1
 
-            # TODO this is slow - check if this works for larger instances.
-            if customer != DEPOT and customer not in route[0]:
-                route[0].append(customer)
+            if customer != DEPOT and customer not in route:
+                route.customers.append(customer)
 
-            route[1][-1].stacks[idx_stack] = Stack.from_strings(idx_stack,
-                                                                items)
+            idx_stack = int(stack[1:]) - 1
 
-        solution.routes = [Route(*route) for route in routes]
-        return solution
+            if idx_stack == 0:  # new loading plan (next leg).
+                route.plan.append(Stacks(problem.num_stacks))
+
+            stack = route.plan[-1].stacks[idx_stack]
+
+            for str_item in items:
+                if not str_item:  # empty stack
+                    continue
+
+                item_type = str_item[0]
+                customer = int(str_item[1:]) - 1
+
+                if item_type == "d":
+                    stack.push_rear(problem.demands[customer])
+                else:
+                    stack.push_rear(problem.pickups[customer])
+
+        return Solution(routes, [])
 
     def to_file(self, location: str):
         """

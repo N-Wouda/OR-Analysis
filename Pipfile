@@ -10,7 +10,6 @@ mypy = "*"
 numpy = ">=1.18"
 pandas = ">=1.0"
 alns = ">=1.2"
-numba = ">=0.48"
 
 [requires]
 python_version = "3.7"
