@@ -20,6 +20,8 @@ class Route:
         self._set = set(customers)
         self.plan = plan
 
+        self._route_cost = Route.distance([DEPOT] + customers + [DEPOT])
+
     def __contains__(self, customer: int) -> bool:
         return customer in self._set
 
@@ -30,14 +32,23 @@ class Route:
         """
         return self.routing_cost() + self.handling_cost()
 
+    @staticmethod
+    def distance(customers: List[int]) -> float:
+        """
+        Computes the distance for the passed-in list of visited customer nodes.
+        Does not assume this list forms a tour. O(|customers|).
+        """
+        problem = Problem()
+        customers = np.array(customers) + 1
+
+        return sum(problem.distances[first, second]
+                   for first, second in zip(customers, customers[1:]))
+
     def routing_cost(self) -> float:
         """
         Determines the route cost connecting this route's customers, and the
         DEPOT. O(1).
         """
-        if self._route_cost is None:
-            self._route_cost = self._compute_routing_cost()
-
         return self._route_cost
 
     def handling_cost(self) -> float:
@@ -123,7 +134,10 @@ class Route:
         for plan in self.plan[at + 1:]:
             plan.stacks[stack_idx].push_rear(problem.pickups[customer])
 
-        self._invalidate_cached_costs()
+        # Updates routing costs. Handling costs are more complicated, and best
+        # recomputed entirely.
+        self._update_routing_cost(customer, at, "insert")
+        self._handling_cost = None
 
     def remove_customer(self, customer: int):
         """
@@ -151,36 +165,59 @@ class Route:
         self._set.remove(customer)
         del self.plan[idx + 1]
 
-        self._invalidate_cached_costs()
+        # Updates routing costs. Handling costs are more complicated, and best
+        # recomputed entirely.
+        self._update_routing_cost(customer, idx, "remove")
+        self._handling_cost = None
 
     def _insert_cost(self, customer: int, at: int) -> float:
         """
-        Computes cost of inserting customer in route at position at.
+        Computes the routing cost of inserting customer in route at position
+        at.
+
+        Note: NW attempted this with relative improvements of 1 -> 2 -> 3
+        minus 1 -> 3 (if we're inserting 2), but that did not improve costs.
+        Perhaps that's too restrictive?
         """
         if at == 0:
-            route = [DEPOT, customer, self.customers[0]]
-        elif at == len(self.customers):
-            route = [self.customers[-1], customer, DEPOT]
+            return Route.distance([DEPOT, customer, self.customers[0]])
+
+        if at == len(self.customers):
+            return Route.distance([self.customers[-1], customer, DEPOT])
+
+        return Route.distance([self.customers[at - 1],
+                               customer,
+                               self.customers[at]])
+
+    def _update_routing_cost(self, customer: int, idx: int, update_type):
+        """
+        Updates the routing cost for this Route, which is a cached property.
+        For removals, it removes the cost of [from] -> [cust] -> [next], and
+        adds the cost of [from] -> [next]. For insertions, it does the
+        opposite.
+
+        Raises
+        ------
+        ValueError
+            When the update type is not understood.
+        """
+        prev_leg = DEPOT if idx == 0 else self.customers[idx - 1]
+
+        # For a removal, the next customer is now at the customer's index. For
+        # an insert, it's one further.
+        if update_type == "insert":
+            idx += 1
+
+        next_leg = DEPOT if idx == len(self.customers) else self.customers[idx]
+
+        if update_type == "remove":
+            self._route_cost -= Route.distance([prev_leg, customer, next_leg])
+            self._route_cost += Route.distance([prev_leg, next_leg])
+        elif update_type == "insert":
+            self._route_cost += Route.distance([prev_leg, customer, next_leg])
+            self._route_cost -= Route.distance([prev_leg, next_leg])
         else:
-            route = [self.customers[at - 1], customer, self.customers[at]]
-
-        route = np.array(route) + 1
-        problem = Problem()
-
-        return problem.distances[route[0], route[1]] \
-               + problem.distances[route[1], route[2]]
-
-    def _compute_routing_cost(self) -> float:
-        """
-        Determines the route cost connecting the passed-in customers. Assumes
-        the DEPOT is excluded in the customers list; it will be added here.
-        O(|customers|).
-        """
-        customers = np.array(self.customers + [DEPOT])
-        customers += 1
-
-        # See e.g. https://stackoverflow.com/a/53276900/4316405
-        return Problem().distances[np.roll(customers, 1), customers].sum()
+            raise ValueError(f"Update type `{update_type}' is not understood.")
 
     def _compute_handling_cost(self) -> float:
         """
@@ -198,13 +235,6 @@ class Route:
             cost += Stacks.cost(customer, before, after)
 
         return cost
-
-    def _invalidate_cached_costs(self):
-        """
-        Resets the cached handling and routing costs.
-        """
-        self._handling_cost = None
-        self._route_cost = None
 
     def __str__(self):
         return str(np.array([DEPOT] + self.customers + [DEPOT]) + 1)

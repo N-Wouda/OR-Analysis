@@ -8,7 +8,7 @@ def initial_solution() -> Solution:
     solution assigns each customer to their own route. O(|customers|).
     """
     problem = Problem()
-    sol = Solution.empty()
+    sol = Solution([], [])
 
     for customer in range(problem.num_customers):
         route = create_single_customer_route(customer)

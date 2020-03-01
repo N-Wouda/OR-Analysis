@@ -12,13 +12,10 @@ def random_customers(current: Solution, rnd_state: RandomState) -> Solution:
 
     Random removal in Hornstra et al. (2020).
     """
-    problem = Problem()
     destroyed = current.copy()
 
-    num_customers = problem.num_customers
-
-    for customer in rnd_state.choice(problem.num_customers,
-                                     customers_to_remove(num_customers),
+    for customer in rnd_state.choice(Problem().num_customers,
+                                     customers_to_remove(),
                                      replace=False):
         destroyed.unassigned.append(customer)
 

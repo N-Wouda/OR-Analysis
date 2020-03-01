@@ -3,7 +3,7 @@ import numpy as np
 from heuristic.classes import Problem, Solution, Stacks
 
 
-def customer_handling_costs(sol: Solution) -> np.ndarray:
+def handling_costs(sol: Solution) -> np.ndarray:
     """
     Computes handling costs for each customer. This is an approximation: only
     the handling costs *at* the customer are computed, any costs made at other

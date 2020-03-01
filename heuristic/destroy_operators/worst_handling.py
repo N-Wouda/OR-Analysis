@@ -1,7 +1,7 @@
 from numpy.random import RandomState
 
 from heuristic.classes import Solution
-from heuristic.functions import customer_handling_costs
+from heuristic.functions import handling_costs
 from ._worst import _worst
 
 
@@ -13,5 +13,4 @@ def worst_handling(current: Solution, rnd_state: RandomState) -> Solution:
 
     Similar to worst handling removal in Hornstra et al. (2020).
     """
-    costs = customer_handling_costs(current)
-    return _worst(costs, current, rnd_state)
+    return _worst(handling_costs(current), current, rnd_state)

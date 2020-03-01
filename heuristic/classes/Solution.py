@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import pickle
 from typing import List
 
@@ -18,22 +19,20 @@ class Solution(State):
     routes: List[Route]
     unassigned: List[int]
 
-    def copy(self) -> Solution:
+    def __init__(self, routes: List[Route], unassigned: List[int]):
+        self.routes = routes
+        self.unassigned = unassigned
+
+    def copy(self, shallow: bool = False) -> Solution:
         """
-        Returns a copy of the current Solution object.
+        Returns a copy of the current Solution object. If the shallow parameter
+        is true, this copy is shallow, else it is a deep, full copy.
         """
+        if shallow:
+            return Solution(copy.copy(self.routes),
+                            copy.copy(self.unassigned))
+
         return pickle.loads(pickle.dumps(self))
-
-    @classmethod
-    def empty(cls) -> Solution:
-        """
-        Creates an empty Solution object, with the passed-in Problem instance.
-        """
-        solution = cls()
-        solution.routes = []
-        solution.unassigned = []
-
-        return solution
 
     def find_route(self, customer: int) -> Route:
         """
@@ -111,7 +110,7 @@ class Solution(State):
 
         TODO perhaps rewrite this.
         """
-        solution = cls.empty()
+        solution = Solution([], [])
         problem = Problem()
 
         with open(location) as file:

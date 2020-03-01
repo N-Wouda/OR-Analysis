@@ -12,10 +12,7 @@ def random_nearest(current: Solution, rnd_state: RandomState) -> Solution:
 
     Similar to related removal in Hornstra et al. (2020).
     """
-    problem = Problem()
     destroyed = current.copy()
-
-    to_remove = customers_to_remove(problem.num_customers)
 
     removed_set = set()
     removed_list = list()
@@ -27,7 +24,9 @@ def random_nearest(current: Solution, rnd_state: RandomState) -> Solution:
         route = destroyed.find_route(candidate)
         route.remove_customer(candidate)
 
-    while len(removed_set) != to_remove:
+    problem = Problem()
+
+    while len(removed_set) != customers_to_remove():
         # Either chooses from the removed list, or a random customer if the
         # list is not yet populated.
         customer = rnd_state.choice(removed_list
