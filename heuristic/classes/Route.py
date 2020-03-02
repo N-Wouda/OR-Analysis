@@ -1,4 +1,5 @@
 import itertools
+import operator
 from typing import List, Optional, Tuple
 
 import numpy as np
@@ -13,7 +14,7 @@ class Route:
     customers: SetList[int]  # visited customers
     plan: List[Stacks]  # loading plan
 
-    _route_cost: Optional[float] = None
+    _route_cost: float  # cached results
     _handling_cost: Optional[float] = None
 
     def __init__(self, customers: List[int], plan: List[Stacks]):
@@ -101,10 +102,8 @@ class Route:
         costs = [self._insert_cost(customer, at)
                  for at in range(len(self.customers) + 1)]
 
-        opt_idx = np.argmin(costs).item()
-        opt_cost = costs[opt_idx]
-
-        return opt_idx, opt_cost
+        # noinspection PyTypeChecker
+        return min(enumerate(costs), key=operator.itemgetter(1))
 
     def insert_customer(self, customer: int, at: int):
         """
@@ -239,7 +238,10 @@ class Route:
         return cost
 
     def __str__(self):
-        return str(np.array([DEPOT] + self.customers + [DEPOT]) + 1)
+        customers = str(np.array([DEPOT] + self.customers + [DEPOT]) + 1)
+        plan = str(self.plan)
+
+        return f"{customers}, {plan}"
 
     def __repr__(self):
         return f"Route({str(self)}"

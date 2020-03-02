@@ -24,7 +24,7 @@ class Stacks:
         return self.stacks[idx]
 
     def copy(self) -> Stacks:
-        return pickle.loads(pickle.dumps(self))
+        return pickle.loads(pickle.dumps(self, pickle.HIGHEST_PROTOCOL))
 
     @staticmethod
     def cost(customer: int, before: Stacks, after: Stacks) -> float:
@@ -37,13 +37,13 @@ class Stacks:
         delivery = problem.demands[customer]
         pickup = problem.pickups[customer]
 
-        d_stack_idx = before.find_stack(delivery).index
-        p_stack_idx = after.find_stack(pickup).index
+        d_stack = before.find_stack(delivery)
+        p_stack = after.find_stack(pickup)
 
-        d_volume = before[d_stack_idx].remove_volume(delivery)
-        p_volume = after[p_stack_idx].remove_volume(pickup)
+        d_volume = d_stack.remove_volume(delivery)
+        p_volume = p_stack.remove_volume(pickup)
 
-        if d_stack_idx != p_stack_idx:
+        if d_stack.index != p_stack.index:
             # The delivery and pickup items are stored in different stacks. We
             # pay for both delivery removal, and pickup insertion.
             return problem.handling_cost * (d_volume + p_volume)
@@ -87,3 +87,9 @@ class Stacks:
 
     def _first_stack(self, criterion: Callable[..., Stack]) -> Stack:
         return criterion(self.stacks, key=lambda stack: stack.volume())
+
+    def __str__(self):
+        return ";".join(str(stack) for stack in self.stacks)
+
+    def __repr__(self):
+        return f"Stacks({str(self)})"
