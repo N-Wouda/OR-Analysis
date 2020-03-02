@@ -31,6 +31,9 @@ class Stack:
         """
         return item in self._set
 
+    def __len__(self):
+        return len(self.stack)
+
     @property
     def index(self):
         """
@@ -94,4 +97,7 @@ class Stack:
         front (first item) to rear (last). O(n), where n is the number of stack
         items.
         """
+        if len(self.stack) == 0:
+            return "<empty>"
+
         return ",".join(str(item) for item in reversed(self.stack))

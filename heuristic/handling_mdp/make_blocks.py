@@ -4,7 +4,7 @@ import numpy as np
 
 from heuristic.classes import Problem, Route
 from .Block import Block
-from heuristic.constants import NUM_BLOCKS
+from heuristic.constants import NUM_BLOCKS_PER_STACK
 
 
 def make_blocks(route: Route) -> List[Block]:
@@ -25,18 +25,16 @@ def make_blocks(route: Route) -> List[Block]:
                           for customer in stack])
                 for stack in by_stack]
 
-    num_blocks = NUM_BLOCKS // problem.num_stacks
-
     output = []
 
     # 3 per stack: split NUM_BLOCKS / num_stacks blocks
     for idx, stack in enumerate(by_stack):
         if len(stack) == 0:
-            output.extend([Block([]) for _ in range(num_blocks)])
+            output.extend([Block([]) for _ in range(NUM_BLOCKS_PER_STACK)])
             continue
 
-        part_sum = max_size[idx][-1] // num_blocks
-        cumulative = np.array(range(1, num_blocks)) * part_sum
+        part_sum = max_size[idx][-1] // NUM_BLOCKS_PER_STACK
+        cumulative = np.array(range(1, NUM_BLOCKS_PER_STACK)) * part_sum
         indices = np.searchsorted(max_size[idx], cumulative)
 
         output.extend([Block(customers)

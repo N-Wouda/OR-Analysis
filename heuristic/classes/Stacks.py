@@ -23,6 +23,9 @@ class Stacks:
     def __getitem__(self, idx: int):
         return self.stacks[idx]
 
+    def __setitem__(self, idx: int, stack: Stack):
+        self.stacks[idx] = stack
+
     def copy(self) -> Stacks:
         return pickle.loads(pickle.dumps(self, pickle.HIGHEST_PROTOCOL))
 
@@ -34,25 +37,42 @@ class Stacks:
         """
         problem = Problem()
 
-        delivery = problem.demands[customer]
-        pickup = problem.pickups[customer]
+        volume = 0.
+        # print()
+        # print(before, customer + 1)
+        # print(after, customer + 1)
+        for idx_stack in range(problem.num_stacks):
+            # print(before[idx_stack].stack)
+            # print(after[idx_stack].stack)
+            # print(volume)
 
-        d_stack = before.find_stack(delivery)
-        p_stack = after.find_stack(pickup)
+            iter_before = reversed(before[idx_stack].stack)
+            iter_after = reversed(after[idx_stack].stack)
 
-        d_volume = d_stack.remove_volume(delivery)
-        p_volume = p_stack.remove_volume(pickup)
+            for (idx, b_item), a_item in zip(enumerate(iter_before, 1),
+                                             iter_after):
+                idx = len(before[idx_stack]) - idx
 
-        if d_stack.index != p_stack.index:
-            # The delivery and pickup items are stored in different stacks. We
-            # pay for both delivery removal, and pickup insertion.
-            return problem.handling_cost * (d_volume + p_volume)
-        else:
-            # But now we have some synergy: those items removed to access the
-            # delivery item do not need to be removed *again* - only any excess
-            # volume must. This implies we only pay for the maximum volume
-            # actually removed from the stack.
-            return problem.handling_cost * max(d_volume, p_volume)
+                if b_item != a_item:
+                    if b_item.customer == customer and b_item.is_delivery():
+                        volume += before[idx_stack].insert_volume(idx)
+                        break
+
+                    if a_item.customer == customer and a_item.is_pickup():
+                        volume += before[idx_stack].insert_volume(idx)
+                        break
+
+                    volume += before[idx_stack].insert_volume(idx + 1)
+                    break
+
+            if len(before[idx_stack]) > len(after[idx_stack]):
+                diff = len(before[idx_stack]) - len(after[idx_stack])
+                volume += before[idx_stack].insert_volume(diff)
+
+            # print(volume)
+
+        # TODO customer item
+        return problem.handling_cost * volume
 
     def shortest_stack(self) -> Stack:
         """
