@@ -14,14 +14,12 @@ class Route:
     customers: SetList[int]  # visited customers
     plan: List[Stacks]  # loading plan
 
-    _route_cost: float  # cached results
+    _route_cost: Optional[float] = None  # cached results
     _handling_cost: Optional[float] = None
 
     def __init__(self, customers: List[int], plan: List[Stacks]):
         self.customers = SetList(customers)
         self.plan = plan
-
-        self._route_cost = Route.distance([DEPOT] + customers + [DEPOT])
 
     def __contains__(self, customer: int) -> bool:
         return customer in self.customers
@@ -54,6 +52,10 @@ class Route:
         Determines the route cost connecting this route's customers, and the
         DEPOT. O(1).
         """
+        if self._route_cost is None:
+            route = [DEPOT] + self.customers + [DEPOT]
+            self._route_cost = Route.distance(route)
+
         return self._route_cost
 
     def handling_cost(self) -> float:
@@ -202,6 +204,9 @@ class Route:
         ValueError
             When the update type is not understood.
         """
+        if self._route_cost is None:  # unset, so we need to compute in full.
+            return self.routing_cost()
+
         prev_leg = DEPOT if idx == 0 else self.customers[idx - 1]
 
         # For a removal, the next customer is now at the customer's index. For

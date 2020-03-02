@@ -3,6 +3,7 @@ from typing import Callable, List
 from numpy.random import RandomState
 
 from heuristic.classes import Solution
+from heuristic.handling_mdp import get_mdp, solve
 
 
 class LocalSearch:
@@ -14,15 +15,13 @@ class LocalSearch:
         self.operators.append(operator)
 
     def __call__(self, current: Solution, rnd_state: RandomState) -> Solution:
-        # TODO this needs to be changed to allow for adaptive local search
-        #  based on route costs.
-        def improve(solution):
-            for operator in self.operators:
-                new_solution = operator(solution, rnd_state)
+        improved = current.copy()
 
-                if new_solution.objective() < solution.objective():
-                    return improve(new_solution)
+        for route in improved.routes:
+            if len(route.customers) == 1:
+                continue
 
-            return solution
+            mdp = get_mdp(route)
+            solve(mdp)
 
-        return improve(current.copy())
+        return improved
