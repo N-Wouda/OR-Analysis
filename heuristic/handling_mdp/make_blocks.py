@@ -8,6 +8,9 @@ from heuristic.constants import NUM_BLOCKS_PER_STACK
 
 
 def make_blocks(route: Route) -> List[Block]:
+    """
+    TODO.
+    """
     problem = Problem()
     customers = route.customers
 
@@ -19,7 +22,9 @@ def make_blocks(route: Route) -> List[Block]:
         stack = route.plan[0].find_stack(problem.demands[customer])
         by_stack[stack.index].append(customer)
 
-    # 2 per stack: accumulate by max size per customer
+    # Max possible capacity use for having customer in the stack. This will
+    # be used below to determine the block boundaries, such that each block
+    # fits at each block location in the vehicle.
     max_size = [np.cumsum([max(problem.demands[customer].volume,
                                problem.pickups[customer].volume)
                           for customer in stack])
@@ -27,7 +32,8 @@ def make_blocks(route: Route) -> List[Block]:
 
     output = []
 
-    # 3 per stack: split NUM_BLOCKS / num_stacks blocks
+    # Create NUM_BLOCKS_PER_STACK blocks for each stack.
+    # TODO re-allocate empty blocks over the other stacks.
     for idx, stack in enumerate(by_stack):
         if len(stack) == 0:
             output.extend([Block([]) for _ in range(NUM_BLOCKS_PER_STACK)])

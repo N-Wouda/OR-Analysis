@@ -9,7 +9,7 @@ State = Tuple[Block]  # type alias
 
 
 class MDP:
-    # TODO clean this whole thing.
+    # TODO clean this whole thing, document.
     states: List[State]
     route: Route
 

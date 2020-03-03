@@ -25,6 +25,10 @@ def solve(mdp: MDP) -> Tuple[np.ndarray, np.ndarray]:
 
         for from_state, to_state in product(range(len(mdp.states)), repeat=2):
             next_cost = costs[next_customer, to_state]
+
+            # Current cost is the cost made for leaving the current customer
+            # with from_state, and leaving the next customer with to_state.
+            # TODO check this carefully.
             curr_cost = mdp.cost(mdp.customers[next_customer],
                                  mdp.states[from_state],
                                  mdp.states[to_state])
