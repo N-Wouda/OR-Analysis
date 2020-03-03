@@ -3,6 +3,7 @@ from typing import Callable, List
 from numpy.random import RandomState
 
 from heuristic.classes import Solution
+from .cross_route import cross_route
 from .minimum_quantity import minimum_quantity
 from .random_customers import random_customers
 from .random_nearest import random_nearest
@@ -12,6 +13,7 @@ from .worst_distance import worst_distance
 from .worst_handling import worst_handling
 
 D_OPERATORS: List[Callable[[Solution, RandomState], Solution]] = [
+    cross_route,
     minimum_quantity,
     random_customers,
     random_nearest,
