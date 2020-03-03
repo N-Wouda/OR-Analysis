@@ -165,3 +165,38 @@ class Solution(State):
                     print(f"V{idx_route},{leg},S{idx_stack},{stack}", file=file)
 
         file.close()
+
+    def to_graph(self):
+        problem = Problem()
+
+        import networkx as nx
+        import matplotlib.pyplot as plt
+        import numpy as np
+        from sklearn.decomposition import PCA
+        from sklearn import manifold
+
+        pca = PCA(n_components=2)
+        coords = pca.fit_transform(problem.distances)
+
+        # model = manifold.TSNE(n_components=2, random_state=0,
+        #                       metric='precomputed')
+        # coords = model.fit_transform(problem.distances)
+        print(coords)
+
+        G = nx.Graph()
+
+        for idx, node in enumerate(coords):
+            G.add_node(idx, pos=node)
+
+        nx.draw(G, nx.get_node_attributes(G, 'pos'), with_labels=True)
+
+        for route_ob in self.routes:
+            route = np.array([DEPOT] + route_ob.customers + [DEPOT]) + 1
+
+            for idx_0, idx_1 in zip(route[:-1], route[1:]):
+                nx.draw_networkx_edges(G, nx.get_node_attributes(G, 'pos'),
+                                       edgelist=[(idx_0, idx_1)])
+
+        print(problem.distances)
+
+        plt.show()
