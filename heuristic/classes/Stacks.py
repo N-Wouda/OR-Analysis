@@ -33,7 +33,7 @@ class Stacks:
     def cost(customer: int, before: Stacks, after: Stacks) -> float:
         """
         Determines the cost of the mutations made between the before and after
-        ``Stacks``. This is in O(n), where n is the number of items in a stack.
+        ``Stacks``. TODO document this beast, complexity estimate.
         """
         problem = Problem()
 
