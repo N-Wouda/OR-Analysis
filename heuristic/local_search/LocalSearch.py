@@ -20,8 +20,8 @@ class LocalSearch:
         improved = current.copy()
 
         for route in improved.routes:
-            if len(route.customers) == 1:
-                continue
+            if np.isclose(route.handling_cost(), 0.):
+                continue  # we cannot improve upon this.
 
             mdp = get_mdp(route)
             costs, decisions = solve(mdp)
@@ -48,16 +48,7 @@ class LocalSearch:
 
                 plan.append(stacks)
 
-            print(costs)
-
-            print(route.plan)
-            print(plan)
-
-            print(route.handling_cost())
-
             route.plan = plan
             route._handling_cost = None
-
-            print(route.handling_cost())
 
         return improved
