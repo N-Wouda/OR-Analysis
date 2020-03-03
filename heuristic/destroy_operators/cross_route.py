@@ -18,7 +18,7 @@ def cross_route(current: Solution, rnd_state: RandomState) -> Solution:
 
     to_remove = customers_to_remove(problem.num_customers)
 
-    customer_list = list(range(problem.num_customers))
+    customer_set = set(range(problem.num_customers))
 
     removed_set = set()
     removed_list = list()
@@ -43,26 +43,24 @@ def cross_route(current: Solution, rnd_state: RandomState) -> Solution:
         route = destroyed.find_route(candidate)
         route.remove_customer(candidate)
 
-        customer_list.remove(candidate)
+        customer_set.remove(candidate)
+
+        selected_list.remove(candidate)
 
     while len(removed_set) != to_remove:
-        customer = rnd_state.choice(customer_list)
+        customer = rnd_state.choice(tuple(customer_set), replace=False)
 
         select_candidate_and_neighbours(customer)
         route = destroyed.find_route(customer)
 
-        nearest = problem.nearest_customers[customer][1]
-        idx = 0
         # Find the nearest customer that is not in the same route.
-        while nearest in route.customers:
-            idx += 1
-            nearest = problem.nearest_customers[customer][1 + idx]
+        for other in problem.nearest_customers[customer]:
+            if other not in route and other not in removed_set:
+                select_candidate_and_neighbours(other)
+                break
 
-        select_candidate_and_neighbours(nearest)
-
-        while len(removed_set) < to_remove and len(selected_list) != 0:
-            customer = selected_list.pop()
-            remove(customer)
+        for selected in selected_list[:to_remove - len(removed_set)]:
+            remove(selected)
 
     destroyed.unassigned = removed_list
 

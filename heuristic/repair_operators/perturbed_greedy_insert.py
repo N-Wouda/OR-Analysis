@@ -2,7 +2,7 @@ from numpy.random import RandomState
 
 from heuristic.classes import Solution
 from heuristic.constants import MIN_OFFSET
-from ._yth_best_insert import _yth_best_insert
+from ._random_near_best_greedy_insert import _random_near_best_greedy_insert
 
 
 def perturbed_greedy_insert(current: Solution,
@@ -14,4 +14,4 @@ def perturbed_greedy_insert(current: Solution,
     Perturbed sequential best insertion in Hornstra et al. (2020).
     """
 
-    return _yth_best_insert(MIN_OFFSET, current, rnd_state)
+    return _random_near_best_greedy_insert(MIN_OFFSET, current, rnd_state)
