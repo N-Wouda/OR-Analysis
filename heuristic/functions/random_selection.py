@@ -17,7 +17,7 @@ def random_selection(rnd_state: RandomState) -> np.ndarray:
     probabilities = np.arange(problem.num_customers, 0, -1)
     probabilities = probabilities / np.sum(probabilities)
 
-    return rnd_state.choice(np.arange(problem.num_customers),
+    return rnd_state.choice(problem.num_customers,
                             customers_to_remove(),
                             replace=False,
                             p=probabilities)
