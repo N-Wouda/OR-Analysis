@@ -30,13 +30,14 @@ class Stacks:
         return pickle.loads(pickle.dumps(self, pickle.HIGHEST_PROTOCOL))
 
     @staticmethod
-    def cost(customer: int, before: Stacks, after: Stacks) -> float:
+    def cost(customer: int,
+             before: Stacks,
+             after: Stacks,
+             problem: Problem = Problem()) -> float:
         """
         Determines the cost of the mutations made between the before and after
         ``Stacks``. TODO document this beast, complexity estimate.
         """
-        problem = Problem()
-
         volume = 0.
         # print()
         # print(before, customer + 1)
