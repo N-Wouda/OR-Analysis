@@ -19,7 +19,7 @@ def test_stacks_handling_costs_scales_with_parameter():
     after[0].stack.append(problem.demands[1])
     after[0].stack.append(problem.pickups[0])
 
-    # No handling costs, so volume moved should not matter
+    # No handling costs, so volume moved should not matter.
     assert_almost_equal(Stacks.cost(0, before, after, problem), 0)
 
     # We need to move d2 to get p1 into the front position, which costs
