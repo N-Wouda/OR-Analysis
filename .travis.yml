@@ -19,7 +19,7 @@ branches:       # since the master branch is the only one where PRs are
     - master
 
 script:
+  - pytest                                          # unit tests
   - scripts/run_small.sh                            # tests small instances
   - scripts/validate.sh                             # verifies feasibility
-  - pytest                                          # unit tests
   - mypy ./ || true                                 # static code analyser

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import pickle
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from .Item import Item
 from .Problem import Problem
@@ -33,11 +33,14 @@ class Stacks:
     def cost(customer: int,
              before: Stacks,
              after: Stacks,
-             problem: Problem = Problem()) -> float:
+             problem: Optional[Problem] = None) -> float:
         """
         Determines the cost of the mutations made between the before and after
         ``Stacks``. TODO document this beast, complexity estimate.
         """
+        if problem is None:
+            problem = Problem()
+
         volume = 0.
         # print()
         # print(before, customer + 1)
