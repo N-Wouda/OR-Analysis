@@ -48,4 +48,4 @@ class Item:
         return "d" + str(self.destination + 1)
 
     def __repr__(self):
-        return f"Item({str(self)}, {self.volume:.2f})"
+        return f"Item({self}, {self.volume:.2f})"

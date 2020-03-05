@@ -243,10 +243,10 @@ class Route:
         return cost
 
     def __str__(self):
-        customers = str(np.array([DEPOT] + self.customers + [DEPOT]) + 1)
-        plan = str(self.plan)
+        customers = np.array([DEPOT] + self.customers.to_list() + [DEPOT])
+        customers += 1
 
-        return f"{customers}, {plan}"
+        return f"{customers}, {self.plan}"
 
     def __repr__(self):
-        return f"Route({str(self)}"
+        return f"Route({self}"

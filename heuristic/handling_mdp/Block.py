@@ -13,3 +13,9 @@ class Block:
 
     def __iter__(self):
         yield from self.customers
+
+    def __str__(self):
+        return str(self.customers)
+
+    def __repr__(self):
+        return f"Block({self})"

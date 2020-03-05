@@ -119,4 +119,4 @@ class Stacks:
         return ";".join(str(stack) for stack in self.stacks)
 
     def __repr__(self):
-        return f"Stacks({str(self)})"
+        return f"Stacks({self})"
