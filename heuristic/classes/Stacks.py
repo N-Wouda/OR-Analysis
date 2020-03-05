@@ -36,14 +36,21 @@ class Stacks:
              problem: Optional[Problem] = None) -> float:
         """
         Determines the cost of the mutations made between the before and after
-        ``Stacks``. TODO document this beast, complexity estimate.
+        ``Stacks``. O(|customers|), for the customers on the route to which
+        these stacks belong.
         """
-        if problem is None:
+        if problem is None:  # problem might be passed-in for testing.
             problem = Problem()
 
         volume = 0.
 
         for idx_stack in range(problem.num_stacks):
+            # For each stack, we look from the front to the back and compare
+            # if anything has changed. If it has, that implies all subsequent
+            # items have been moved, and we can add the total cost of such an
+            # action. Only removals are counted - insertions are not, as those
+            # must have been removed from some other stack (we do not want to
+            # count twice).
             it_before = reversed(before[idx_stack])
             it_after = reversed(after[idx_stack])
 
