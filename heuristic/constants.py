@@ -2,7 +2,7 @@ from alns.criteria import RecordToRecordTravel
 
 DEPOT = -1
 TEAM_NUMBER = 3
-NUM_BLOCKS_PER_STACK = 2
+NUM_BLOCKS = 4
 DEGREE_OF_DESTRUCTION = 0.2
 WEIGHTS = [25, 5, 1, 1]
 DECAY = 0.6
