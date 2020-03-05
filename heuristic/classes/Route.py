@@ -53,7 +53,7 @@ class Route:
         DEPOT. O(1).
         """
         if self._route_cost is None:
-            route = [DEPOT] + self.customers + [DEPOT]
+            route = [DEPOT] + self.customers.to_list() + [DEPOT]
             self._route_cost = Route.distance(route)
 
         return self._route_cost

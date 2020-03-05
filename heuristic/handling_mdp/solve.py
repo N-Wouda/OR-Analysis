@@ -12,15 +12,14 @@ def solve(mdp: MDP) -> Tuple[np.ndarray, np.ndarray]:
     O(|customers| * NUM_BLOCKS!), where customers are the customers in the
     MDP's route.
     """
-    costs = np.empty((len(mdp.customers), len(mdp.states)))
+    costs = np.empty((len(mdp.legs), len(mdp.states)))
     costs[-1, :] = 0.
 
-    decisions = np.empty((len(mdp.customers) - 1, len(mdp.states)),
-                         dtype=int)
+    decisions = np.empty((len(mdp.legs) - 1, len(mdp.states)), dtype=int)
 
     leg_cost = np.empty((len(mdp.states), len(mdp.states)))
 
-    for next_customer in range(len(mdp.customers) - 1, 0, -1):
+    for next_customer in range(len(mdp.legs) - 1, 0, -1):
         current_customer = next_customer - 1
 
         for from_state, to_state in product(range(len(mdp.states)), repeat=2):
@@ -29,7 +28,7 @@ def solve(mdp: MDP) -> Tuple[np.ndarray, np.ndarray]:
             # Current cost is the cost made for leaving the current customer
             # with from_state, and leaving the next customer with to_state.
             # TODO check this carefully.
-            curr_cost = mdp.cost(mdp.customers[next_customer],
+            curr_cost = mdp.cost(mdp.legs[next_customer],
                                  mdp.states[from_state],
                                  mdp.states[to_state])
 

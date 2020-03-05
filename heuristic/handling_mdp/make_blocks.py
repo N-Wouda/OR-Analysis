@@ -9,8 +9,11 @@ from heuristic.constants import NUM_BLOCKS_PER_STACK
 
 def make_blocks(route: Route) -> List[Block]:
     """
-    TODO.
+    Constructs suitable blocks for the given route. These adhere to the single
+    invariant that each block can be placed in each position, without violating
+    stack capacity constraints (they are perfectly interchangeable).
     """
+    # TODO clean this.
     problem = Problem()
     customers = route.customers
 

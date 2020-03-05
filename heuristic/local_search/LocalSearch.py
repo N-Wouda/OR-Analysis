@@ -28,7 +28,7 @@ class LocalSearch:
 
             layouts = []
 
-            for idx, customer in enumerate(mdp.customers):
+            for idx, customer in enumerate(mdp.legs):
                 if idx == 0:
                     layouts.append(np.argmin(costs[idx, :]).item())
                     continue
@@ -41,10 +41,9 @@ class LocalSearch:
                 state = mdp.states[layout]
 
                 if idx == 0:
-                    stacks = mdp.stacks_from_state(state, DEPOT, False)
+                    stacks = mdp.state_to_stacks(state, DEPOT, False)
                 else:
-                    stacks = mdp.stacks_from_state(state, mdp.customers[idx],
-                                                   True)
+                    stacks = mdp.state_to_stacks(state, mdp.legs[idx], True)
 
                 plan.append(stacks)
 
