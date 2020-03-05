@@ -31,6 +31,12 @@ class Stack:
         """
         return item in self._set
 
+    def __iter__(self):
+        yield from self.stack
+
+    def __reversed__(self):
+        yield from reversed(self.stack)
+
     def __len__(self):
         return len(self.stack)
 

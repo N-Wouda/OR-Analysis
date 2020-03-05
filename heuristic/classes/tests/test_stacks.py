@@ -27,4 +27,6 @@ def test_stacks_handling_costs_scales_with_parameter():
     problem.handling_cost = 1
     assert_almost_equal(Stacks.cost(0, before, after, problem), 4)
 
-    # TODO
+    # Same scenario, but now with a larger handling cost.
+    problem.handling_cost = 4
+    assert_almost_equal(Stacks.cost(0, before, after, problem), 16)

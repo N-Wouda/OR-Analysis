@@ -42,40 +42,29 @@ class Stacks:
             problem = Problem()
 
         volume = 0.
-        # print()
-        # print(before, customer + 1)
-        # print(after, customer + 1)
+
         for idx_stack in range(problem.num_stacks):
-            # print(before[idx_stack].stack)
-            # print(after[idx_stack].stack)
-            # print(volume)
+            it_before = reversed(before[idx_stack])
+            it_after = reversed(after[idx_stack])
 
-            iter_before = reversed(before[idx_stack].stack)
-            iter_after = reversed(after[idx_stack].stack)
-
-            for (idx, b_item), a_item in zip(enumerate(iter_before, 1),
-                                             iter_after):
+            # We reason from the front to the rear, and determine the volume
+            # cost for the first index that is different between the before and
+            # after stack.
+            for (idx, b_item), a_item in zip(enumerate(it_before, 1), it_after):
                 idx = len(before[idx_stack]) - idx
 
                 if b_item != a_item:
-                    if b_item.customer == customer and b_item.is_delivery():
-                        volume += before[idx_stack].insert_volume(idx)
-                        break
-
-                    if a_item.customer == customer and a_item.is_pickup():
-                        volume += before[idx_stack].insert_volume(idx)
-                        break
-
+                    # This implies all items up to this point must have been
+                    # moved out of the truck, which is exactly the volume that
+                    # must be moved to insert an item at this index.
                     volume += before[idx_stack].insert_volume(idx + 1)
                     break
 
-            if len(before[idx_stack]) > len(after[idx_stack]):
-                diff = len(before[idx_stack]) - len(after[idx_stack])
-                volume += before[idx_stack].insert_volume(diff)
+        # Above we count the total volume moved, but this includes the customer
+        # demand item, which is not an additional operation. We compensate for
+        # this here.
+        volume -= problem.demands[customer].volume
 
-            # print(volume)
-
-        # TODO customer item
         return problem.handling_cost * volume
 
     def shortest_stack(self) -> Stack:
