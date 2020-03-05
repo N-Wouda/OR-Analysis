@@ -59,6 +59,12 @@ class Stacks:
                     # must be moved to insert an item at this index.
                     volume += before[idx_stack].insert_volume(idx + 1)
                     break
+            else:
+                if len(before[idx_stack]) > len(after[idx_stack]):
+                    # This implies some items have been moved out of the stack,
+                    # and we should count those.
+                    num_moved = len(before[idx_stack]) - len(after[idx_stack])
+                    volume += before[idx_stack].insert_volume(num_moved)
 
         # Above we count the total volume moved, but this includes the customer
         # demand item, which is not an additional operation. We compensate for
