@@ -14,6 +14,9 @@ def make_blocks(route: Route) -> List[Block]:
     problem = Problem()
     customers = route.customers
 
+    if len(customers) <= NUM_BLOCKS_PER_STACK * problem.num_stacks:
+        return [Block([customer]) for customer in customers]
+
     by_stack = [[] for _ in range(problem.num_stacks)]
 
     for customer in customers:
