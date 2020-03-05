@@ -64,6 +64,7 @@ class Stacks:
         # demand item, which is not an additional operation. We compensate for
         # this here.
         volume -= problem.demands[customer].volume
+        assert volume >= 0.
 
         return problem.handling_cost * volume
 

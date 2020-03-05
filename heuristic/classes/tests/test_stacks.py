@@ -41,10 +41,16 @@ def test_moving_items_between_stacks():
                               num_stacks=2,
                               handling_cost=4 / 3)
 
-    before = Stacks(problem.num_stacks)
-    # TODO
+    before = Stacks(problem.num_stacks)  # [d1; d3, d2]
+    before[0].stack.append(demands[0])
+    before[1].stack.extend(demands[1:])
 
-    after = Stacks(problem.num_stacks)
-    # TODO
+    after = Stacks(problem.num_stacks)  # [d2, d1; p3]
+    after[0].stack.extend(demands[:2])
+    after[1].stack.append(pickups[2])
 
-    # TODO
+    # We need to move d1 and d2 to get to the after configuration, which costs
+    # (4 / 3) * 9 = 12.
+    assert_almost_equal(Stacks.cost(2, before, after, problem), 12)
+
+# TODO
