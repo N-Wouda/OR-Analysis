@@ -4,7 +4,7 @@ import numpy as np
 
 from heuristic.classes import Problem, Route
 from .Block import Block
-from heuristic.constants import NUM_BLOCKS_PER_STACK
+from heuristic.constants import NUM_BLOCKS
 
 
 def make_blocks(route: Route) -> List[Block]:
@@ -17,7 +17,7 @@ def make_blocks(route: Route) -> List[Block]:
     problem = Problem()
     customers = route.customers
 
-    if len(customers) <= NUM_BLOCKS_PER_STACK * problem.num_stacks:
+    if len(customers) <= NUM_BLOCKS:
         return [Block([customer]) for customer in customers]
 
     by_stack = [[] for _ in range(problem.num_stacks)]
@@ -38,15 +38,17 @@ def make_blocks(route: Route) -> List[Block]:
 
     output = []
 
+    blocks_per_stack = NUM_BLOCKS // problem.num_stacks
+
     # Create NUM_BLOCKS_PER_STACK blocks for each stack.
     # TODO re-allocate empty blocks over the other stacks.
     for idx, stack in enumerate(by_stack):
         if len(stack) == 0:
-            output.extend([Block([]) for _ in range(NUM_BLOCKS_PER_STACK)])
+            output.extend([Block([]) for _ in range(blocks_per_stack)])
             continue
 
-        part_sum = max_size[idx][-1] // NUM_BLOCKS_PER_STACK
-        cumulative = np.array(range(1, NUM_BLOCKS_PER_STACK)) * part_sum
+        part_sum = max_size[idx][-1] // blocks_per_stack
+        cumulative = np.array(range(1, blocks_per_stack)) * part_sum
         indices = np.searchsorted(max_size[idx], cumulative)
 
         output.extend([Block(customers)

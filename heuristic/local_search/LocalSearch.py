@@ -26,25 +26,19 @@ class LocalSearch:
             mdp = get_mdp(route)
             costs, decisions = solve(mdp)
 
-            layouts = []
+            layouts = [np.argmin(costs[0, :])]
 
-            for idx, customer in enumerate(mdp.legs):
-                if idx == 0:
-                    layouts.append(np.argmin(costs[idx, :]).item())
-                    continue
-
-                layouts.append(decisions[idx - 1, layouts[-1]])
+            for idx, _ in enumerate(route.customers):
+                layouts.append(decisions[idx, layouts[-1]])
 
             plan = []
 
             for idx, layout in enumerate(layouts):
                 state = mdp.states[layout]
 
-                if idx == 0:
-                    stacks = mdp.state_to_stacks(state, DEPOT, False)
-                else:
-                    stacks = mdp.state_to_stacks(state, mdp.legs[idx], True)
-
+                # When idx == 0 we're at the depot, and we do not have
+                # anything to unload (so these are all demands).
+                stacks = mdp.state_to_stacks(state, mdp.legs[idx], idx != 0)
                 plan.append(stacks)
 
             route.plan = plan

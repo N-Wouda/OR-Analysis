@@ -3,7 +3,7 @@ from functools import lru_cache
 from typing import Dict, List, Tuple
 
 from heuristic.classes import Problem, Route, Stack, Stacks
-from heuristic.constants import DEPOT, NUM_BLOCKS_PER_STACK
+from heuristic.constants import DEPOT, NUM_BLOCKS
 from .Block import Block
 
 State = Tuple[Block]  # type alias
@@ -51,8 +51,8 @@ class MDP:
         stacks = Stacks(problem.num_stacks)
 
         for idx in range(problem.num_stacks):
-            start = idx * NUM_BLOCKS_PER_STACK
-            end = start + NUM_BLOCKS_PER_STACK
+            start = idx * NUM_BLOCKS // problem.num_stacks
+            end = start + NUM_BLOCKS // problem.num_stacks
 
             # Populates the stack at idx with the customer data in the assigned
             # blocks from state.
