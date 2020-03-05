@@ -6,7 +6,7 @@ from heuristic.classes import Item, Stacks
 from heuristic.constants import DEPOT
 
 
-def test_stacks_handling_costs_scales_with_parameter():
+def test_handling_costs_scale_with_parameter():
     problem = SimpleNamespace(demands=[Item(5, DEPOT, 0), Item(4, DEPOT, 1)],
                               pickups=[Item(2, 0, DEPOT), Item(3, 1, DEPOT)],
                               num_stacks=1,
@@ -30,3 +30,21 @@ def test_stacks_handling_costs_scales_with_parameter():
     # Same scenario, but now with a larger handling cost.
     problem.handling_cost = 4
     assert_almost_equal(Stacks.cost(0, before, after, problem), 16)
+
+
+def test_moving_items_between_stacks():
+    demands = [Item(5, DEPOT, 0), Item(4, DEPOT, 1), Item(3, DEPOT, 2)]
+    pickups = [Item(2, 0, DEPOT), Item(3, 1, DEPOT), Item(0.5, 2, DEPOT)]
+
+    problem = SimpleNamespace(demands=demands,
+                              pickups=pickups,
+                              num_stacks=2,
+                              handling_cost=4 / 3)
+
+    before = Stacks(problem.num_stacks)
+    # TODO
+
+    after = Stacks(problem.num_stacks)
+    # TODO
+
+    # TODO
