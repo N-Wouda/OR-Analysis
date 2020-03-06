@@ -44,4 +44,5 @@ class LocalSearch:
             route.plan = plan
             route._handling_cost = None
 
+        assert improved.objective() <= current.objective()
         return improved

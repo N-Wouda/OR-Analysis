@@ -42,10 +42,13 @@ class Stacks:
         if problem is None:  # problem might be passed-in for testing.
             problem = Problem()
 
-        volume = 0.
+        # Below we count the total volume moved, but this includes the customer
+        # demand item, which is not an additional operation. We compensate for
+        # this here.
+        volume = -problem.demands[customer].volume
 
         for idx_stack in range(problem.num_stacks):
-            # For each stack, we look from the front to the back and compare
+            # For each stack, we look from the front to the rear and compare
             # if anything has changed. If it has, that implies all subsequent
             # items have been moved, and we can add the total cost of such an
             # action. Only removals are counted - insertions are not, as those
@@ -54,9 +57,6 @@ class Stacks:
             it_before = reversed(before[idx_stack])
             it_after = reversed(after[idx_stack])
 
-            # We reason from the front to the rear, and determine the volume
-            # cost for the first index that is different between the before and
-            # after stack.
             for (idx, b_item), a_item in zip(enumerate(it_before, 1), it_after):
                 idx = len(before[idx_stack]) - idx
 
@@ -73,12 +73,7 @@ class Stacks:
                     num_moved = len(before[idx_stack]) - len(after[idx_stack])
                     volume += before[idx_stack].insert_volume(num_moved)
 
-        # Above we count the total volume moved, but this includes the customer
-        # demand item, which is not an additional operation. We compensate for
-        # this here.
-        volume -= problem.demands[customer].volume
         assert volume >= 0.
-
         return problem.handling_cost * volume
 
     def shortest_stack(self) -> Stack:
