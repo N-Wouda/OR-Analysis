@@ -1,6 +1,6 @@
 from numpy.random import RandomState
 
-from heuristic.classes import Problem, Solution
+from heuristic.classes import Problem, Route, Solution
 from heuristic.functions import customers_to_remove, remove_empty_routes
 
 
@@ -18,50 +18,47 @@ def cross_route(current: Solution, rnd_state: RandomState) -> Solution:
 
     to_remove = customers_to_remove(problem.num_customers)
 
-    customer_set = set(range(problem.num_customers))
+    customers = set(range(problem.num_customers))
+    removed = set()
 
-    removed_set = set()
-    removed_list = list()
+    while len(removed) < to_remove:
+        candidate = rnd_state.choice(tuple(customers))
 
-    selected_list = list()
-
-    def select_candidate_and_neighbours(candidate: int):
-        selected_list.append(candidate)
-
-        route = destroyed.find_route(candidate)
-        place_in_route = route.customers.index(candidate)
-
-        if place_in_route > 0:
-            selected_list.append(route.customers[place_in_route - 1])
-        if place_in_route < len(route.customers) - 1:
-            selected_list.append(route.customers[place_in_route + 1])
-
-    def remove(candidate: int):
-        removed_set.add(candidate)
-        removed_list.append(candidate)
-
-        route = destroyed.find_route(candidate)
-        route.remove_customer(candidate)
-
-        customer_set.remove(candidate)
-
-        selected_list.remove(candidate)
-
-    while len(removed_set) != to_remove:
-        customer = rnd_state.choice(tuple(customer_set), replace=False)
-
-        select_candidate_and_neighbours(customer)
-        route = destroyed.find_route(customer)
+        route_candidate = destroyed.find_route(candidate)
+        selected_1 = \
+            _select_candidate_and_neighbours(route_candidate, candidate)
+        route_other = []
+        selected_2 = []
 
         # Find the nearest customer that is not in the same route.
-        for other in problem.nearest_customers[customer]:
-            if other not in route and other not in removed_set:
-                select_candidate_and_neighbours(other)
+        for other in problem.nearest_customers[candidate]:
+            if other not in route_candidate and other not in removed:
+                route_other = destroyed.find_route(other)
+                selected_2 = \
+                    _select_candidate_and_neighbours(route_other, other)
                 break
 
-        for selected in selected_list[:to_remove - len(removed_set)]:
-            remove(selected)
+        _remove(route_candidate, removed, customers, selected_1)
+        _remove(route_other, removed, customers, selected_2)
 
-    destroyed.unassigned = removed_list
+    destroyed.unassigned = list(removed)
 
     return destroyed
+
+
+def _select_candidate_and_neighbours(route: Route, candidate: int) -> list:
+    idx = route.customers.index(candidate)
+    selected = []
+
+    for customer in route.customers[max(idx - 1, 0):
+                                    min(idx + 2, len(route.customers))]:
+        selected.append(customer)
+
+    return selected
+
+
+def _remove(route: Route, removed_set: set, customers: set, selected: list):
+    for candidate in selected:
+        removed_set.add(candidate)
+        route.remove_customer(candidate)
+        customers.remove(candidate)

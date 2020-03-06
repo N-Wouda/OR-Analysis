@@ -5,13 +5,13 @@ from heuristic.classes import Route, Solution
 from heuristic.functions import create_single_customer_route
 
 
-def _random_near_best_greedy_insert(max_offset: int, current: Solution,
-                                    rnd_state: RandomState) -> Solution:
+def _near_best_greedy_insert(max_offset: int,
+                             current: Solution,
+                             rnd_state: RandomState) -> Solution:
     """
     Sequentially inserts a random permutation of the unassigned customers
-    into their y-th best, feasible route at a locally optimal leg of the tour.
-
-    y is randomly selected, where max_offset is its upper bound.
+    into a random feasible route which is within max_offset insertion points of
+    their optimal insertion point.
     """
     rnd_state.shuffle(current.unassigned)
 
@@ -29,7 +29,6 @@ def _random_near_best_greedy_insert(max_offset: int, current: Solution,
             offset = min(max_offset, len(feasible_routes))
             nsmallest = heapq.nsmallest(offset, feasible_routes)
 
-            # cost, insert_idx, route = rnd_state.choice(nsmallest)
             cost, insert_idx, route = nsmallest[rnd_state.choice(offset)]
 
             cost_new = Route([customer], []).routing_cost()

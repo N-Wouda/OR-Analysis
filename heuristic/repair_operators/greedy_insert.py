@@ -1,7 +1,7 @@
 from numpy.random import RandomState
 
 from heuristic.classes import Solution
-from ._random_near_best_greedy_insert import _random_near_best_greedy_insert
+from ._near_best_greedy_insert import _near_best_greedy_insert
 
 
 def greedy_insert(current: Solution, rnd_state: RandomState) -> Solution:
@@ -11,4 +11,4 @@ def greedy_insert(current: Solution, rnd_state: RandomState) -> Solution:
 
     Sequential best insertion in Hornstra et al. (2020).
     """
-    return _random_near_best_greedy_insert(1, current, rnd_state)
+    return _near_best_greedy_insert(1, current, rnd_state)
