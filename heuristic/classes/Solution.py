@@ -131,7 +131,7 @@ class Solution(State):
             if idx_stack == 0:  # new loading plan (next leg).
                 route.plan.append(Stacks(problem.num_stacks))
 
-            stack = route.plan[-1].stacks[idx_stack]
+            stack = route.plan[-1][idx_stack]
 
             for str_item in items:
                 if not str_item:  # empty stack

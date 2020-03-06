@@ -133,38 +133,21 @@ class Route:
         # item is carried from the depot to the customer).
         stack_idx = self.plan[0].shortest_stack().index
 
-        # TODO fix this cached handling cost thing.
-        handling_cost = problem.demands[customer].volume
-        handling_cost *= sum(1 for customer in self.customers[:at]
-                             if problem.demands[customer]
-                             in self.plan[0].shortest_stack())
-
-        if self._handling_cost is not None:
-            self._handling_cost += handling_cost
-
         for plan in self.plan[:at + 1]:
-            plan.stacks[stack_idx].push_rear(problem.demands[customer])
+            plan[stack_idx].push_rear(problem.demands[customer])
 
         # Inserts customer pickup item into the loading plan. The stack to
         # insert into is the shortest stack at the customer (since the pickup
         # item is carried from the customer to the depot).
         stack_idx = self.plan[at + 1].shortest_stack().index
 
-        handling_cost = problem.pickups[customer].volume
-        handling_cost *= sum(1 for customer in self.customers[at + 1:]
-                             if problem.pickups[customer]
-                             in self.plan[at + 1].shortest_stack())
-
-        if self._handling_cost is not None:
-            self._handling_cost += handling_cost
-
         for plan in self.plan[at + 1:]:
-            plan.stacks[stack_idx].push_rear(problem.pickups[customer])
+            plan[stack_idx].push_rear(problem.pickups[customer])
 
         # Updates routing costs. Handling costs are more complicated, and best
         # recomputed entirely.
         self._update_routing_cost(customer, at, "insert")
-        # self.invalidate_handling_cache()
+        self.invalidate_handling_cache()
 
     def remove_customer(self, customer: int):
         """
@@ -194,7 +177,7 @@ class Route:
         # Updates routing costs. Handling costs are more complicated, and best
         # recomputed entirely.
         self._update_routing_cost(customer, idx, "remove")
-        self.invalidate_handling_cache()  # TODO this might also be cacheable?
+        self.invalidate_handling_cache()
 
     def _insert_cost(self, customer: int, at: int) -> float:
         """

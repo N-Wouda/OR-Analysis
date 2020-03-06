@@ -65,3 +65,9 @@ class SetList(Generic[_T]):
 
     def to_set(self) -> Set[_T]:
         return self._set
+
+    def __str__(self):
+        return str(self._list)
+
+    def __repr__(self):
+        return repr(self._list)
