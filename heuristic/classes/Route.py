@@ -1,6 +1,6 @@
 import itertools
 import operator
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -17,7 +17,9 @@ class Route:
     _route_cost: Optional[float] = None  # cached results
     _handling_cost: Optional[float] = None
 
-    def __init__(self, customers: List[int], plan: List[Stacks]):
+    def __init__(self,
+                 customers: Union[List[int], SetList[int]],
+                 plan: List[Stacks]):
         self.customers = SetList(customers)
         self.plan = plan
 
@@ -46,6 +48,12 @@ class Route:
 
         return sum(problem.distances[first + 1, second + 1]
                    for first, second in zip(from_custs, to_custs))
+
+    def invalidate_routing_cache(self):
+        self._route_cost = None
+
+    def invalidate_handling_cache(self):
+        self._handling_cost = None
 
     def routing_cost(self) -> float:
         """
@@ -113,19 +121,26 @@ class Route:
         pickup items into the appropriate parts of the loading plan. Assumes it
         is feasible to do so.
         """
-        # TODO policy? We currently always push onto the rear.
         problem = Problem()
 
+        # Inserts the customer at the given location, and creates a new loading
+        # plan for this customer by copying the existing loading plan.
         self.customers.insert(at, customer)
-
-        # Makes a new loading plan for the just-inserted customer, by copying
-        # the previous customer's loading plan and inserting customer items.
         self.plan.insert(at + 1, self.plan[at].copy())
 
         # Inserts customer delivery item into the loading plan. The stack to
         # insert into is the shortest stack at the depot (since the delivery
         # item is carried from the depot to the customer).
         stack_idx = self.plan[0].shortest_stack().index
+
+        # TODO fix this cached handling cost thing.
+        handling_cost = problem.demands[customer].volume
+        handling_cost *= sum(1 for customer in self.customers[:at]
+                             if problem.demands[customer]
+                             in self.plan[0].shortest_stack())
+
+        if self._handling_cost is not None:
+            self._handling_cost += handling_cost
 
         for plan in self.plan[:at + 1]:
             plan.stacks[stack_idx].push_rear(problem.demands[customer])
@@ -135,13 +150,21 @@ class Route:
         # item is carried from the customer to the depot).
         stack_idx = self.plan[at + 1].shortest_stack().index
 
+        handling_cost = problem.pickups[customer].volume
+        handling_cost *= sum(1 for customer in self.customers[at + 1:]
+                             if problem.pickups[customer]
+                             in self.plan[at + 1].shortest_stack())
+
+        if self._handling_cost is not None:
+            self._handling_cost += handling_cost
+
         for plan in self.plan[at + 1:]:
             plan.stacks[stack_idx].push_rear(problem.pickups[customer])
 
         # Updates routing costs. Handling costs are more complicated, and best
         # recomputed entirely.
         self._update_routing_cost(customer, at, "insert")
-        self._handling_cost = None
+        # self.invalidate_handling_cache()
 
     def remove_customer(self, customer: int):
         """
@@ -171,7 +194,7 @@ class Route:
         # Updates routing costs. Handling costs are more complicated, and best
         # recomputed entirely.
         self._update_routing_cost(customer, idx, "remove")
-        self._handling_cost = None
+        self.invalidate_handling_cache()  # TODO this might also be cacheable?
 
     def _insert_cost(self, customer: int, at: int) -> float:
         """

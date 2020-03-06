@@ -1,16 +1,18 @@
 from itertools import product
-from typing import Tuple
+from typing import List
 
 import numpy as np
 
+from heuristic.classes import Stacks
 from .MDP import MDP
+from .get_plan import get_plan
 
 
-def solve(mdp: MDP) -> Tuple[np.ndarray, np.ndarray]:
+def solve(mdp: MDP) -> List[Stacks]:
     """
-    Determines an optimal block assignment for each leg of the MDP's route.
-    O(|customers| * NUM_BLOCKS!), where customers are the customers in the
-    MDP's route.
+    Determines an optimal loading plan in blocks for each leg of the MDP's
+    route. O(|customers| * NUM_BLOCKS!), where customers are the customers in
+    the MDP's route.
     """
     costs = np.empty((len(mdp.legs), len(mdp.states)))
     costs[-1, :] = 0.
@@ -37,4 +39,4 @@ def solve(mdp: MDP) -> Tuple[np.ndarray, np.ndarray]:
         costs[current_customer, :] = np.min(leg_cost, axis=1)
         decisions[current_customer, :] = np.argmin(leg_cost, axis=1)
 
-    return costs, decisions
+    return get_plan(mdp, costs, decisions)

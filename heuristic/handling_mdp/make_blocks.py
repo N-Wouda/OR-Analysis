@@ -1,10 +1,10 @@
+from collections import defaultdict
 from typing import List
 
-import numpy as np
-
 from heuristic.classes import Problem, Route
-from .Block import Block
 from heuristic.constants import NUM_BLOCKS
+from .Block import Block
+from .split import split
 
 
 def make_blocks(route: Route) -> List[Block]:
@@ -22,30 +22,13 @@ def make_blocks(route: Route) -> List[Block]:
         assert len(blocks) == NUM_BLOCKS
         return blocks
 
-    by_stack = _customers_by_stack(route)
-
-    # Max possible capacity use for having customer in the stack. This will
-    # be used below to determine the block boundaries, such that each block
-    # fits at each block location in the vehicle.
-    max_size = [np.cumsum([max(problem.demands[customer].volume,
-                               problem.pickups[customer].volume)
-                          for customer in stack])
-                for stack in by_stack]
-
-    blocks_per_stack = NUM_BLOCKS // problem.num_stacks
     blocks = []
 
-    # Create NUM_BLOCKS_PER_STACK blocks for each stack. This is based on the
-    # answer at https://stackoverflow.com/a/54024280/4316405, but might not be
-    # all that great. TODO check if this can and needs to be improved.
-    for idx, stack in enumerate(by_stack):
-        if len(stack) != 0:
-            part_sum = max_size[idx][-1] // blocks_per_stack
-            cumulative = np.array(range(1, blocks_per_stack)) * part_sum
-            indices = np.searchsorted(max_size[idx], cumulative)
-
-            blocks.extend([Block(customers)
-                           for customers in np.split(stack, indices)])
+    # Create NUM_BLOCKS_PER_STACK blocks for each stack by balancing the
+    # customer item sizes between blocks.
+    for idx, stack in _customers_by_stack(route):
+        for customers in split(stack, NUM_BLOCKS // problem.num_stacks):
+            blocks.append(Block(customers))
 
     while len(blocks) != NUM_BLOCKS:
         largest = max(blocks, key=lambda block: block.max_capacity_used())
@@ -57,10 +40,10 @@ def make_blocks(route: Route) -> List[Block]:
     return blocks
 
 
-def _customers_by_stack(route: Route) -> List[List[int]]:
+def _customers_by_stack(route: Route):
     problem = Problem()
 
-    by_stack = [[] for _ in range(problem.num_stacks)]
+    by_stack = defaultdict(list)
 
     for customer in route.customers:
         # Find the stack the customer's items are assigned to at the depot. We
@@ -68,4 +51,7 @@ def _customers_by_stack(route: Route) -> List[List[int]]:
         stack = route.plan[0].find_stack(problem.demands[customer])
         by_stack[stack.index].append(customer)
 
-    return by_stack
+    # There's no point in returning an empty stack - we might just as well
+    # skip it here.
+    return [(idx, customers) for idx, customers in by_stack.items()
+            if len(customers) != 0]

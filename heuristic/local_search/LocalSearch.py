@@ -3,7 +3,7 @@ from typing import Callable, List
 import numpy as np
 from numpy.random import RandomState
 
-from heuristic.classes import Solution
+from heuristic.classes import Solution, Route
 from heuristic.constants import DEPOT
 from heuristic.handling_mdp import get_mdp, solve
 
@@ -24,25 +24,21 @@ class LocalSearch:
                 continue  # we cannot improve upon this.
 
             mdp = get_mdp(route)
-            costs, decisions = solve(mdp)
+            plan = solve(mdp)
 
-            layouts = [np.argmin(costs[0, :])]
+            before = route.handling_cost()
+            after = Route(route.customers, plan).handling_cost()
 
-            for idx, _ in enumerate(route.customers):
-                layouts.append(decisions[idx, layouts[-1]])
-
-            plan = []
-
-            for idx, layout in enumerate(layouts):
-                state = mdp.states[layout]
-
-                # When idx == 0 we're at the depot, and we do not have
-                # anything to unload (so these are all demands).
-                stacks = mdp.state_to_stacks(state, mdp.legs[idx], idx != 0)
-                plan.append(stacks)
+            if before < after:
+                # Even with an MDP, this can happen as we implicitly assume
+                # an equal number of blocks are assigned to each stack. That
+                # is not always optimal, hence this check.
+                # TODO extend the state space to allow the stack assignment to
+                #  be done explicitly by the algorithm?
+                continue
 
             route.plan = plan
-            route._handling_cost = None
+            route.invalidate_handling_cache()
 
         assert improved.objective() <= current.objective()
         return improved

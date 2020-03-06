@@ -31,6 +31,7 @@ class Block:
         Splits this block into two blocks of approximately equal capacity
         used.
         """
+
         def key(idx: int) -> float:
             # This returns the difference (positive) between both blocks, if
             # the current block were split at this idx.
@@ -54,6 +55,9 @@ class Block:
 
     def __iter__(self):
         yield from self.customers
+
+    def __len__(self) -> int:
+        return len(self.customers)
 
     def __str__(self):
         return str(self.customers)
