@@ -32,11 +32,12 @@ class Block:
         used.
         """
         def key(idx: int) -> float:
+            # This returns the difference (positive) between both blocks, if
+            # the current block were split at this idx.
             left = Block._max_capacity_used(self.customers[:idx])
             right = Block._max_capacity_used(self.customers[idx:])
 
-            # TODO check this.
-            return left - right
+            return abs(left - right)
 
         split_idx = min(range(len(self.customers)), key=key)
 
