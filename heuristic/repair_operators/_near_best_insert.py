@@ -7,13 +7,16 @@ from heuristic.constants import DEPOT
 from heuristic.functions import create_single_customer_route
 
 
-def _near_best_greedy_insert(max_offset: int,
-                             current: Solution,
-                             rnd_state: RandomState) -> Solution:
+def _near_best_insert(nearness: int,
+                      current: Solution,
+                      rnd_state: RandomState) -> Solution:
     """
     Sequentially inserts a random permutation of the unassigned customers
-    into a random feasible route which is within max_offset insertion points of
-    their optimal insertion point.
+    into a near-best feasible route. The distance is controlled by the nearness
+    parameter: the feasible route is within nearness steps from the best
+    insertion point.
+
+    Note: nearness == 1 implies a full greedy insert.
     """
     rnd_state.shuffle(current.unassigned)
 
@@ -28,7 +31,7 @@ def _near_best_greedy_insert(max_offset: int,
                 heapq.heappush(feasible_routes, (cost, insert_idx, route))
 
         if len(feasible_routes) != 0:
-            num_smallest = min(max_offset, len(feasible_routes))
+            num_smallest = min(nearness, len(feasible_routes))
             near_best = heapq.nsmallest(num_smallest, feasible_routes)
 
             cost, insert_idx, route = near_best[rnd_state.choice(num_smallest)]
