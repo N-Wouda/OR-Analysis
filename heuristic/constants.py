@@ -8,5 +8,5 @@ DEGREE_OF_DESTRUCTION = 0.2
 WEIGHTS = [25, 5, 1, 1]
 DECAY = 0.6
 ITERATIONS = 1000
-CRITERION = RecordToRecordTravel(200, 1, step=199 / ITERATIONS)
+CRITERION = RecordToRecordTravel(250, 0, step=0.99995,
                                  method="exponential")
