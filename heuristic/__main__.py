@@ -3,6 +3,7 @@ import sys
 from alns import ALNS
 from numpy.random import RandomState
 
+from heuristic.classes import Solution
 from .classes import Problem
 from .constants import CRITERION, DECAY, ITERATIONS, WEIGHTS
 from .destroy_operators import D_OPERATORS
@@ -36,7 +37,10 @@ def main():
     result = alns.iterate(init, WEIGHTS, DECAY, CRITERION, ITERATIONS)
     # TODO post-processing?
 
-    result.best_state.to_file(f"solutions/oracs_{problem.instance}.csv")
+    # noinspection PyTypeChecker
+    solution: Solution = result.best_state
+
+    solution.to_file(f"solutions/oracs_{problem.instance}.csv")
 
 
 if __name__ == "__main__":

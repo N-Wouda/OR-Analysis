@@ -5,10 +5,11 @@ verify_ssl = true
 
 [dev-packages]
 mypy = "*"
+pytest = "*"
+pytest-cov = "*"
 
 [packages]
 numpy = ">=1.18"
-scipy = ">=1.4"
 pandas = ">=1.0"
 alns = ">=1.2"
 

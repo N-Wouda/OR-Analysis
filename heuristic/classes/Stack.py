@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import Deque, List, Set
+from typing import Deque, Set
 
 from .Item import Item
-from .Problem import Problem
 
 
 class Stack:
@@ -32,6 +31,15 @@ class Stack:
         """
         return item in self._set
 
+    def __iter__(self):
+        yield from self.stack
+
+    def __reversed__(self):
+        yield from reversed(self.stack)
+
+    def __len__(self):
+        return len(self.stack)
+
     @property
     def index(self):
         """
@@ -55,9 +63,8 @@ class Stack:
         n is the number of stack items.
         """
         assert item in self
-        at = self.stack.index(item)
-
-        return sum(self.stack[idx].volume for idx in range(at))
+        return sum(self.stack[idx].volume
+                   for idx in range(self.stack.index(item)))
 
     def push_front(self, item: Item):
         """
@@ -90,35 +97,12 @@ class Stack:
         """
         return self._volume
 
-    @classmethod
-    def from_strings(cls, idx: int, items: List[str]) -> Stack:
-        """
-        (Re)constructs a Stack instance from the string representation of a
-        solution output.
-        """
-        problem = Problem()
-        stack = Stack(idx)
-
-        for str_item in items:
-            if not str_item:
-                continue
-
-            typ, cust = str_item[0], str_item[1:]
-            assert typ in {"d", "p"}
-
-            customer = int(cust) - 1
-
-            if typ == "d":
-                stack.push_rear(problem.demands[customer])
-            else:
-                stack.push_rear(problem.pickups[customer])
-
-        return stack
-
     def __str__(self):
         """
         Prints a comma-separated representation of this stack's contents, from
         front (first item) to rear (last). O(n), where n is the number of stack
         items.
         """
+        # TODO this might not be correct for the output file. Look into it once
+        #  we have the output check with dr. Bakir.
         return ",".join(str(item) for item in reversed(self.stack))

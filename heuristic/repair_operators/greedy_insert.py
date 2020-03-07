@@ -1,6 +1,7 @@
 from numpy.random import RandomState
 
 from heuristic.classes import Route, Solution
+from heuristic.constants import DEPOT
 from heuristic.functions import create_single_customer_route
 
 
@@ -25,7 +26,7 @@ def greedy_insert(current: Solution, rnd_state: RandomState) -> Solution:
 
         if len(feasible_routes) != 0:
             cost, insert_idx, route = min(feasible_routes)
-            cost_new = Route([customer], []).routing_cost()
+            cost_new = Route.distance([DEPOT, customer, DEPOT])
 
             if cost_new > cost:
                 route.insert_customer(customer, insert_idx)

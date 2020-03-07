@@ -1,6 +1,4 @@
-import numpy as np
 from numpy.random import RandomState
-from scipy.stats import geom
 
 from heuristic.classes import Problem, Solution
 from heuristic.functions import random_selection, remove_empty_routes
