@@ -1,8 +1,7 @@
 from numpy.random import RandomState
 
-from heuristic.classes import Route, Solution
-from heuristic.constants import DEPOT
-from heuristic.functions import create_single_customer_route
+from heuristic.classes import Solution
+from ._near_best_insert import _near_best_insert
 
 
 def greedy_insert(current: Solution, rnd_state: RandomState) -> Solution:
@@ -12,27 +11,4 @@ def greedy_insert(current: Solution, rnd_state: RandomState) -> Solution:
 
     Sequential best insertion in Hornstra et al. (2020).
     """
-    rnd_state.shuffle(current.unassigned)
-
-    while len(current.unassigned) != 0:
-        customer = current.unassigned.pop()
-        feasible_routes = []
-
-        for route in current.routes:
-            insert_idx, cost = route.opt_insert(customer)
-
-            if route.can_insert(customer, insert_idx):
-                feasible_routes.append((cost, insert_idx, route))
-
-        if len(feasible_routes) != 0:
-            cost, insert_idx, route = min(feasible_routes)
-            cost_new = Route.distance([DEPOT, customer, DEPOT])
-
-            if cost_new > cost:
-                route.insert_customer(customer, insert_idx)
-                continue
-
-        route = create_single_customer_route(customer)
-        current.routes.append(route)
-
-    return current
+    return _near_best_insert(1, current, rnd_state)
