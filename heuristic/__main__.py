@@ -40,14 +40,6 @@ def main():
     # noinspection PyTypeChecker
     solution: Solution = result.best_state
 
-    print(solution.objective())
-    solution.plot()
-
-    result.plot_objectives()
-
-    import matplotlib.pyplot as plt
-    plt.show()
-
     solution.to_file(f"solutions/oracs_{problem.instance}.csv")
 
 
