@@ -2,6 +2,8 @@ import itertools
 from functools import lru_cache
 from typing import Dict, List, Tuple
 
+import numpy as np
+
 from heuristic.classes import Problem, Route, Stack, Stacks
 from heuristic.constants import DEPOT, NUM_BLOCKS
 from .Block import Block
@@ -59,6 +61,23 @@ class MDP:
             self._populate_stack(stacks[idx], customer, state[start:end], after)
 
         return stacks
+
+    def plan(self, costs: np.ndarray, decisions: np.ndarray) -> List[Stacks]:
+        """
+        Creates a loading plan from the passed-in optimal costs and decisions.
+        This loading plan may then be used to update the route.
+        """
+        layouts = [np.argmin(costs[0, :])]
+
+        for idx, _ in enumerate(self.route.customers):
+            layouts.append(decisions[idx, layouts[-1]])
+
+        # When idx == 0 we are at the depot, and we do not have anything to
+        # unload (so the state consists of all demands in that case).
+        return [self.state_to_stacks(self.states[layout],
+                                     self.legs[idx],
+                                     idx != 0)
+                for idx, layout in enumerate(layouts)]
 
     def _populate_stack(self,
                         stack: Stack,

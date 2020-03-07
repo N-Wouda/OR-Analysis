@@ -16,6 +16,7 @@ def make_blocks(route: Route) -> List[Block]:
     problem = Problem()
 
     if len(route.customers) <= NUM_BLOCKS:
+        # This we can solve optimally, with a block for each customer.
         blocks = [Block([]) for _ in range(NUM_BLOCKS - len(route.customers))]
         blocks.extend(Block([customer]) for customer in route.customers)
 
@@ -24,7 +25,7 @@ def make_blocks(route: Route) -> List[Block]:
 
     blocks = []
 
-    # Create NUM_BLOCKS_PER_STACK blocks for each stack by balancing the
+    # Create NUM_BLOCKS / num_stacks blocks for each stack by balancing the
     # customer item sizes between blocks.
     for idx, stack in _customers_by_stack(route):
         for customers in split(stack, NUM_BLOCKS // problem.num_stacks):

@@ -1,6 +1,6 @@
 from typing import Generic, List, Set, TypeVar
 
-_T = TypeVar('_T')
+_T = TypeVar("_T")
 
 
 class SetList(Generic[_T]):

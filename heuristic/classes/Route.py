@@ -255,4 +255,4 @@ class Route:
         return f"{customers}, {self.plan}"
 
     def __repr__(self):
-        return f"Route({self}"
+        return f"Route({self})"
