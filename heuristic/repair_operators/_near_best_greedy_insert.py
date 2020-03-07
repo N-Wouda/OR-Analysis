@@ -1,7 +1,9 @@
 import heapq
+
 from numpy.random import RandomState
 
 from heuristic.classes import Route, Solution
+from heuristic.constants import DEPOT
 from heuristic.functions import create_single_customer_route
 
 
@@ -26,12 +28,11 @@ def _near_best_greedy_insert(max_offset: int,
                 heapq.heappush(feasible_routes, (cost, insert_idx, route))
 
         if len(feasible_routes) != 0:
-            offset = min(max_offset, len(feasible_routes))
-            nsmallest = heapq.nsmallest(offset, feasible_routes)
+            num_smallest = min(max_offset, len(feasible_routes))
+            near_best = heapq.nsmallest(num_smallest, feasible_routes)
 
-            cost, insert_idx, route = nsmallest[rnd_state.choice(offset)]
-
-            cost_new = Route([customer], []).routing_cost()
+            cost, insert_idx, route = near_best[rnd_state.choice(num_smallest)]
+            cost_new = Route.distance([DEPOT, customer, DEPOT])
 
             if cost_new > cost:
                 route.insert_customer(customer, insert_idx)

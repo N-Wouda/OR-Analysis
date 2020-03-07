@@ -13,5 +13,4 @@ def perturbed_greedy_insert(current: Solution,
 
     Perturbed sequential best insertion in Hornstra et al. (2020).
     """
-
     return _near_best_greedy_insert(MIN_OFFSET, current, rnd_state)
