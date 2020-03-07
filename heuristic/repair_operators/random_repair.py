@@ -25,10 +25,9 @@ def random_repair(current: Solution, rnd_state: RandomState) -> Solution:
             if route.can_insert(customer, insert_idx):
                 route.insert_customer(customer, insert_idx)
                 break
-
-        # There is no feasible route to insert into, so we create a new route
-        # for just this customer.
-        if not any(customer in route for route in current.routes):
+        else:
+            # There is no feasible route to insert into, so we create a new
+            # route for just this customer.
             route = create_single_customer_route(customer)
             current.routes.append(route)
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import pickle
 from typing import List
 
@@ -10,7 +11,6 @@ from alns import State
 from heuristic.constants import DEPOT, TEAM_NUMBER
 from .Problem import Problem
 from .Route import Route
-from .Stack import Stack
 from .Stacks import Stacks
 
 
@@ -18,22 +18,20 @@ class Solution(State):
     routes: List[Route]
     unassigned: List[int]
 
-    def copy(self) -> Solution:
-        """
-        Returns a copy of the current Solution object.
-        """
-        return pickle.loads(pickle.dumps(self))
+    def __init__(self, routes: List[Route], unassigned: List[int]):
+        self.routes = routes
+        self.unassigned = unassigned
 
-    @classmethod
-    def empty(cls) -> Solution:
+    def copy(self, shallow: bool = False) -> Solution:
         """
-        Creates an empty Solution object, with the passed-in Problem instance.
+        Returns a copy of the current Solution object. If the shallow parameter
+        is true, this copy is shallow, else it is a deep, full copy.
         """
-        solution = cls()
-        solution.routes = []
-        solution.unassigned = []
+        if shallow:
+            return Solution(copy.copy(self.routes),
+                            copy.copy(self.unassigned))
 
-        return solution
+        return pickle.loads(pickle.dumps(self, pickle.HIGHEST_PROTOCOL))
 
     def find_route(self, customer: int) -> Route:
         """
@@ -108,43 +106,46 @@ class Solution(State):
     def from_file(cls, location: str) -> Solution:
         """
         Reads a solution from the file system.
-
-        TODO perhaps rewrite this.
         """
-        solution = cls.empty()
         problem = Problem()
 
         with open(location) as file:
             data = file.readlines()
 
-        routes = [([], []) for _ in range(int(data[2]))]
+        routes = [Route([], []) for _ in range(int(data[2]))]
         data = data[3:]  # first three lines are metadata
 
         for line in data:
             vehicle, node, stack, *items = line.strip().split(",")
 
             idx_route = int(vehicle[1:]) - 1
-            assert idx_route >= 0
-
             route = routes[idx_route]
-
-            idx_stack = int(stack[1:]) - 1
-            assert idx_stack >= 0
-
-            if idx_stack == 0:
-                route[1].append(Stacks(problem.num_stacks))
 
             customer = int(node) - 1
 
-            # TODO this is slow - check if this works for larger instances.
-            if customer != DEPOT and customer not in route[0]:
-                route[0].append(customer)
+            if customer != DEPOT and customer not in route:
+                route.customers.append(customer)
 
-            route[1][-1].stacks[idx_stack] = Stack.from_strings(idx_stack,
-                                                                items)
+            idx_stack = int(stack[1:]) - 1
 
-        solution.routes = [Route(*route) for route in routes]
-        return solution
+            if idx_stack == 0:  # new loading plan (next leg).
+                route.plan.append(Stacks(problem.num_stacks))
+
+            stack = route.plan[-1][idx_stack]
+
+            for str_item in items:
+                if not str_item:  # empty stack
+                    continue
+
+                item_type = str_item[0]
+                customer = int(str_item[1:]) - 1
+
+                if item_type == "d":
+                    stack.push_rear(problem.demands[customer])
+                else:
+                    stack.push_rear(problem.pickups[customer])
+
+        return Solution(routes, [])
 
     def to_file(self, location: str):
         """

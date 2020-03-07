@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import pickle
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from .Item import Item
 from .Problem import Problem
@@ -23,36 +23,58 @@ class Stacks:
     def __getitem__(self, idx: int):
         return self.stacks[idx]
 
+    def __setitem__(self, idx: int, stack: Stack):
+        self.stacks[idx] = stack
+
     def copy(self) -> Stacks:
-        return pickle.loads(pickle.dumps(self))
+        return pickle.loads(pickle.dumps(self, pickle.HIGHEST_PROTOCOL))
 
     @staticmethod
-    def cost(customer: int, before: Stacks, after: Stacks) -> float:
+    def cost(customer: int,
+             before: Stacks,
+             after: Stacks,
+             problem: Optional[Problem] = None) -> float:
         """
         Determines the cost of the mutations made between the before and after
-        ``Stacks``. This is in O(n), where n is the number of items in a stack.
+        ``Stacks``. O(|customers|), for the customers on the route to which
+        these stacks belong.
         """
-        problem = Problem()
+        if problem is None:  # problem might be passed-in for testing.
+            problem = Problem()
 
-        delivery = problem.demands[customer]
-        pickup = problem.pickups[customer]
+        # Below we count the total volume moved, but this includes the customer
+        # demand item, which is not an additional operation. We compensate for
+        # this here.
+        volume = -problem.demands[customer].volume
 
-        d_stack_idx = before.find_stack(delivery).index
-        p_stack_idx = after.find_stack(pickup).index
+        for idx_stack in range(problem.num_stacks):
+            # For each stack, we look from the front to the rear and compare
+            # if anything has changed. If it has, that implies all subsequent
+            # items have been moved, and we can add the total cost of such an
+            # action. Only removals are counted - insertions are not, as those
+            # must have been removed from some other stack (we do not want to
+            # count twice).
+            it_before = reversed(before[idx_stack])
+            it_after = reversed(after[idx_stack])
 
-        d_volume = before[d_stack_idx].remove_volume(delivery)
-        p_volume = after[p_stack_idx].remove_volume(pickup)
+            for (idx, b_item), a_item in zip(enumerate(it_before, 1), it_after):
+                idx = len(before[idx_stack]) - idx
 
-        if d_stack_idx != p_stack_idx:
-            # The delivery and pickup items are stored in different stacks. We
-            # pay for both delivery removal, and pickup insertion.
-            return problem.handling_cost * (d_volume + p_volume)
-        else:
-            # But now we have some synergy: those items removed to access the
-            # delivery item do not need to be removed *again* - only any excess
-            # volume must. This implies we only pay for the maximum volume
-            # actually removed from the stack.
-            return problem.handling_cost * max(d_volume, p_volume)
+                if b_item != a_item:
+                    # This implies all items up to this point must have been
+                    # moved out of the truck, which is exactly the volume that
+                    # must be moved to insert an item at this index.
+                    volume += before[idx_stack].insert_volume(idx + 1)
+                    break
+            else:
+                if len(before[idx_stack]) > len(after[idx_stack]):
+                    # This implies some items have been moved out of the stack,
+                    # and we should count those.
+                    num_moved = len(before[idx_stack]) - len(after[idx_stack])
+                    volume += before[idx_stack].insert_volume(num_moved)
+
+        assert volume >= 0.
+        return problem.handling_cost * volume
 
     def shortest_stack(self) -> Stack:
         """
@@ -87,3 +109,9 @@ class Stacks:
 
     def _first_stack(self, criterion: Callable[..., Stack]) -> Stack:
         return criterion(self.stacks, key=lambda stack: stack.volume())
+
+    def __str__(self):
+        return ";".join(str(stack) for stack in self.stacks)
+
+    def __repr__(self):
+        return f"Stacks({self})"

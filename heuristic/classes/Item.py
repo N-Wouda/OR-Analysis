@@ -26,6 +26,11 @@ class Item:
     def __hash__(self) -> int:
         return hash((self.volume, self.origin, self.destination))
 
+    @property
+    def customer(self) -> int:
+        assert self.is_pickup() or self.is_delivery()
+        return self.origin if self.is_pickup() else self.destination
+
     def is_pickup(self) -> bool:
         return self.destination == DEPOT
 
@@ -43,4 +48,4 @@ class Item:
         return "d" + str(self.destination + 1)
 
     def __repr__(self):
-        return f"Item({str(self)}, {self.volume:.2f})"
+        return f"Item({self}, {self.volume:.2f})"
