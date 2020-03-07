@@ -2,6 +2,9 @@ import os
 
 from alns.criteria import RecordToRecordTravel
 
+DEPOT = -1
+TEAM_NUMBER = 3
+
 if "TRAVIS" in os.environ:
     NUM_BLOCKS = 4
     NEARNESS = 3
