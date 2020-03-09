@@ -24,5 +24,4 @@ else:
     DECAY = 0.6
 
     ITERATIONS = 25000
-    CRITERION = RecordToRecordTravel(250, 0, step=0.99995,
-                                     method="exponential")
+    CRITERION = RecordToRecordTravel(250, 0, step=250 / ITERATIONS)
