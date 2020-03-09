@@ -17,7 +17,7 @@ if "TRAVIS" in os.environ:
 else:
     # Use these to play around with - the above is for Travis runs, and should
     # not be changed too much.
-    NUM_BLOCKS = 4
+    NUM_BLOCKS = 5
     NEARNESS = 3
     DEGREE_OF_DESTRUCTION = 0.2
     WEIGHTS = [25, 5, 1, 1]

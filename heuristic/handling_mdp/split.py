@@ -1,10 +1,10 @@
-from typing import List
+from typing import List, Union
 
-from heuristic.classes import Problem
+from heuristic.classes import Problem, SetList
 from .Block import Block
 
 
-def split(customers: List[int], num_partitions: int):
+def split(customers: Union[List[int], SetList[int]], num_partitions: int):
     """
     Splits the given list of customers into num_partitions partitions of
     roughly equal weight.
@@ -14,8 +14,8 @@ def split(customers: List[int], num_partitions: int):
     problem = Problem()
 
     chunks_yielded = 0
-    average_sum = Block(customers).max_capacity_used()
-    avg_sum = average_sum / num_partitions
+    total_sum = Block(customers).max_capacity_used()
+    average_sum = total_sum / num_partitions
     chunk = []
     chunk_sum = 0
     seen = 0
@@ -35,20 +35,20 @@ def split(customers: List[int], num_partitions: int):
             yield from ([x] for x in customers[idx:])
             break
 
-        customer_weight = max(problem.demands[customer].volume,
-                              problem.pickups[customer].volume)
+        max_customer_volume = max(problem.demands[customer].volume,
+                                  problem.pickups[customer].volume)
 
-        seen += customer_weight
+        seen += max_customer_volume
 
-        if chunk_sum < avg_sum:
+        if chunk_sum < average_sum:
             chunk.append(customer)
-            chunk_sum += customer_weight
+            chunk_sum += max_customer_volume
         else:
             yield chunk
 
             # Update average expected sum, since the last yielded chunk was
             # probably not perfect.
-            avg_sum = (average_sum - seen) / (to_yield - 1)
+            average_sum = (total_sum - seen) / (to_yield - 1)
             chunks_yielded += 1
-            chunk_sum = customer_weight
+            chunk_sum = max_customer_volume
             chunk = [customer]

@@ -3,9 +3,8 @@ from typing import Callable, List
 import numpy as np
 from numpy.random import RandomState
 
-from heuristic.classes import Solution, Route
-from heuristic.constants import DEPOT
-from heuristic.handling_mdp import get_mdp, solve
+from heuristic.classes import Route, Solution
+from heuristic.handling_mdp import MDP
 
 
 class LocalSearch:
@@ -23,8 +22,7 @@ class LocalSearch:
             if np.isclose(route.handling_cost(), 0.):
                 continue  # we cannot improve upon this.
 
-            mdp = get_mdp(route)
-            plan = solve(mdp)
+            plan = MDP.from_route(route).solve()
 
             before = route.handling_cost()
             after = Route(route.customers, plan).handling_cost()

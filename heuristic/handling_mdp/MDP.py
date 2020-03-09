@@ -1,12 +1,15 @@
-import itertools
+from __future__ import annotations
+
 from functools import lru_cache
+from itertools import chain, permutations, product
 from typing import Dict, List, Tuple
 
 import numpy as np
 
 from heuristic.classes import Problem, Route, Stack, Stacks
-from heuristic.constants import DEPOT
+from heuristic.constants import DEPOT, NUM_BLOCKS
 from .Block import Block
+from .split import split
 
 State = Tuple[Block]  # type alias
 
@@ -48,6 +51,26 @@ class MDP:
         # prevent this entirely.
         return np.inf
 
+    @classmethod
+    def from_route(cls, route: Route) -> MDP:
+        """
+        Constructs a simple MDP for the given route. This MDP consists of
+        blocks, each containing some customers on the route. The MDP will solve
+        the loading plan using these blocks to near-optimality.
+        """
+        if len(route.customers) <= NUM_BLOCKS:
+            # This we can solve optimally, with a block for each customer.
+            blocks = [Block([]) for _ in
+                      range(NUM_BLOCKS - len(route.customers))]
+            blocks.extend(Block([customer]) for customer in route.customers)
+        else:
+            # Create NUM_BLOCKS of customers by grouping nearby customers on the
+            # route. These blocks are approximately balanced.
+            blocks = list(map(Block, split(route.customers, NUM_BLOCKS)))
+
+        assert len(blocks) == NUM_BLOCKS
+        return cls(list(permutations(blocks)), route)
+
     def state_to_stacks(self,
                         state: State,
                         customer: int,
@@ -72,6 +95,38 @@ class MDP:
             self._populate_stack(stacks[idx], customer, blocks, after)
 
         return stacks
+
+    def solve(self) -> List[Stacks]:
+        """
+        Determines an optimal loading plan in blocks for each leg of the MDP's
+        route. O(|customers| * NUM_BLOCKS!), where customers are the customers
+        in the MDP's route.
+        """
+        costs = np.empty((len(self.legs), len(self.states)))
+        costs[-1, :] = 0.
+
+        decisions = np.empty((len(self.legs) - 1, len(self.states)), dtype=int)
+        leg_cost = np.empty((len(self.states), len(self.states)))
+
+        for next_customer in range(len(self.legs) - 1, 0, -1):
+            curr_customer = next_customer - 1
+
+            for from_state, to_state in product(range(len(self.states)),
+                                                repeat=2):
+                next_cost = costs[next_customer, to_state]
+
+                # Current cost is the cost made for leaving the current customer
+                # with from_state, and leaving the next customer with to_state.
+                curr_cost = self.cost(self.legs[next_customer],
+                                      self.states[from_state],
+                                      self.states[to_state])
+
+                leg_cost[from_state, to_state] = curr_cost + next_cost
+
+            costs[curr_customer, :] = np.min(leg_cost, axis=1)
+            decisions[curr_customer, :] = np.argmin(leg_cost, axis=1)
+
+        return self.plan(costs, decisions)
 
     def plan(self, costs: np.ndarray, decisions: np.ndarray) -> List[Stacks]:
         """
@@ -98,7 +153,7 @@ class MDP:
         problem = Problem()
         cust_idx = self.indices[customer]
 
-        for block_customer in itertools.chain.from_iterable(blocks):
+        for block_customer in chain.from_iterable(blocks):
             if self.indices[block_customer] == cust_idx and after \
                     or self.indices[block_customer] < cust_idx:
                 # All customers visited along the route before this customer

@@ -4,8 +4,6 @@ from dataclasses import dataclass
 from typing import List
 
 from heuristic.classes import Problem
-import numpy as np
-import bisect
 
 
 @dataclass
@@ -24,34 +22,11 @@ class Block:
         practice, but we should be able to handle it for each Block to remain
         interchangeable.
         """
-        return Block._max_capacity_used(self.customers)
-
-    def split(self) -> List[Block]:
-        """
-        Splits this block into two blocks of approximately equal capacity
-        used.
-        """
-
-        def key(idx: int) -> float:
-            # This returns the difference (positive) between both blocks, if
-            # the current block were split at this idx.
-            left = Block._max_capacity_used(self.customers[:idx])
-            right = Block._max_capacity_used(self.customers[idx:])
-
-            return abs(left - right)
-
-        split_idx = min(range(len(self.customers)), key=key)
-
-        return [Block(self.customers[:split_idx]),
-                Block(self.customers[split_idx:])]
-
-    @staticmethod
-    def _max_capacity_used(customers) -> float:
         problem = Problem()
 
         return sum(max(problem.demands[customer].volume,
                        problem.pickups[customer].volume)
-                   for customer in customers)
+                   for customer in self.customers)
 
     def __iter__(self):
         yield from self.customers
