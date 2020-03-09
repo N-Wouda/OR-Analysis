@@ -15,7 +15,7 @@ if "TRAVIS" in os.environ:
     ITERATIONS = 1000
     CRITERION = RecordToRecordTravel(200, 0, step=200 / ITERATIONS)
 else:
-    # Use these to plan around with - the above is for Travis runs, and should
+    # Use these to play around with - the above is for Travis runs, and should
     # not be changed too much.
     NUM_BLOCKS = 4
     NEARNESS = 3
