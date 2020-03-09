@@ -37,9 +37,16 @@ class MDP:
         is used to reconstruct the stack lay-outs and determine the handling
         cost.
         """
-        return Stacks.cost(customer,
-                           self.state_to_stacks(from_state, customer, False),
-                           self.state_to_stacks(to_state, customer, True))
+        before = self.state_to_stacks(from_state, customer, False)
+        after = self.state_to_stacks(to_state, customer, True)
+
+        if before.is_feasible() and after.is_feasible():
+            return Stacks.cost(customer, before, after)
+
+        # Not all block assignments are actually feasible - we attempt to
+        # prevent this by selecting 'nice' enough blocks, but that does not
+        # prevent this entirely.
+        return np.inf
 
     def state_to_stacks(self,
                         state: State,

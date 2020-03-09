@@ -76,6 +76,16 @@ class Stacks:
         assert volume >= 0.
         return problem.handling_cost * volume
 
+    def is_feasible(self) -> bool:
+        """
+        Determines if this loading plan is feasible, that is, all stack
+        volumes respect the capacity constraints.
+        """
+        problem = Problem()
+
+        return all(stack.volume() <= problem.stack_capacity
+                   for stack in self.stacks)
+
     def shortest_stack(self) -> Stack:
         """
         Returns the shortest stack, that is, the stack that has the smallest
