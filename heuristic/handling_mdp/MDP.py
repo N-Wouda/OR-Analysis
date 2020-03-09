@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 
 from heuristic.classes import Problem, Route, Stack, Stacks
-from heuristic.constants import DEPOT, NUM_BLOCKS
+from heuristic.constants import DEPOT
 from .Block import Block
 
 State = Tuple[Block]  # type alias
