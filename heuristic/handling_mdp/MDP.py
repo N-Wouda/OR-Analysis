@@ -55,17 +55,21 @@ class MDP:
         """
         Reconstructs a lay-out plan from the given state, just before or after
         the passed-in customer. O(|customers|), for the customers on the route.
+
+        NB: Splitting based on https://stackoverflow.com/a/2135920/4316405.
         """
         problem = Problem()
         stacks = Stacks(problem.num_stacks)
 
+        per_stack, remainder = divmod(len(state), problem.num_stacks)
+
         for idx in range(problem.num_stacks):
-            start = idx * NUM_BLOCKS // problem.num_stacks
-            end = start + NUM_BLOCKS // problem.num_stacks
+            blocks = state[idx * per_stack + min(idx, remainder)
+                           :(idx + 1) * per_stack + min(idx + 1, remainder)]
 
             # Populates the stack at idx with the customer data in the assigned
-            # blocks from state.
-            self._populate_stack(stacks[idx], customer, state[start:end], after)
+            # blocks.
+            self._populate_stack(stacks[idx], customer, blocks, after)
 
         return stacks
 
