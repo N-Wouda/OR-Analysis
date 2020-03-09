@@ -86,6 +86,14 @@ class Route:
         problem = Problem()
         max_capacity = problem.stack_capacity
 
+        # We insert the customer's delivery item into the shortest stack at the
+        # depot. This should be feasible for all appropriate legs of the tour.
+        d_volume = problem.demands[customer].volume
+        shortest_stack = self.plan[0].shortest_stack()
+
+        can_deliver = all(stacks[shortest_stack.index].volume() + d_volume
+                          <= max_capacity for stacks in self.plan[:at + 1])
+
         # Similarly, we insert the customer pick-up item into the shortest
         # stack at the customer. This should be feasible for all appropriate
         # legs of the tour.
@@ -95,15 +103,7 @@ class Route:
         can_pickup = all(stacks[shortest_stack.index].volume() + p_volume
                          <= max_capacity for stacks in self.plan[at + 1:])
 
-        # We insert the customer's delivery item into the shortest stack at the
-        # depot. This should be feasible for all appropriate legs of the tour.
-        d_volume = problem.demands[customer].volume
-        shortest_stack = self.plan[0].shortest_stack()
-
-        can_deliver = all(stacks[shortest_stack.index].volume() + d_volume
-                          <= max_capacity for stacks in self.plan[:at + 1])
-
-        return can_pickup and can_deliver
+        return can_deliver and can_pickup
 
     def opt_insert(self, customer: int) -> Tuple[int, float]:
         """
