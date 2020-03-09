@@ -84,22 +84,23 @@ class Route:
         O(n), where n is the number of customers in the route.
         """
         problem = Problem()
-
-        d_volume = problem.demands[customer].volume
-        p_volume = problem.pickups[customer].volume
         max_capacity = problem.stack_capacity
 
         # Similarly, we insert the customer pick-up item into the shortest
         # stack at the customer. This should be feasible for all appropriate
         # legs of the tour.
-        shortest_customer = self.plan[at].shortest_stack()
-        can_pickup = all(stacks[shortest_customer.index].volume() + d_volume
+        p_volume = problem.pickups[customer].volume
+        shortest_stack = self.plan[at].shortest_stack()
+
+        can_pickup = all(stacks[shortest_stack.index].volume() + p_volume
                          <= max_capacity for stacks in self.plan[at + 1:])
 
         # We insert the customer's delivery item into the shortest stack at the
         # depot. This should be feasible for all appropriate legs of the tour.
-        shortest_depot = self.plan[0].shortest_stack()
-        can_deliver = all(stacks[shortest_depot.index].volume() + p_volume
+        d_volume = problem.demands[customer].volume
+        shortest_stack = self.plan[0].shortest_stack()
+
+        can_deliver = all(stacks[shortest_stack.index].volume() + d_volume
                           <= max_capacity for stacks in self.plan[:at + 1])
 
         return can_pickup and can_deliver
