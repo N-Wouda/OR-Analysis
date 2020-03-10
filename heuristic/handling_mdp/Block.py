@@ -1,19 +1,22 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List
+from typing import Tuple
 
 from heuristic.classes import Problem
 
 
-@dataclass
+@dataclass(eq=True, unsafe_hash=True, init=False)
 class Block:
     """
     A block of customers. This groups several customers together, that are
     moved around by the MDP (as an approximation to the optimal handling
     policy, which would move each customer individually).
     """
-    customers: List[int]
+    customers: Tuple[int]
+
+    def __init__(self, customers):
+        self.customers = tuple(customers)
 
     def max_capacity_used(self) -> float:
         """

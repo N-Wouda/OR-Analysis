@@ -33,6 +33,7 @@ class MDP:
         return {customer: idx for idx, customer
                 in enumerate(self.legs)}
 
+    @lru_cache(None)
     def cost(self, customer: int, from_state: State, to_state: State) -> float:
         """
         Determines the costs of going from from_state before the passed-in
@@ -43,13 +44,8 @@ class MDP:
         before = self.state_to_stacks(from_state, customer, False)
         after = self.state_to_stacks(to_state, customer, True)
 
-        if before.is_feasible() and after.is_feasible():
-            return Stacks.cost(customer, before, after)
-
-        # Not all block assignments are actually feasible - we attempt to
-        # prevent this by selecting 'nice' enough blocks, but that does not
-        # prevent this entirely.
-        return np.inf
+        assert before.is_feasible() and after.is_feasible()
+        return Stacks.cost(customer, before, after)
 
     @classmethod
     def from_route(cls, route: Route) -> MDP:
@@ -71,6 +67,7 @@ class MDP:
         assert len(blocks) == NUM_BLOCKS
         return cls(list(permutations(blocks)), route)
 
+    @lru_cache(None)
     def state_to_stacks(self,
                         state: State,
                         customer: int,

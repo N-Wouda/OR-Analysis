@@ -60,6 +60,7 @@ class Problem(metaclass=Singleton):
                 for customer, pickup in enumerate(self._pickups)]
 
     @property
+    @lru_cache(1)
     def stack_capacity(self) -> float:
         return self.capacity / self.num_stacks
 

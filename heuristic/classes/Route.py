@@ -250,7 +250,7 @@ class Route:
 
         for idx, customer in enumerate(self.customers):
             # Stack lay-outs before and after the current customer.
-            before, after = self.plan[idx:idx + 2]
+            before, after = self.plan[idx], self.plan[idx + 1]
             cost += Stacks.cost(customer, before, after)
 
         return cost
