@@ -12,6 +12,9 @@ class Stack:
     a stack represents a single stack of a truck, from the rear (left) to the
     front (right).
     """
+
+    __slots__ = ['stack', '_set', '_index', '_volume']
+
     stack: Deque[Item]
     _set: Set[Item]
 

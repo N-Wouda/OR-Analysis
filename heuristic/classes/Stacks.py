@@ -9,6 +9,9 @@ from .Stack import Stack
 
 
 class Stacks:
+
+    __slots__ = ['stacks']
+
     stacks: List[Stack]
 
     def __init__(self, num_stacks: int):
