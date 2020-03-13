@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import deque
+from itertools import islice
 from typing import Deque, Set
 
 from .Item import Item
@@ -12,6 +13,9 @@ class Stack:
     a stack represents a single stack of a truck, from the rear (left) to the
     front (right).
     """
+
+    __slots__ = ['stack', '_set', '_index', '_volume']
+
     stack: Deque[Item]
     _set: Set[Item]
 
@@ -53,8 +57,7 @@ class Stack:
         the given index. Does not actually change the stack lay-out. O(n), where
         n is the number of stack items.
         """
-        return sum(self.stack[idx].volume
-                   for idx in range(min(at, len(self.stack))))
+        return sum(item.volume for item in islice(self.stack, at))
 
     def remove_volume(self, item: Item) -> float:
         """
@@ -63,8 +66,7 @@ class Stack:
         n is the number of stack items.
         """
         assert item in self
-        return sum(self.stack[idx].volume
-                   for idx in range(self.stack.index(item)))
+        return self.insert_volume(self.stack.index(item))
 
     def push_front(self, item: Item):
         """

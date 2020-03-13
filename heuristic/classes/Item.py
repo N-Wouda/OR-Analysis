@@ -4,6 +4,9 @@ from heuristic.constants import DEPOT
 
 
 class Item:
+
+    __slots__ = ['volume', 'origin', 'destination']
+
     volume: float
     origin: int
     destination: int
@@ -18,8 +21,8 @@ class Item:
         self.destination = destination
 
     def __eq__(self, other) -> bool:
-        return isinstance(other, Item) \
-               and self.volume == other.volume \
+        # NW: we don't really need a type comparison, and this is a bit faster.
+        return self.volume == other.volume \
                and self.origin == other.origin \
                and self.destination == other.destination
 

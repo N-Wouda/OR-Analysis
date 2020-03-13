@@ -57,8 +57,17 @@ class SetList(Generic[_T]):
 
         self._list[index] = value
 
-        self._set.remove(curr)
-        self._set.add(value)
+        try:
+            iter(curr)
+            iter(value)
+        except TypeError:
+            curr = [curr]
+            value = [value]
+
+        assert len(curr) == len(value)
+
+        self._set.difference_update(curr)
+        self._set.update(value)
 
     def to_list(self) -> List[_T]:
         return self._list

@@ -11,17 +11,23 @@ from .Stacks import Stacks
 
 
 class Route:
+
+    __slots__ = ['customers', 'plan', '_route_cost', '_handling_cost']
+
     customers: SetList[int]  # visited customers
     plan: List[Stacks]  # loading plan
 
-    _route_cost: Optional[float] = None  # cached results
-    _handling_cost: Optional[float] = None
+    _route_cost: Optional[float] # cached results
+    _handling_cost: Optional[float]
 
     def __init__(self,
                  customers: Union[List[int], SetList[int]],
                  plan: List[Stacks]):
         self.customers = SetList(customers)
         self.plan = plan
+
+        self._route_cost = None
+        self._handling_cost = None
 
     def __contains__(self, customer: int) -> bool:
         return customer in self.customers
@@ -244,7 +250,7 @@ class Route:
 
         for idx, customer in enumerate(self.customers):
             # Stack lay-outs before and after the current customer.
-            before, after = self.plan[idx:idx + 2]
+            before, after = self.plan[idx], self.plan[idx + 1]
             cost += Stacks.cost(customer, before, after)
 
         return cost
