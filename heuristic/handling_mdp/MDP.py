@@ -44,7 +44,6 @@ class MDP:
         before = self.state_to_stacks(from_state, customer, False)
         after = self.state_to_stacks(to_state, customer, True)
 
-        assert before.is_feasible() and after.is_feasible()
         return Stacks.cost(customer, before, after)
 
     @classmethod
@@ -123,6 +122,10 @@ class MDP:
             costs[curr_customer, :] = np.min(leg_cost, axis=1)
             decisions[curr_customer, :] = np.argmin(leg_cost, axis=1)
 
+        # Sanity check that asserts there is a feasible, finite-cost choice
+        # for each leg of the tour. If this is not true, the tour is
+        # infeasible.
+        assert np.all(np.isfinite(np.min(costs, axis=1)))
         return self.plan(costs, decisions)
 
     def plan(self, costs: np.ndarray, decisions: np.ndarray) -> List[Stacks]:
