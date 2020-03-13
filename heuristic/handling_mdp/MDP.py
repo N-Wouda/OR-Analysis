@@ -20,6 +20,8 @@ class MDP:
     legs: List[int]
 
     def __init__(self, states: List[State], route: Route):
+        assert len(states) > 0
+
         self.states = states
         self.route = route
         self.legs = [DEPOT] + route.customers.to_list()
@@ -67,8 +69,23 @@ class MDP:
         splitters = combinations(range(len(blocks)), Problem().num_stacks - 1)
         configurations = product(permutations(blocks), splitters)
 
+        configs = []
+
+        problem = Problem()
+
+        for configuration in configurations:
+            splits = np.split(*configuration)
+
+            if all(sum(block.max_capacity_used() for block in blocks)
+                   <= problem.stack_capacity for blocks in splits):
+                configs.append(configuration)
+            else:
+                print()
+                for blocks in splits:
+                    print(blocks, sum(block.max_capacity_used() for block in blocks))
+
         assert len(blocks) <= NUM_BLOCKS
-        return cls(list(configurations), route)
+        return cls(list(configs), route)
 
     @lru_cache(None)
     def state_to_stacks(self,

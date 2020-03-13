@@ -16,7 +16,7 @@ class LocalSearch:
         self.operators.append(operator)
 
     def __call__(self, current: Solution, rnd_state: RandomState) -> Solution:
-
+        return current
         def improve(solution):
             for operator in self.operators:
                 new_solution = operator(solution, rnd_state)
