@@ -9,7 +9,8 @@ def split(customers: Union[List[int], SetList[int]], num_partitions: int):
     Splits the given list of customers into num_partitions partitions of
     roughly equal weight.
 
-    Based on https://stackoverflow.com/a/35518541/4316405.
+    Based on https://stackoverflow.com/a/35518541/4316405, but adapted lightly
+    to match our needs.
     """
     problem = Problem()
 
@@ -40,7 +41,8 @@ def split(customers: Union[List[int], SetList[int]], num_partitions: int):
 
         seen += max_customer_volume
 
-        if chunk_sum < average_sum:
+        if chunk_sum < average_sum \
+                and chunk_sum + max_customer_volume <= problem.stack_capacity:
             chunk.append(customer)
             chunk_sum += max_customer_volume
         else:

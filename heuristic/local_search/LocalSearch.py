@@ -48,8 +48,6 @@ class LocalSearch:
             # Even with an MDP, this can happen as we implicitly assume
             # an equal number of blocks are assigned to each stack. That
             # is not always optimal, hence this check.
-            # TODO extend the state space to allow the stack assignment to
-            #  be done explicitly by the algorithm?
             return
 
         route.plan = plan

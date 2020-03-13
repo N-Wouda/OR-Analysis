@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
-from itertools import chain, permutations, product
+from itertools import chain, combinations, permutations, product
 from typing import Dict, List, Tuple
 
 import numpy as np
@@ -11,7 +11,7 @@ from heuristic.constants import DEPOT, NUM_BLOCKS
 from .Block import Block
 from .split import split
 
-State = Tuple[Block]  # type alias
+State = Tuple[Tuple[Block], Tuple[int]]  # type alias
 
 
 class MDP:
@@ -44,7 +44,10 @@ class MDP:
         before = self.state_to_stacks(from_state, customer, False)
         after = self.state_to_stacks(to_state, customer, True)
 
-        return Stacks.cost(customer, before, after)
+        if before.is_feasible() and after.is_feasible():
+            return Stacks.cost(customer, before, after)
+
+        return np.inf
 
     @classmethod
     def from_route(cls, route: Route) -> MDP:
@@ -55,16 +58,17 @@ class MDP:
         """
         if len(route.customers) <= NUM_BLOCKS:
             # This we can solve optimally, with a block for each customer.
-            blocks = [Block([]) for _ in
-                      range(NUM_BLOCKS - len(route.customers))]
-            blocks.extend(Block([customer]) for customer in route.customers)
+            blocks = [Block([customer]) for customer in route.customers]
         else:
             # Create NUM_BLOCKS of customers by grouping nearby customers on the
             # route. These blocks are approximately balanced.
             blocks = list(map(Block, split(route.customers, NUM_BLOCKS)))
 
-        assert len(blocks) == NUM_BLOCKS
-        return cls(list(permutations(blocks)), route)
+        splitters = combinations(range(len(blocks)), Problem().num_stacks - 1)
+        configurations = product(permutations(blocks), splitters)
+
+        assert len(blocks) <= NUM_BLOCKS
+        return cls(list(configurations), route)
 
     @lru_cache(None)
     def state_to_stacks(self,
@@ -80,12 +84,7 @@ class MDP:
         problem = Problem()
         stacks = Stacks(problem.num_stacks)
 
-        per_stack, remainder = divmod(len(state), problem.num_stacks)
-
-        for idx in range(problem.num_stacks):
-            blocks = state[idx * per_stack + min(idx, remainder)
-                           :(idx + 1) * per_stack + min(idx + 1, remainder)]
-
+        for idx, blocks in enumerate(np.split(*state)):
             # Populates the stack at idx with the customer data in the assigned
             # blocks.
             self._populate_stack(stacks[idx], customer, blocks, after)
@@ -122,10 +121,6 @@ class MDP:
             costs[curr_customer, :] = np.min(leg_cost, axis=1)
             decisions[curr_customer, :] = np.argmin(leg_cost, axis=1)
 
-        # Sanity check that asserts there is a feasible, finite-cost choice
-        # for each leg of the tour. If this is not true, the tour is
-        # infeasible.
-        assert np.all(np.isfinite(np.min(costs, axis=1)))
         return self.plan(costs, decisions)
 
     def plan(self, costs: np.ndarray, decisions: np.ndarray) -> List[Stacks]:
