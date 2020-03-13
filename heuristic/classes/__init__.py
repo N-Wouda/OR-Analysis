@@ -1,3 +1,4 @@
+from .Heap import Heap
 from .Item import Item
 from .Problem import Problem
 from .Route import Route
