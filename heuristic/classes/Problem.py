@@ -133,4 +133,13 @@ class Problem(metaclass=Singleton):
         problem._demands = demands
         problem._pickups = pickups
 
+        # These checks are due to the initially faulty large instances we were
+        # provided, and check if all demands and pickups can at least be
+        # inserted into a stack.
+        assert np.all(demands >= 0.)
+        assert np.all(demands <= problem.stack_capacity)
+
+        assert np.all(pickups >= 0.)
+        assert np.all(pickups <= problem.stack_capacity)
+
         return problem
