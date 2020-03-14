@@ -106,8 +106,10 @@ class Route:
         p_volume = problem.pickups[customer].volume
         shortest_stack = self.plan[at].shortest_stack()
 
+        # From at, since we copy at and turn it into the customer's loading
+        # plan (which should be able to hold the pickup item).
         can_pickup = all(stacks[shortest_stack.index].volume() + p_volume
-                         <= max_capacity for stacks in self.plan[at + 1:])
+                         <= max_capacity for stacks in self.plan[at:])
 
         return can_deliver and can_pickup
 
