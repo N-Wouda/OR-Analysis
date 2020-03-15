@@ -12,23 +12,23 @@ class LocalSearch:
         improved = current.copy()
 
         for idx, route in enumerate(improved.routes):
-            improved.routes[idx] = self._improve_route(route)
+            new_route = self._improve_route(route)
+
+            if new_route.cost() < route.cost():
+                improved.routes[idx] = new_route
 
         assert improved.objective() <= current.objective()
         return improved
 
     def _improve_route(self, route: Route):
-        return route
         # TODO check all this *very* carefully, and expand upon it where needed
         #  - we should probably also do something about handling!
-        self._opt_tour(route)
-
-        return route
+        return self._opt_tour(route)
 
     @staticmethod
     def _opt_tour(route: Route):
         if len(route.customers) == 1 or len(route.customers) > 15:
-            return  # this is either too small a route, or too large.
+            return route  # this is either too small a route, or too large.
 
         problem = Problem()
 
@@ -39,17 +39,8 @@ class LocalSearch:
 
         for customer in reversed(customers[held_karp(distances)]):
             if not candidate.can_insert(customer, len(candidate.customers)):
-                return  # infeasible route.
+                return route  # candidate is infeasible.
 
             candidate.insert_customer(customer, len(candidate.customers))
 
-        if route.cost() < candidate.cost():
-            # This can happen when the handling costs balloon - the routing is
-            # weakly better, but that does not say much about the handling.
-            return
-
-        route.customers = candidate.customers
-        route.invalidate_routing_cache()
-
-        route.plan = candidate.plan
-        route.invalidate_handling_cache()
+        return candidate
