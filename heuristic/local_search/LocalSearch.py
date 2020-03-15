@@ -2,7 +2,7 @@ import numpy as np
 from numpy.random import RandomState
 
 from heuristic.classes import Problem, Route, Solution, Stacks
-from heuristic.constants import DEPOT
+from heuristic.constants import DEPOT, MAX_OPT_ROUTE_LENGTH
 from .held_karp import held_karp
 
 
@@ -21,15 +21,16 @@ class LocalSearch:
         return improved
 
     def _improve_route(self, route: Route):
-        # TODO check all this *very* carefully, and expand upon it where needed
-        #  - we should probably also do something about handling!
-        if len(route.customers) <= 15:
+        if len(route.customers) <= MAX_OPT_ROUTE_LENGTH:
             # This we can solve optimally using a dynamic programming based
             # algorithm (Held-Karp) for the TSP.
             new_route = self._held_karp(route)
         else:
-            # This is constructive, using the Lin-Kernighan heuristic.
+            # This is too large to be solved optimally, and can instead be
+            # solved using a good heuristic. We use Lin-Kernighan.
             new_route = self._lin_kernighan(route)
+
+        # TODO we should probably also do something about handling!
 
         return new_route
 
@@ -55,4 +56,5 @@ class LocalSearch:
 
     @staticmethod
     def _lin_kernighan(route: Route) -> Route:
+        # TODO
         return route
