@@ -18,6 +18,7 @@ class LocalSearch:
         return improved
 
     def _improve_route(self, route: Route):
+        return route
         # TODO check all this *very* carefully, and expand upon it where needed
         #  - we should probably also do something about handling!
         self._opt_tour(route)
