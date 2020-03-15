@@ -23,12 +23,20 @@ class LocalSearch:
     def _improve_route(self, route: Route):
         # TODO check all this *very* carefully, and expand upon it where needed
         #  - we should probably also do something about handling!
-        return self._opt_tour(route)
+        if len(route.customers) <= 15:
+            # This we can solve optimally using a dynamic programming based
+            # algorithm (Held-Karp) for the TSP.
+            new_route = self._held_karp(route)
+        else:
+            # This is constructive, using the Lin-Kernighan heuristic.
+            new_route = self._lin_kernighan(route)
+
+        return new_route
 
     @staticmethod
-    def _opt_tour(route: Route):
-        if len(route.customers) == 1 or len(route.customers) > 15:
-            return route  # this is either too small a route, or too large.
+    def _held_karp(route: Route) -> Route:
+        if len(route.customers) == 1:
+            return route  # this is already optimal (single customer route).
 
         problem = Problem()
 
@@ -44,3 +52,7 @@ class LocalSearch:
             candidate.insert_customer(customer, len(candidate.customers))
 
         return candidate
+
+    @staticmethod
+    def _lin_kernighan(route: Route) -> Route:
+        return route
