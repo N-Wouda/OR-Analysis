@@ -1,47 +1,65 @@
-from functools import lru_cache
-from itertools import islice
-from typing import FrozenSet, List
+from itertools import combinations
+from typing import List
 
-from heuristic.classes import Problem, Route, Stacks
-from heuristic.constants import DEPOT
+import numpy as np
 
 
-def held_karp(route: Route) -> Route:
+def held_karp(distances: np.ndarray) -> List[int]:
     """
     The Held-Karp shortest tour of this set of customers. For each customer C,
     find the shortest segment from DEPOT (the start) to C. Out of all these
     shortest segments, pick the one that is the shortest tour.
 
-    O(2^n n^2), with n the number of customers.
+    O(2^n n^2), with n the number of customers. Taken largely from the code at
+    https://github.com/CarlEkerot/held-karp, which is fairly efficient.
     """
-    customers = frozenset(route.customers.to_set())
-    tour = min((shortest_segment(DEPOT,
-                                 customers - {customer},
-                                 customer) + [DEPOT]
-                for customer in customers if customer != DEPOT),
-               key=Route.distance)
+    n = len(distances)
 
-    route = Route([], [Stacks(Problem().num_stacks)])
+    # Maps each subset of the nodes to the cost to reach that subset, as well
+    # as what node it passed before reaching this subset.
+    # Node subsets are represented as set bits.
+    costs = {}
 
-    # This slices off the DEPOT from the start and end, as that's not an actual
-    # customer.
-    for customer in islice(tour, 1, len(tour) - 1):
-        route.insert_customer(customer, len(route.customers))
+    # Set transition cost from initial state
+    for k in range(1, n):
+        costs[1 << k, k] = (distances[0, k], 0)
 
-    return route
+    # Iterate subsets of increasing length and store intermediate results
+    # in classic dynamic programming manner
+    for subset_size in range(2, n):
+        for subset in combinations(range(1, n), subset_size):
+            # Set bits for all nodes in this subset
+            bits = 0
 
+            for bit in subset:
+                bits |= 1 << bit
 
-@lru_cache(None)
-def shortest_segment(start: int,
-                     between: FrozenSet[int],
-                     end: int) -> List[int]:
-    """
-    Returns the shortest segment starting at start, going through between, and
-    ending at end.
-    """
-    if len(between) == 0:
-        return [start, end]
+            # Find the lowest cost to get to this subset
+            for k in subset:
+                prev = bits & ~(1 << k)
+                res = []
 
-    return min((shortest_segment(start, between - {customer}, customer) + [end]
-                for customer in between),
-               key=Route.distance)
+                for m in subset:
+                    if m == 0 or m == k:
+                        continue
+
+                    res.append((costs[prev, m][0] + distances[m, k], m))
+
+                costs[bits, k] = min(res)
+
+    # We're interested in all bits but the least significant (the start state)
+    bits = (2 ** n - 1) - 1
+
+    # Calculate optimal cost
+    opt, parent = min((costs[bits, k][0] + distances[k, 0], k)
+                      for k in range(1, n))
+
+    # Backtrack to find full path
+    path = []
+    for i in range(n - 1):
+        path.append(parent)
+        new_bits = bits & ~(1 << parent)
+        _, parent = costs[bits, parent]
+        bits = new_bits
+
+    return path
