@@ -24,10 +24,7 @@ def opt_route(route: Route) -> Route:
     routing = pywrapcp.RoutingModel(manager)
 
     def distance_callback(from_index, to_index):
-        from_node = manager.IndexToNode(from_index)
-        to_node = manager.IndexToNode(to_index)
-
-        return distances[from_node, to_node]
+        return distances[from_index, to_index]
 
     transit_callback = routing.RegisterTransitCallback(distance_callback)
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback)
@@ -42,11 +39,11 @@ def opt_route(route: Route) -> Route:
 
     # Reconstruct a candidate route from the solution output.
     index = routing.Start(0)
-    path = [manager.IndexToNode(index)]
+    path = [index]
 
     while not routing.IsEnd(index):
         index = solution.Value(routing.NextVar(index))
-        path.append(manager.IndexToNode(index))
+        path.append(index)
 
     candidate = Route([], [Stacks(problem.num_stacks)])
 
@@ -56,5 +53,8 @@ def opt_route(route: Route) -> Route:
 
         candidate.insert_customer(customer, len(candidate.customers))
 
-    assert candidate.routing_cost() <= route.routing_cost()
+    c_cost = candidate.routing_cost()
+    r_cost = route.routing_cost()
+
+    assert c_cost <= r_cost or np.isclose(c_cost, r_cost)
     return candidate
