@@ -27,5 +27,9 @@ class LocalSearch:
             return opt_route(route)
 
         # TODO we should probably also do something about handling!
+        #   e.g.:
+        #   - fix up later pickup insertions in front of earlier pickups
+        #   - check if we can make things nicer by grouping all customers
+        #     together in certain stacks?
 
         return route
