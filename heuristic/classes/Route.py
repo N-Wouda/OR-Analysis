@@ -1,4 +1,4 @@
-import itertools
+from itertools import tee, takewhile
 import operator
 from typing import List, Optional, Tuple, Union
 
@@ -11,13 +11,12 @@ from .Stacks import Stacks
 
 
 class Route:
-
     __slots__ = ['customers', 'plan', '_route_cost', '_handling_cost']
 
     customers: SetList[int]  # visited customers
     plan: List[Stacks]  # loading plan
 
-    _route_cost: Optional[float] # cached results
+    _route_cost: Optional[float]  # cached results
     _handling_cost: Optional[float]
 
     def __init__(self,
@@ -49,7 +48,7 @@ class Route:
 
         # Constructs two iterators from the passed-in customers. This is fairly
         # efficient, as it avoids copying.
-        from_custs, to_custs = itertools.tee(customers)
+        from_custs, to_custs = tee(customers)
         next(to_custs, None)
 
         return sum(problem.distances[first + 1, second + 1]
@@ -151,10 +150,25 @@ class Route:
         # Inserts customer pickup item into the loading plan. The stack to
         # insert into is the shortest stack at the customer (since the pickup
         # item is carried from the customer to the depot).
-        stack_idx = self.plan[at + 1].shortest_stack().index
+        stack = self.plan[at + 1].shortest_stack()
 
-        for plan in self.plan[at + 1:]:
-            plan[stack_idx].push_rear(problem.pickups[customer])
+        _, volume = stack.deliveries_in_stack()
+        front = list(takewhile(lambda item: item.is_pickup(), reversed(stack)))
+
+        # Compares if placing the pick-up item near the front is cheaper than
+        # inserting it in the rear. The former incurs costs *now*, whereas for
+        # the later the item might have to move as a later point in the tour.
+        # This is a local choice: only deliveries currently in the stack are
+        # counted; any pickups inserted later in the tour (in front of this
+        # pickup item) are not.
+        if stack.volume() - sum(item.volume for item in front) < volume:
+            for plan in self.plan[at + 1:]:
+                stack = plan[stack.index]
+                plan[stack.index].push(len(stack) - len(front),
+                                       problem.pickups[customer])
+        else:
+            for plan in self.plan[at + 1:]:
+                plan[stack.index].push_rear(problem.pickups[customer])
 
         # Updates routing costs. Handling costs are more complicated, and best
         # recomputed entirely.

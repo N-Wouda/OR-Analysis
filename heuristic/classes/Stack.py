@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from collections import deque
+from functools import partial
 from itertools import islice
-from typing import Deque, Set
+from typing import Deque, Set, Tuple
 
 from .Item import Item
 
@@ -51,6 +52,13 @@ class Stack:
         """
         return self._index
 
+    def deliveries_in_stack(self) -> Tuple[int, float]:
+        """
+        Number of deliverable items in this stack, and their combined volume.
+        """
+        volumes = [item.volume for item in self.stack if item.is_delivery()]
+        return len(volumes), sum(volumes)
+
     def insert_volume(self, at: int) -> float:
         """
         Computes the volume that needs to be moved in order to insert an item at
@@ -72,17 +80,19 @@ class Stack:
         """
         Places the item in the front of the truck (right). O(1).
         """
-        self.stack.append(item)
-        self._set.add(item)
-        self._volume += item.volume
+        self._append(self.stack.append, item)
 
     def push_rear(self, item: Item):
         """
         Adds item to the rear of the truck (left). O(1).
         """
-        self.stack.appendleft(item)
-        self._set.add(item)
-        self._volume += item.volume
+        self._append(self.stack.appendleft, item)
+
+    def push(self, idx: int, item: Item):
+        """
+        Generalised push, pushes an item at index idx (from the rear).
+        """
+        self._append(partial(self.stack.insert, idx), item)
 
     def remove(self, item: Item):
         """
@@ -98,6 +108,11 @@ class Stack:
         Returns the currently used volume by the items in this stack. O(1).
         """
         return self._volume
+
+    def _append(self, func, item: Item):
+        func(item)
+        self._set.add(item)
+        self._volume += item.volume
 
     def __str__(self):
         """
