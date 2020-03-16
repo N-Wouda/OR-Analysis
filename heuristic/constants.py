@@ -13,6 +13,9 @@ if "TRAVIS" in os.environ:
 
     ITERATIONS = 1000
     CRITERION = RecordToRecordTravel(200, 0, step=200 / ITERATIONS)
+
+    M = 10000
+    MAX_STACK_INDEX = 5
 else:
     # Use these to play around with - the above is for Travis runs, and should
     # not be changed too much.
@@ -23,3 +26,6 @@ else:
 
     ITERATIONS = 25000
     CRITERION = RecordToRecordTravel(250, 0, step=250 / ITERATIONS)
+
+    M = 10000
+    MAX_STACK_INDEX = 5
