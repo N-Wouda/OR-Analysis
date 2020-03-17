@@ -7,8 +7,8 @@ def edge_del_pick_dependence(problem: Problem, solver):
     Ensures an edge to a customer has to be traveled if a pickup or delivery
     will take place at the customer.
     """
-    for customer_1 in range(1, problem.num_customers):
-        for customer_2 in range(1, problem.num_customers):
+    for customer_1 in range(problem.num_customers):
+        for customer_2 in range(problem.num_customers):
             for stack in range(problem.num_stacks):
                 for index in range(MAX_STACK_INDEX):
                     solver.add_constraint(

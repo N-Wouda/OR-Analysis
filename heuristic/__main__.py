@@ -37,6 +37,16 @@ def main():
 
     solution.to_file(f"solutions/oracs_{problem.instance}.csv")
 
+    # print(solution.routes[0])
+
+    import matplotlib.pyplot as plt
+    result.best_state.plot()
+    plt.show()
+
+    _, ax = plt.subplots(figsize=(12, 6))
+    result.plot_objectives(ax=ax, lw=2)
+    plt.show()
+
 
 if __name__ == "__main__":
     main()

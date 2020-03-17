@@ -2,9 +2,9 @@ from heuristic.classes import Problem
 from heuristic.constants import MAX_STACK_INDEX
 
 
-def pickups(problem: Problem, solver):
+def pickup(problem: Problem, solver):
     """
-    Ensures customer demands are met.
+    Ensures customer pickups are picked up.
     """
     for customer_1 in range(1, problem.num_customers):
         assignments = solver.sum(
