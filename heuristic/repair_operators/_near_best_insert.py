@@ -1,6 +1,6 @@
 from numpy.random import RandomState
 
-from heuristic.classes import Heap, Route, Solution
+from heuristic.classes import Heap, Problem, Solution
 from heuristic.constants import DEPOT
 from heuristic.functions import create_single_customer_route
 
@@ -17,6 +17,7 @@ def _near_best_insert(nearness: int,
     Note: nearness == 1 implies a full greedy insert.
     """
     rnd_state.shuffle(current.unassigned)
+    problem = Problem()
 
     while len(current.unassigned) != 0:
         customer = current.unassigned.pop()
@@ -33,7 +34,7 @@ def _near_best_insert(nearness: int,
             routes = feasible_routes.nsmallest(num_smallest)
 
             cost, (insert_idx, route) = routes[rnd_state.choice(num_smallest)]
-            cost_new = Route.distance([DEPOT, customer, DEPOT])
+            cost_new = problem.short_distances[DEPOT, customer, DEPOT]
 
             if cost_new > cost:
                 route.insert_customer(customer, insert_idx)

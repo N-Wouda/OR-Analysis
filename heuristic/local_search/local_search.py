@@ -19,8 +19,6 @@ def local_search(current: Solution, rnd_state: RandomState) -> Solution:
 
 
 def _improve_route(route: Route):
-    # TODO should we really do routing optimally? This might hurt handling,
-    #   although that does not appear to be a problem in practice.
     if len(route.customers) <= MAX_OPT_ROUTE_LENGTH:
         # This we can solve optimally (limiting routing cost).
         new_route = opt_route(route)
@@ -34,5 +32,7 @@ def _improve_route(route: Route):
     #   - fix up later pickup insertions in front of earlier pickups
     #     e.g. by re-inserting pickups for customers?
     #   - use empty or near empty stacks more?
+    #   - switch customers around if that improves handling more than it hurts
+    #     in routing cost?
 
     return new_route

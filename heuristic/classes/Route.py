@@ -98,6 +98,11 @@ class Route:
                                            self.plan[0].shortest_stack().index,
                                            at + 1)
 
+        if not can_deliver:
+            # This is already infeasible, and cutting it off here saves another
+            # computation below.
+            return False
+
         # Similarly, we insert the customer pick-up item into the shortest stack
         # at the customer. From at, since we copy at and turn it into the
         # customer's loading plan (which should be feasible).
@@ -184,10 +189,8 @@ class Route:
             for plan in self.plan[at + 1:]:
                 plan[stack.index].push_rear(pickup)
 
-        # Updates routing costs. Handling costs are more complicated, and best
-        # recomputed entirely.
         self._update_routing_cost(customer, at, "insert")
-        self.invalidate_handling_cache()
+        self._update_handling_cost(customer, at, "insert")
 
     def remove_customer(self, customer: int):
         """
@@ -214,10 +217,8 @@ class Route:
         del self.customers[idx]
         del self.plan[idx + 1]
 
-        # Updates routing costs. Handling costs are more complicated, and best
-        # recomputed entirely.
         self._update_routing_cost(customer, idx, "remove")
-        self.invalidate_handling_cache()
+        self._update_handling_cost(customer, idx, "remove")
 
     def _insert_cost(self, customer: int, at: int) -> float:
         """
@@ -228,15 +229,17 @@ class Route:
         minus 1 -> 3 (if we're inserting 2), but that did not improve costs.
         Perhaps that's too restrictive?
         """
+        problem = Problem()
+
         if at == 0:
-            return Route.distance([DEPOT, customer, self.customers[0]])
+            return problem.short_distances[DEPOT, customer, self.customers[0]]
 
         if at == len(self.customers):
-            return Route.distance([self.customers[-1], customer, DEPOT])
+            return problem.short_distances[self.customers[-1], customer, DEPOT]
 
-        return Route.distance([self.customers[at - 1],
-                               customer,
-                               self.customers[at]])
+        return problem.short_distances[self.customers[at - 1],
+                                       customer,
+                                       self.customers[at]]
 
     def _update_routing_cost(self, customer: int, idx: int, update_type):
         """
@@ -250,8 +253,8 @@ class Route:
         ValueError
             When the update type is not understood.
         """
-        if self._route_cost is None:  # unset, so we need to compute in full.
-            return self.routing_cost()
+        if self._route_cost is None:  # computation can be delayed.
+            return
 
         prev_leg = DEPOT if idx == 0 else self.customers[idx - 1]
 
@@ -262,12 +265,41 @@ class Route:
 
         next_leg = DEPOT if idx == len(self.customers) else self.customers[idx]
 
+        problem = Problem()
+
         if update_type == "remove":
-            self._route_cost -= Route.distance([prev_leg, customer, next_leg])
-            self._route_cost += Route.distance([prev_leg, next_leg])
+            self._route_cost -= problem.short_distances[prev_leg,
+                                                        customer,
+                                                        next_leg]
+            self._route_cost += problem.distances[prev_leg + 1, next_leg + 1]
         elif update_type == "insert":
-            self._route_cost += Route.distance([prev_leg, customer, next_leg])
-            self._route_cost -= Route.distance([prev_leg, next_leg])
+            self._route_cost += problem.short_distances[prev_leg,
+                                                        customer,
+                                                        next_leg]
+            self._route_cost -= problem.distances[prev_leg + 1, next_leg + 1]
+        else:
+            raise ValueError(f"Update type `{update_type}' is not understood.")
+
+    def _update_handling_cost(self, customer: int, idx: int, update_type):
+        """
+        Updates the handling costs due to removing or inserting the passed-in
+        customer at position idx.
+
+        Raises
+        ------
+        ValueError
+            When the update type is not understood.
+        """
+        if self._handling_cost is None:  # computation can be delayed.
+            return
+
+        self.invalidate_handling_cache()
+        # TODO implement this (it's quite hard!)
+
+        if update_type == "remove":
+            pass
+        elif update_type == "insert":
+            pass
         else:
             raise ValueError(f"Update type `{update_type}' is not understood.")
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from itertools import product
 from typing import List
 
 import numpy as np
@@ -46,6 +47,24 @@ class Problem(metaclass=Singleton):
     @property
     def distances(self) -> np.ndarray:
         return self._distances
+
+    @property
+    @lru_cache(1)
+    def short_distances(self) -> np.ndarray:
+        """
+        Pre-computes some short (three length) distances, so those do not have
+        to be recomputed again.
+        """
+        from .Route import Route
+
+        distances = np.empty((self.num_customers + 1,
+                              self.num_customers + 1,
+                              self.num_customers + 1))
+
+        for route in product(range(DEPOT, self.num_customers), repeat=3):
+            distances[route] = Route.distance(route)
+
+        return distances
 
     @property
     @lru_cache(1)

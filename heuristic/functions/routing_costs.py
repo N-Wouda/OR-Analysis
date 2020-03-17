@@ -24,6 +24,7 @@ def routing_costs(sol: Solution) -> np.ndarray:
 
 def _customer_routing_cost(route: Route, customer: int, idx: int) -> float:
     customers = route.customers
+    problem = Problem()
 
     assert 0 <= idx < len(customers)
     assert customer in route
@@ -34,15 +35,15 @@ def _customer_routing_cost(route: Route, customer: int, idx: int) -> float:
         return route.routing_cost()
 
     if idx == 0:
-        cost = Route.distance([DEPOT, customer, customers[1]])
-        cost -= Route.distance([DEPOT, customers[1]])
+        cost = problem.short_distances[DEPOT, customer, customers[1]]
+        cost -= problem.distances[DEPOT + 1, customers[1] + 1]
         return cost
 
     if idx == len(route.customers) - 1:
-        cost = Route.distance([customers[-2], customer, DEPOT])
-        cost -= Route.distance([customers[-2], DEPOT])
+        cost = problem.short_distances[customers[-2], customer, DEPOT]
+        cost -= problem.distances[customers[-2] + 1, DEPOT + 1]
         return cost
 
-    cost = Route.distance([customers[idx - 1], customer, customers[idx + 1]])
-    cost -= Route.distance([customers[idx - 1], customers[idx + 1]])
+    cost = problem.short_distances[customers[idx - 1], customer, customers[idx + 1]]
+    cost -= problem.distances[customers[idx - 1] + 1, customers[idx + 1] + 1]
     return cost
