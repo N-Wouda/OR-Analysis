@@ -143,19 +143,29 @@ class Route:
         # insert into is the shortest stack at the depot (since the delivery
         # item is carried from the depot to the customer).
         stack_idx = self.plan[0].shortest_stack().index
+        delivery = problem.demands[customer]
 
         for plan in self.plan[:at + 1]:
-            plan[stack_idx].push_rear(problem.demands[customer])
+            plan[stack_idx].push_rear(delivery)
+
+        pickup = problem.pickups[customer]
 
         # Inserts customer pickup item into the loading plan. The stack to
         # insert into is the shortest stack at the customer (since the pickup
         # item is carried from the customer to the depot).
-        stack = self.plan[at + 1].shortest_stack()
+        fitting_stacks = [stack for stack in self.plan[at + 1]
+                          if stack.volume() + pickup.volume
+                          <= problem.stack_capacity]
+
+        for stack in fitting_stacks:
+            if stack.deliveries_in_stack() == 0:
+                break
+        else:
+            stack = self.plan[at + 1].shortest_stack()
 
         # The pickup item will have to be moved for each delivery item that's
         # currently in the stack, if we insert it in the rear.
-        num_deliveries, _ = stack.deliveries_in_stack()
-        volume = num_deliveries * problem.pickups[customer].volume
+        volume = stack.deliveries_in_stack() * pickup.volume
 
         # Pickups in the front (these are never moved, so we want to insert
         # our pick-up item just after them).
@@ -164,18 +174,17 @@ class Route:
 
         # Compares if placing the pick-up item near the front is cheaper than
         # inserting it in the rear. The former incurs costs *now*, whereas for
-        # the later the item might have to move as a later point in the tour.
+        # the latter the item might have to move at a later point in the tour.
         # This is a local choice: only deliveries currently in the stack are
         # counted; any pickups inserted later in the tour (in front of this
         # pickup item) are not.
         if stack.volume() - sum(item.volume for item in front_pickups) < volume:
             for plan in self.plan[at + 1:]:
                 stack = plan[stack.index]
-                plan[stack.index].push(len(stack) - len(front_pickups),
-                                       problem.pickups[customer])
+                plan[stack.index].push(len(stack) - len(front_pickups), pickup)
         else:
             for plan in self.plan[at + 1:]:
-                plan[stack.index].push_rear(problem.pickups[customer])
+                plan[stack.index].push_rear(pickup)
 
         # Updates routing costs. Handling costs are more complicated, and best
         # recomputed entirely.

@@ -52,12 +52,17 @@ class Stack:
         """
         return self._index
 
-    def deliveries_in_stack(self) -> Tuple[int, float]:
+    def deliveries_in_stack(self) -> int:
         """
-        Number of deliverable items in this stack, and their combined volume.
+        Number of deliverable items in this stack.
         """
-        volumes = [item.volume for item in self.stack if item.is_delivery()]
-        return len(volumes), sum(volumes)
+        return sum(item.is_delivery() for item in self.stack)
+
+    def pickups_in_stack(self) -> int:
+        """
+        Number of pickup items in this stack.
+        """
+        return len(self.stack) - self.deliveries_in_stack()
 
     def insert_volume(self, at: int) -> float:
         """

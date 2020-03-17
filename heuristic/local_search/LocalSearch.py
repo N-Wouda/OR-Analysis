@@ -6,6 +6,7 @@ from .opt_route import opt_route
 
 
 class LocalSearch:
+    # TODO should this be an object anymore?
 
     def __call__(self, current: Solution, rnd_state: RandomState) -> Solution:
         improved = current.copy()
@@ -20,16 +21,19 @@ class LocalSearch:
         return improved
 
     def _improve_route(self, route: Route):
+        # TODO should we really do routing optimally? This might hurt handling,
+        #   although that does not appear to be a problem in practice.
         if len(route.customers) <= MAX_OPT_ROUTE_LENGTH:
-            # This we can solve optimally (limiting routing cost). Very few
-            # solutions have longer routes than the maximum route length, so
-            # this is used in almost all cases.
-            return opt_route(route)
+            # This we can solve optimally (limiting routing cost).
+            new_route = opt_route(route)
+        else:
+            # This should be *rare*, so there's no real problem skipping routing
+            # optimisation here.
+            new_route = route
 
         # TODO we should probably also do something about handling!
         #   e.g.:
         #   - fix up later pickup insertions in front of earlier pickups
-        #   - check if we can make things nicer by grouping all customers
-        #     together in certain stacks?
+        #     (does that still happen?)
 
-        return route
+        return new_route
