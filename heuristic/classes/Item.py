@@ -43,12 +43,8 @@ class Item:
     def __str__(self):
         assert self.is_pickup() or self.is_delivery()
 
-        if self.is_pickup():
-            # Pick-up item, so this came from a customer.
-            return "p" + str(self.origin + 1)
-
-        # Delivery item, so this is going to a customer.
-        return "d" + str(self.destination + 1)
+        item_type = "p" if self.is_pickup() else "d"
+        return item_type + str(self.customer + 1)
 
     def __repr__(self):
         return f"Item({self}, {self.volume:.2f})"

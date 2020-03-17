@@ -1,1 +1,1 @@
-from .LocalSearch import LocalSearch
+from .local_search import local_search

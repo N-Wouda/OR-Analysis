@@ -42,6 +42,9 @@ class Stack:
     def __reversed__(self):
         yield from reversed(self.stack)
 
+    def __getitem__(self, idx: int):
+        return self.stack[idx]
+
     def __len__(self):
         return len(self.stack)
 

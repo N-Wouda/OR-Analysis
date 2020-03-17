@@ -164,16 +164,7 @@ class Route:
             plan[stack_idx].push_rear(delivery)
 
         pickup = problem.pickups[customer]
-
-        for stack in self.plan[at + 1]:
-            # Finds the first stack of only pickup items where this pickup
-            # item can be inserted. This is always weakly better than just
-            # inserting it into the shortest stack.
-            if stack.deliveries_in_stack() == 0 \
-                    and self.can_insert_item(pickup, stack.index, at + 1):
-                break
-        else:
-            stack = self.plan[at + 1].shortest_stack()  # feasible fall-back.
+        stack = self.plan[at + 1].shortest_stack()
 
         # The pickup item will have to be moved for each delivery item that's
         # currently in the stack, if we insert it in the rear.
