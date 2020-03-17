@@ -34,6 +34,6 @@ class LocalSearch:
         # TODO we should probably also do something about handling!
         #   e.g.:
         #   - fix up later pickup insertions in front of earlier pickups
-        #     (does that still happen?)
+        #   - use empty or near empty stacks more?
 
         return new_route

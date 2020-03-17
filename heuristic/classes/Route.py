@@ -1,10 +1,11 @@
-from itertools import tee, takewhile
 import operator
+from itertools import takewhile, tee
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
 from heuristic.constants import DEPOT
+from .Item import Item
 from .Problem import Problem
 from .SetList import SetList
 from .Stacks import Stacks
@@ -89,31 +90,47 @@ class Route:
         O(n), where n is the number of customers in the route.
         """
         problem = Problem()
-        max_capacity = problem.stack_capacity
 
         # We insert the customer's delivery item into the shortest stack at the
-        # depot. This should be feasible for all appropriate legs of the tour.
-        d_volume = problem.demands[customer].volume
-        shortest_stack = self.plan[0].shortest_stack()
+        # depot. Including at: we need to make sure the delivery item  fits into
+        # stacks up to and including the customer before at, and the depot.
+        can_deliver = self.can_insert_item(problem.demands[customer],
+                                           self.plan[0].shortest_stack().index,
+                                           at + 1)
 
-        # The delivery item is to be inserted into stacks up to and including
-        # at. As such, we need to make sure it at least fits into the chosen
-        # stack.
-        can_deliver = all(stacks[shortest_stack.index].volume() + d_volume
-                          <= max_capacity for stacks in self.plan[:at + 1])
-
-        # Similarly, we insert the customer pick-up item into the shortest
-        # stack at the customer. This should be feasible for all appropriate
-        # legs of the tour.
-        p_volume = problem.pickups[customer].volume
-        shortest_stack = self.plan[at].shortest_stack()
-
-        # From at, since we copy at and turn it into the customer's loading
-        # plan (which should be able to hold the pickup item).
-        can_pickup = all(stacks[shortest_stack.index].volume() + p_volume
-                         <= max_capacity for stacks in self.plan[at:])
+        # Similarly, we insert the customer pick-up item into the shortest stack
+        # at the customer. From at, since we copy at and turn it into the
+        # customer's loading plan (which should be feasible).
+        can_pickup = self.can_insert_item(problem.pickups[customer],
+                                          self.plan[at].shortest_stack().index,
+                                          at)
 
         return can_deliver and can_pickup
+
+    def can_insert_item(self,
+                        item: Item,
+                        stack_idx: int,
+                        customer_at: Optional[int] = None) -> bool:
+        """
+        Tests if the given item can be inserted into the stack indicated by
+        stack_idx for all appropriate legs of the tour, up to customer_at (for
+        a delivery item), or from customer_at (for a pickup item).
+
+        If customer_at is not passed, it is assumed the customer is in this
+        route.
+        """
+        if customer_at is None:
+            customer_at = self.customers.index(item.customer)
+
+        problem = Problem()
+
+        if item.is_delivery():
+            plans = self.plan[:customer_at]
+        else:
+            plans = self.plan[customer_at:]
+
+        return all(plan[stack_idx].volume() + item.volume
+                   <= problem.stack_capacity for plan in plans)
 
     def opt_insert(self, customer: int) -> Tuple[int, float]:
         """
@@ -134,8 +151,6 @@ class Route:
         """
         problem = Problem()
 
-        # Inserts the customer at the given location, and creates a new loading
-        # plan for this customer by copying the existing loading plan.
         self.customers.insert(at, customer)
         self.plan.insert(at + 1, self.plan[at].copy())
 
@@ -150,38 +165,30 @@ class Route:
 
         pickup = problem.pickups[customer]
 
-        # Inserts customer pickup item into the loading plan. The stack to
-        # insert into is the shortest stack at the customer (since the pickup
-        # item is carried from the customer to the depot).
-        fitting_stacks = [stack for stack in self.plan[at + 1]
-                          if stack.volume() + pickup.volume
-                          <= problem.stack_capacity]
-
-        for stack in fitting_stacks:
-            if stack.deliveries_in_stack() == 0:
+        for stack in self.plan[at + 1]:
+            # Finds the first stack of only pickup items where this pickup
+            # item can be inserted. This is always weakly better than just
+            # inserting it into the shortest stack.
+            if stack.deliveries_in_stack() == 0 \
+                    and self.can_insert_item(pickup, stack.index, at + 1):
                 break
         else:
-            stack = self.plan[at + 1].shortest_stack()
+            stack = self.plan[at + 1].shortest_stack()  # feasible fall-back.
 
         # The pickup item will have to be moved for each delivery item that's
         # currently in the stack, if we insert it in the rear.
         volume = stack.deliveries_in_stack() * pickup.volume
 
-        # Pickups in the front (these are never moved, so we want to insert
-        # our pick-up item just after them).
-        front_pickups = list(takewhile(lambda item: item.is_pickup(),
-                                       reversed(stack)))
+        # Pickups in the front (these are never moved, so we might want to
+        # insert our pick-up item just after them, nearer to the rear).
+        front = list(takewhile(lambda item: item.is_pickup(), reversed(stack)))
 
-        # Compares if placing the pick-up item near the front is cheaper than
+        # Tests if placing the pick-up item near the front is cheaper than
         # inserting it in the rear. The former incurs costs *now*, whereas for
-        # the latter the item might have to move at a later point in the tour.
-        # This is a local choice: only deliveries currently in the stack are
-        # counted; any pickups inserted later in the tour (in front of this
-        # pickup item) are not.
-        if stack.volume() - sum(item.volume for item in front_pickups) < volume:
+        # the latter the item might have to move at later points in the tour.
+        if stack.volume() - sum(item.volume for item in front) < volume:
             for plan in self.plan[at + 1:]:
-                stack = plan[stack.index]
-                plan[stack.index].push(len(stack) - len(front_pickups), pickup)
+                plan[stack.index].push(-len(front), pickup)
         else:
             for plan in self.plan[at + 1:]:
                 plan[stack.index].push_rear(pickup)
