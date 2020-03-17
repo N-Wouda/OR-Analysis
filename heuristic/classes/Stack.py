@@ -59,7 +59,7 @@ class Stack:
         """
         Number of deliverable items in this stack.
         """
-        return sum(item.is_delivery() for item in self.stack)
+        return len([item for item in self.stack if item.is_delivery()])
 
     def pickups_in_stack(self) -> int:
         """

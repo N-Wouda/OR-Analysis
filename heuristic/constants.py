@@ -1,6 +1,7 @@
 import os
 
 from alns.criteria import RecordToRecordTravel
+from .RestartingRRT import RestartingRRT
 
 DEPOT = -1
 TEAM_NUMBER = 3
@@ -24,4 +25,4 @@ else:
     DECAY = 0.6
 
     ITERATIONS = 25000
-    CRITERION = RecordToRecordTravel(250, 0, step=250 / ITERATIONS)
+    CRITERION = RestartingRRT(5000, 200, 1, step=200 / 4000)
