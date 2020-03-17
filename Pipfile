@@ -13,6 +13,7 @@ numpy = ">=1.18"
 pandas = ">=1.0"
 alns = ">=1.2"
 docplex = "*"
+cplex = "*"
 
 [requires]
 python_version = "3.7"

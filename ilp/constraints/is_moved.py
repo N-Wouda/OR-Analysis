@@ -9,7 +9,7 @@ def is_moved(problem: Problem, solver):
     """
     for customer_1 in range(1, problem.num_customers):
         for stack in range(problem.num_stacks):
-            for idx in range(MAX_STACK_INDEX):
+            for idx in range(1, MAX_STACK_INDEX):
                 solver.add_constraint(
                     solver.is_moved[customer_1, stack, idx] <=
                     solver.is_moved[customer_1, stack, idx - 1]

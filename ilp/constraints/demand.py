@@ -13,4 +13,4 @@ def demand(problem: Problem, solver):
             for customer_2 in range(problem.num_customers + 1)
             for stack in range(problem.num_stacks)
             for index in range(MAX_STACK_INDEX))
-        solver.add_constraint(assignments == problem.demands[customer_1])
+        solver.add_constraint(assignments == problem.demands[customer_1].volume)

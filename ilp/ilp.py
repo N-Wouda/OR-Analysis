@@ -30,6 +30,8 @@ def ilp(problem: Problem) -> Solution:
             # for this to happen due to the problem structure.
             raise ValueError("Infeasible!")
 
+        print(solver.objective_value)
+
         # return _to_state(problem, solver)
 
 
@@ -47,13 +49,12 @@ def _setup_objective(problem: Problem, solver: Model):
                                for k in range(problem.num_stacks)
                                for g in range(MAX_STACK_INDEX))
 
-    del_cost = problem.handling_cost * np.sum(problem.demands)
+    del_cost = problem.handling_cost * np.sum(demand.volume
+                                              for demand in problem.demands)
 
     solver.minimize(routes_cost +
                     problem.handling_cost * handling_cost
                     - del_cost)
-
-    # print(solver.objective_value)
 
 
 def _setup_decision_variables(problem: Problem, solver: Model):

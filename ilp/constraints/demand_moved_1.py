@@ -24,4 +24,5 @@ def demand_moved_1(problem: Problem, solver):
                                           index]
                     for customer_2 in range(problem.num_customers))
 
-                solver.add_constraint(before - after <= M * solver.is_moved)
+                solver.add_constraint(before - after <= M * solver.is_moved[
+                    customer_1, stack, index])

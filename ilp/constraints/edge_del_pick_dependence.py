@@ -12,6 +12,15 @@ def edge_del_pick_dependence(problem: Problem, solver):
             for stack in range(problem.num_stacks):
                 for index in range(MAX_STACK_INDEX):
                     solver.add_constraint(
-                        solver.demand_binary + solver.pickup_binary
-                        <= solver.edges(customer_1, customer_2)
+                        solver.demand_binary[customer_1,
+                                             customer_2,
+                                             stack,
+                                             index]
+                        +
+                        solver.pickup_binary[customer_1,
+                                             customer_2,
+                                             stack,
+                                             index]
+                        <=
+                        solver.edges[customer_1, customer_2]
                     )

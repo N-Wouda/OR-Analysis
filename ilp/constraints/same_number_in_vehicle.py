@@ -8,15 +8,15 @@ def same_number_in_vehicle(problem: Problem, solver):
     """
     for customer_1 in range(1, problem.num_customers):
         before_customer = solver.sum(
-            solver.demand_volume[customer_1, customer_2, stack, index] +
-            solver.pickup_volume[customer_1, customer_2, stack, index]
+            solver.demand_volumes[customer_1, customer_2, stack, index] +
+            solver.pickup_volumes[customer_1, customer_2, stack, index]
             for customer_2 in range(problem.num_customers)
             for stack in range(problem.num_stacks)
             for index in range(MAX_STACK_INDEX)
         )
         after_customer = solver.sum(
-            solver.demand_volume[customer_2, customer_1, stack, index] +
-            solver.pickup_volume[customer_2, customer_1, stack, index]
+            solver.demand_volumes[customer_2, customer_1, stack, index] +
+            solver.pickup_volumes[customer_2, customer_1, stack, index]
             for customer_2 in range(problem.num_customers)
             for stack in range(problem.num_stacks)
             for index in range(MAX_STACK_INDEX)

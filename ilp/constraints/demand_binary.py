@@ -11,4 +11,12 @@ def demand_binary(problem: Problem, solver):
             for stack in range(problem.num_stacks):
                 for index in range(MAX_STACK_INDEX):
                     solver.add_constraint(
-                        solver.demand_volumes <= M * solver.demand_binary)
+                        solver.demand_volumes[customer_1,
+                                              customer_2,
+                                              stack,
+                                              index]
+                        <=
+                        M * solver.demand_binary[customer_1,
+                                                 customer_2,
+                                                 stack,
+                                                 index])
