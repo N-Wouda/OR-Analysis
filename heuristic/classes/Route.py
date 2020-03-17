@@ -152,8 +152,15 @@ class Route:
         # item is carried from the customer to the depot).
         stack = self.plan[at + 1].shortest_stack()
 
-        _, volume = stack.deliveries_in_stack()
-        front = list(takewhile(lambda item: item.is_pickup(), reversed(stack)))
+        # The pickup item will have to be moved for each delivery item that's
+        # currently in the stack, if we insert it in the rear.
+        num_deliveries, _ = stack.deliveries_in_stack()
+        volume = num_deliveries * problem.pickups[customer].volume
+
+        # Pickups in the front (these are never moved, so we want to insert
+        # our pick-up item just after them).
+        front_pickups = list(takewhile(lambda item: item.is_pickup(),
+                                       reversed(stack)))
 
         # Compares if placing the pick-up item near the front is cheaper than
         # inserting it in the rear. The former incurs costs *now*, whereas for
@@ -161,10 +168,10 @@ class Route:
         # This is a local choice: only deliveries currently in the stack are
         # counted; any pickups inserted later in the tour (in front of this
         # pickup item) are not.
-        if stack.volume() - sum(item.volume for item in front) < volume:
+        if stack.volume() - sum(item.volume for item in front_pickups) < volume:
             for plan in self.plan[at + 1:]:
                 stack = plan[stack.index]
-                plan[stack.index].push(len(stack) - len(front),
+                plan[stack.index].push(len(stack) - len(front_pickups),
                                        problem.pickups[customer])
         else:
             for plan in self.plan[at + 1:]:
