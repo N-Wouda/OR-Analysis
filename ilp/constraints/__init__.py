@@ -13,14 +13,12 @@ from .pickup_binary import pickup_binary
 from .pickup_moved_1 import pickup_moved_1
 from .pickup_moved_2 import pickup_moved_2
 from .pickups_to_depot import pickups_to_depot
-from .stack_size import stack_size
 from .same_number_in_vehicle import same_number_in_vehicle
+from .stack_size import stack_size
+from .total_items import total_items
 
 CONSTRAINTS = [
     demand,
-    demand_binary,
-    demand_moved_1,
-    demand_moved_2,
     demands_from_depot,
     edge_del_pick_dependence,
     is_moved,
@@ -28,11 +26,9 @@ CONSTRAINTS = [
     once_from_customer,
     once_to_customer,
     pickup,
-    pickup_binary,
-    pickup_moved_1,
-    pickup_moved_2,
     pickups_to_depot,
     stack_size,
     same_number_in_vehicle,
+    # total_items,
     # TODO
 ]

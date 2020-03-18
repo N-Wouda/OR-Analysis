@@ -9,13 +9,25 @@ def handling_costs(problem: Problem, solver):
     for customer_1 in range(1, problem.num_customers):
         for stack in range(problem.num_stacks):
             for index in range(MAX_STACK_INDEX):
-                demand_cost = solver.sum(
-                    solver.demand_volumes[customer_1, customer_2, stack, index]
-                    for customer_2 in range(problem.num_customers))
+                demand_cost = \
+                    solver.sum(problem.demands[destination].volume *
+                               solver.demand_binary[customer_1,
+                                                    customer_2,
+                                                    stack,
+                                                    index,
+                                                    destination]
+                               for destination in range(problem.num_customers)
+                               for customer_2 in range(problem.num_customers))
 
-                pickup_cost = solver.sum(
-                    solver.pickup_volumes[customer_1, customer_2, stack, index]
-                    for customer_2 in range(problem.num_customers))
+                pickup_cost = \
+                    solver.sum(problem.pickups[destination].volume *
+                               solver.pickup_binary[customer_1,
+                                                    customer_2,
+                                                    stack,
+                                                    index,
+                                                    destination]
+                               for destination in range(problem.num_customers)
+                               for customer_2 in range(problem.num_customers))
 
                 not_moved_reduction = M * (
                         1 - solver.is_moved[customer_1, stack, index])
