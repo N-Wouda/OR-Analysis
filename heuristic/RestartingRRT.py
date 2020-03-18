@@ -1,4 +1,4 @@
-from alns.criteria import AcceptanceCriterion, SimulatedAnnealing as RecordToRecordTravel
+from alns.criteria import AcceptanceCriterion, RecordToRecordTravel
 
 
 class RestartingRRT(AcceptanceCriterion):

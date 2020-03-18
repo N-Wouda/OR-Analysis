@@ -25,4 +25,4 @@ else:
     DECAY = 0.6
 
     ITERATIONS = 25000
-    CRITERION = RestartingRRT(5000, 200, 1, step=200 / 4000)
+    CRITERION = RestartingRRT(5000, 200, 0, step=200 / 4000)
