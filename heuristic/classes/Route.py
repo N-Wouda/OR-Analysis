@@ -148,13 +148,10 @@ class Route:
     def opt_insert(self, customer: int) -> Tuple[int, float]:
         """
         Optimal feasible location and cost to insert customer into this route.
+        Assumes it is feasible to do so.
         """
         costs = [self._insert_cost(customer, at)
-                 for at in range(len(self.customers) + 1)
-                 if self.can_insert(customer, at)]
-
-        if len(costs) == 0:  # infeasible!
-            return 0, np.inf
+                 for at in range(len(self.customers) + 1)]
 
         # noinspection PyTypeChecker
         return min(enumerate(costs), key=operator.itemgetter(1))

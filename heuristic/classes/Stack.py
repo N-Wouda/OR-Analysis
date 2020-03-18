@@ -40,6 +40,8 @@ class Stack:
     def __deepcopy__(self, memodict={}):
         new = Stack(self.index)
 
+        # We don't need deep copies of these items, as the *items* themselves
+        # never change. Just a shallow copy of their containers suffices.
         new.stack = copy(self.stack)
         new._set = copy(self._set)
         new._volume = copy(self._volume)
