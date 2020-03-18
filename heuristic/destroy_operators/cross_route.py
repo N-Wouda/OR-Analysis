@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Set
 
 from numpy.random import RandomState
@@ -16,7 +17,7 @@ def cross_route(current: Solution, rnd_state: RandomState) -> Solution:
     Similar to cross route removal in Hornstra et al. (2020).
     """
     problem = Problem()
-    destroyed = current.copy()
+    destroyed = deepcopy(current)
 
     customers = set(range(problem.num_customers))
     removed = SetList()

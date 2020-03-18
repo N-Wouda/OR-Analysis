@@ -1,6 +1,8 @@
+from copy import deepcopy
+
 from numpy.random import RandomState
 
-from heuristic.classes import Problem, Solution, SetList
+from heuristic.classes import Problem, SetList, Solution
 from heuristic.functions import customers_to_remove, remove_empty_routes
 
 
@@ -12,7 +14,7 @@ def random_nearest(current: Solution, rnd_state: RandomState) -> Solution:
 
     Similar to related removal in Hornstra et al. (2020).
     """
-    destroyed = current.copy()
+    destroyed = deepcopy(current)
     problem = Problem()
 
     removed = SetList()

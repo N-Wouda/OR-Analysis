@@ -1,5 +1,6 @@
 import operator
-from itertools import takewhile, tee
+from copy import deepcopy
+from itertools import islice, takewhile, tee
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
@@ -12,6 +13,7 @@ from .Stacks import Stacks
 
 
 class Route:
+
     __slots__ = ['customers', 'plan', '_route_cost', '_handling_cost']
 
     customers: SetList[int]  # visited customers
@@ -136,20 +138,23 @@ class Route:
         problem = Problem()
 
         if item.is_delivery():
-            plans = self.plan[:customer_at]
+            plans = islice(self.plan, 0, customer_at)
         else:
-            plans = self.plan[customer_at:]
+            plans = islice(self.plan, customer_at, len(self.plan))
 
         return all(plan[stack_idx].volume() + item.volume
                    <= problem.stack_capacity for plan in plans)
 
     def opt_insert(self, customer: int) -> Tuple[int, float]:
         """
-        Optimal location and cost to insert customer into this route. Assumes it
-        is feasible to do so.
+        Optimal feasible location and cost to insert customer into this route.
         """
         costs = [self._insert_cost(customer, at)
-                 for at in range(len(self.customers) + 1)]
+                 for at in range(len(self.customers) + 1)
+                 if self.can_insert(customer, at)]
+
+        if len(costs) == 0:  # infeasible!
+            return 0, np.inf
 
         # noinspection PyTypeChecker
         return min(enumerate(costs), key=operator.itemgetter(1))
@@ -163,7 +168,7 @@ class Route:
         problem = Problem()
 
         self.customers.insert(at, customer)
-        self.plan.insert(at + 1, self.plan[at].copy())
+        self.plan.insert(at + 1, deepcopy(self.plan[at]))
 
         # Inserts customer delivery item into the loading plan. The stack to
         # insert into is the shortest stack at the depot (since the delivery

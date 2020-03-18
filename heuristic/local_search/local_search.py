@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from numpy.random import RandomState
 
 from heuristic.classes import Route, Solution
@@ -6,7 +8,7 @@ from .opt_route import opt_route
 
 
 def local_search(current: Solution, rnd_state: RandomState) -> Solution:
-    improved = current.copy()
+    improved = deepcopy(current)
 
     for idx, route in enumerate(improved.routes):
         new_route = _improve_route(route)

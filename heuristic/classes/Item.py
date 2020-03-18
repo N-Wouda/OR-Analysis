@@ -21,17 +21,18 @@ class Item:
         self.destination = destination
 
     def __eq__(self, other) -> bool:
-        # NW: we don't really need a type comparison, and this is a bit faster.
-        return self.volume == other.volume \
-               and self.origin == other.origin \
+        # NW: we don't really need a type and volume comparison, and this is a
+        # bit faster.
+        return self.origin == other.origin \
                and self.destination == other.destination
 
     def __hash__(self) -> int:
-        return hash((self.volume, self.origin, self.destination))
+        # NW: we don't really need to hash the volume, as that is assumed not
+        # to change during execution.
+        return hash((self.origin, self.destination))
 
     @property
     def customer(self) -> int:
-        assert self.is_pickup() or self.is_delivery()
         return self.origin if self.is_pickup() else self.destination
 
     def is_pickup(self) -> bool:
@@ -41,8 +42,6 @@ class Item:
         return self.origin == DEPOT
 
     def __str__(self):
-        assert self.is_pickup() or self.is_delivery()
-
         item_type = "p" if self.is_pickup() else "d"
         return item_type + str(self.customer + 1)
 

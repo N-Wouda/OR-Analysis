@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import pickle
 from typing import Callable, List, Optional
 
 from .Item import Item
@@ -28,9 +27,6 @@ class Stacks:
 
     def __setitem__(self, idx: int, stack: Stack):
         self.stacks[idx] = stack
-
-    def copy(self) -> Stacks:
-        return pickle.loads(pickle.dumps(self, pickle.HIGHEST_PROTOCOL))
 
     @staticmethod
     def cost(customer: int,

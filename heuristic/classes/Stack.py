@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import deque
+from copy import copy
 from functools import partial
 from itertools import islice
 from typing import Deque, Set
@@ -35,6 +36,15 @@ class Stack:
         Tests if this stack contains the passed-in item. O(1).
         """
         return item in self._set
+
+    def __deepcopy__(self, memodict={}):
+        new = Stack(self.index)
+
+        new.stack = copy(self.stack)
+        new._set = copy(self._set)
+        new._volume = copy(self._volume)
+
+        return new
 
     def __iter__(self):
         yield from self.stack

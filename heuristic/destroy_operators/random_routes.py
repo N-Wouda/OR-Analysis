@@ -1,3 +1,5 @@
+from copy import copy, deepcopy
+
 from numpy.random import RandomState
 
 from heuristic.classes import Solution
@@ -15,7 +17,7 @@ def random_routes(current: Solution, rnd_state: RandomState) -> Solution:
     # It is cheaper to perform a shallow copy here, remove all routes we want
     # to remove (those don't change the copied solution), and then deep-copy
     # only the remaining routes later on.
-    destroyed = current.copy(shallow=True)
+    destroyed = copy(current)
 
     while len(destroyed.unassigned) < customers_to_remove():
         idx_route = rnd_state.randint(len(destroyed.routes))
@@ -23,4 +25,4 @@ def random_routes(current: Solution, rnd_state: RandomState) -> Solution:
 
         del destroyed.routes[idx_route]
 
-    return destroyed.copy()
+    return deepcopy(destroyed)

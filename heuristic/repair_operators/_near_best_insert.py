@@ -1,3 +1,4 @@
+import numpy as np
 from numpy.random import RandomState
 
 from heuristic.classes import Heap, Problem, Solution
@@ -26,7 +27,9 @@ def _near_best_insert(nearness: int,
         for route in current.routes:
             insert_idx, cost = route.opt_insert(customer)
 
-            if route.can_insert(customer, insert_idx):
+            if np.isfinite(cost):
+                # Might be infinite, in which case the customer cannot be
+                # inserted into this route.
                 feasible_routes.push(cost, (insert_idx, route))
 
         if len(feasible_routes) != 0:
