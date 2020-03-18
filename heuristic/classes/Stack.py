@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import deque
 from functools import partial
 from itertools import islice
-from typing import Deque, Set, Tuple
+from typing import Deque, Set
 
 from .Item import Item
 
@@ -54,6 +54,36 @@ class Stack:
         Returns this stack's index in the truck.
         """
         return self._index
+
+    @staticmethod
+    def moved_volume(before: Stack, after: Stack) -> float:
+        """
+        Computes the total volume that has been moved to go from the before
+        stack to the after stack. For each stack, we look from the front to the
+        rear and compare if anything has changed. If it has, that implies all
+        subsequent  items have been moved, and we can return the total volume of
+        such an action. Only removals are counted - insertions are not, as those
+        must have been removed from some other stack (we do not want to count
+        twice).
+        """
+        it_before = reversed(before)
+        it_after = reversed(after)
+
+        for (idx, b_item), a_item in zip(enumerate(it_before, 1), it_after):
+            idx = len(before) - idx
+
+            if b_item != a_item:
+                # This implies all items up to this point must have been
+                # moved out of the truck, which is exactly the volume that
+                # must be moved to insert an item at this index.
+                return before.insert_volume(idx + 1)
+        else:
+            if len(before) > len(after):
+                # This implies some items have been moved out of the stack,
+                # and we should count those.
+                return before.insert_volume(len(before) - len(after))
+
+        return 0.
 
     def deliveries_in_stack(self) -> int:
         """

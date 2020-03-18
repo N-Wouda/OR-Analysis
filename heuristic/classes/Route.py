@@ -77,7 +77,13 @@ class Route:
         Determines the handling cost for this route. O(1).
         """
         if self._handling_cost is None:
-            self._handling_cost = self._compute_handling_cost()
+            assert len(self.customers) + 1 == len(self.plan)
+
+            self._handling_cost = 0.
+
+            for idx, customer in enumerate(self.customers):
+                before, after = self.plan[idx], self.plan[idx + 1]
+                self._handling_cost += Stacks.cost(customer, before, after)
 
         return self._handling_cost
 
@@ -190,7 +196,7 @@ class Route:
                 plan[stack.index].push_rear(pickup)
 
         self._update_routing_cost(customer, at, "insert")
-        self._update_handling_cost(customer, at, "insert")
+        self.invalidate_handling_cache()
 
     def remove_customer(self, customer: int):
         """
@@ -205,6 +211,9 @@ class Route:
 
         idx = self.customers.index(customer)
 
+        self._update_routing_cost(customer, idx, "remove")
+        self.invalidate_handling_cache()
+
         # Removes customer delivery item from the loading plan.
         for stacks in self.plan[:idx + 1]:
             stacks.find_stack(delivery).remove(delivery)
@@ -216,9 +225,6 @@ class Route:
         # Removes the customer and its loading plan.
         del self.customers[idx]
         del self.plan[idx + 1]
-
-        self._update_routing_cost(customer, idx, "remove")
-        self._update_handling_cost(customer, idx, "remove")
 
     def _insert_cost(self, customer: int, at: int) -> float:
         """
@@ -245,8 +251,9 @@ class Route:
         """
         Updates the routing cost for this Route, which is a cached property.
         For removals, it removes the cost of [from] -> [cust] -> [next], and
-        adds the cost of [from] -> [next]. For insertions, it does the
-        opposite.
+        adds the cost of [from] -> [next]. For insertions, it does the opposite.
+        Called only when the customer is at or still at this index (so after
+        insertion, and before removal).
 
         Raises
         ------
@@ -257,13 +264,8 @@ class Route:
             return
 
         prev_leg = DEPOT if idx == 0 else self.customers[idx - 1]
-
-        # For a removal, the next customer is now at the customer's index. For
-        # an insert, it's one further.
-        if update_type == "insert":
-            idx += 1
-
-        next_leg = DEPOT if idx == len(self.customers) else self.customers[idx]
+        next_leg = DEPOT if idx == len(self.customers) - 1 \
+            else self.customers[idx + 1]
 
         problem = Problem()
 
@@ -279,46 +281,6 @@ class Route:
             self._route_cost -= problem.distances[prev_leg + 1, next_leg + 1]
         else:
             raise ValueError(f"Update type `{update_type}' is not understood.")
-
-    def _update_handling_cost(self, customer: int, idx: int, update_type):
-        """
-        Updates the handling costs due to removing or inserting the passed-in
-        customer at position idx.
-
-        Raises
-        ------
-        ValueError
-            When the update type is not understood.
-        """
-        if self._handling_cost is None:  # computation can be delayed.
-            return
-
-        self.invalidate_handling_cache()
-        # TODO implement this (it's quite hard!)
-
-        if update_type == "remove":
-            pass
-        elif update_type == "insert":
-            pass
-        else:
-            raise ValueError(f"Update type `{update_type}' is not understood.")
-
-    def _compute_handling_cost(self) -> float:
-        """
-        Computes the handling cost of the current loading plan. This is done
-        by determining the cost of the mutations at each customer. Runs in
-        about O(|customers| * n), where n is the number of items in a stack.
-        """
-        assert len(self.customers) + 1 == len(self.plan)
-
-        cost = 0.
-
-        for idx, customer in enumerate(self.customers):
-            # Stack lay-outs before and after the current customer.
-            before, after = self.plan[idx], self.plan[idx + 1]
-            cost += Stacks.cost(customer, before, after)
-
-        return cost
 
     def __str__(self):
         customers = np.array([DEPOT] + self.customers.to_list() + [DEPOT])
