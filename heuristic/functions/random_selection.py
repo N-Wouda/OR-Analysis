@@ -13,8 +13,10 @@ def random_selection(rnd_state: RandomState) -> np.ndarray:
     """
     problem = Problem()
 
-    # If this is really slow we can use Gauss to remove the normalisation.
-    probabilities = np.arange(problem.num_customers, 0, -1)
+    triangle = np.arange(customers_to_remove(), 0, -1)
+
+    probabilities = np.ones(problem.num_customers)
+    probabilities[:customers_to_remove()] = triangle
     probabilities = probabilities / np.sum(probabilities)
 
     return rnd_state.choice(problem.num_customers,
