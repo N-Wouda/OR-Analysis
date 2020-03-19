@@ -28,9 +28,9 @@ def in_route_two_opt(route: Route) -> Route:
                 continue  # this is not a better move.
 
             # This is a better route than the one we have currently. Of course
-            # that does not mean we can find a good handling policy as well, so
-            # we try to create a route for this 2-opt move first and return if
-            # it is indeed better than the one we had before.
+            # that does not mean we can find a good handling configuration as
+            # well, so we create a route for this 2-opt move first and return
+            # if it is indeed better than the one we had before.
             best[first:second] = best[second - 1:first - 1:-1]
             new_route = Route([], [Stacks(problem.num_stacks)])
 

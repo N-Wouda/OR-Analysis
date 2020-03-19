@@ -1,6 +1,6 @@
 import operator
 from copy import deepcopy
-from itertools import islice, takewhile, tee
+from itertools import takewhile, tee
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
@@ -137,9 +137,9 @@ class Route:
         problem = Problem()
 
         if item.is_delivery():
-            plans = islice(self.plan, 0, customer_at)
+            plans = self.plan[:customer_at]
         else:
-            plans = islice(self.plan, customer_at, len(self.plan))
+            plans = self.plan[customer_at:]
 
         return all(plan[stack_idx].volume() + item.volume
                    <= problem.stack_capacity for plan in plans)
