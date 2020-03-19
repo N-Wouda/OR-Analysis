@@ -14,7 +14,6 @@ from .Stacks import Stacks
 
 
 class Solution(State):
-
     __slots__ = ['routes', 'unassigned']
 
     routes: List[Route]

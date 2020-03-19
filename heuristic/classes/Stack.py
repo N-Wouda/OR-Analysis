@@ -10,12 +10,6 @@ from .Item import Item
 
 
 class Stack:
-    """
-    Wrapper class for a stack of items, maintained as a deque of Items. Such
-    a stack represents a single stack of a truck, from the rear (left) to the
-    front (right).
-    """
-
     __slots__ = ['stack', '_set', '_index', '_volume']
 
     stack: Deque[Item]
@@ -25,6 +19,11 @@ class Stack:
     _volume: float
 
     def __init__(self, index: int):
+        """
+        Wrapper class for a stack of items, maintained as a deque of Items. Such
+        a stack represents a single stack of a truck, from the rear (left) to
+        the front (right).
+        """
         self.stack = deque()
         self._set = set()
 

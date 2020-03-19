@@ -13,7 +13,6 @@ from .Stacks import Stacks
 
 
 class Route:
-
     __slots__ = ['customers', 'plan', '_route_cost', '_handling_cost']
 
     customers: SetList[int]  # visited customers
@@ -76,7 +75,7 @@ class Route:
 
     def handling_cost(self) -> float:
         """
-        Determines the handling cost for this route. O(1).
+        Determines the handling cost for this route. O(1), generally.
         """
         if self._handling_cost is None:
             assert len(self.customers) + 1 == len(self.plan)
@@ -216,15 +215,12 @@ class Route:
         self._update_routing_cost(customer, idx, "remove")
         self.invalidate_handling_cache()
 
-        # Removes customer delivery item from the loading plan.
         for stacks in self.plan[:idx + 1]:
             stacks.find_stack(delivery).remove(delivery)
 
-        # Removes customer pickup item from the loading plan.
         for stacks in self.plan[idx + 1:]:
             stacks.find_stack(pickup).remove(pickup)
 
-        # Removes the customer and its loading plan.
         del self.customers[idx]
         del self.plan[idx + 1]
 

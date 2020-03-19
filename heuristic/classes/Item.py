@@ -4,7 +4,6 @@ from heuristic.constants import DEPOT
 
 
 class Item:
-
     __slots__ = ['volume', 'origin', 'destination']
 
     volume: float

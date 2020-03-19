@@ -8,7 +8,6 @@ from .Stack import Stack
 
 
 class Stacks:
-
     __slots__ = ['stacks']
 
     stacks: List[Stack]
