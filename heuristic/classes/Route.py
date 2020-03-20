@@ -178,13 +178,31 @@ class Route:
         pickup = problem.pickups[customer]
         stack = self.plan[at + 1].shortest_stack()
 
-        # The pickup item will have to be moved for each delivery item that's
-        # currently in the stack, if we insert it in the rear.
-        volume = stack.deliveries_in_stack() * pickup.volume
-
         # Pickups in the front (these are never moved, so we might want to
         # insert our pick-up item just after them, nearer to the rear).
         front = list(takewhile(lambda item: item.is_pickup(), reversed(stack)))
+
+        # TODO test this as following:
+        #  - break after the first demand item, as that is a new decision
+        #    moment.
+        #  - count all volume for all demands that is to be moved. That is the
+        #    current configuration.
+        volume = 0.
+        counter = 0.
+
+        for item in islice(stack, len(stack) - len(front)):
+            # If the item is a pick-up item, it will have to be moved for
+            # subsequent delivery items. If it is a delivery item, the pick-up
+            # item volume nearer to the rear will have to be moved.
+            if item.is_pickup():
+                counter += item.volume
+
+            if item.is_delivery():
+                volume += counter
+
+        # The pickup item will have to be moved for each delivery item that's
+        # currently in the stack, if we insert it in the rear.
+        volume += stack.deliveries_in_stack() * pickup.volume
 
         # Tests if placing the pick-up item near the front is cheaper than
         # inserting it in the rear. The former incurs costs *now*, whereas for
