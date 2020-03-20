@@ -1,6 +1,6 @@
 import operator
 from copy import deepcopy
-from itertools import takewhile, tee
+from itertools import islice, takewhile, tee
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
@@ -190,7 +190,16 @@ class Route:
         # inserting it in the rear. The former incurs costs *now*, whereas for
         # the latter the item might have to move at later points in the tour.
         if stack.volume() - sum(item.volume for item in front) < volume:
+            # It is also best to move any pickup items that are not already
+            # near the front, as those are to be moved now anyway.
+            pickups = [item for item in islice(stack, len(stack) - len(front))
+                       if item.is_pickup()]
+
             for plan in self.plan[at + 1:]:
+                for item in pickups:
+                    plan[stack.index].remove(item)
+                    plan[stack.index].push(-len(front), item)
+
                 plan[stack.index].push(-len(front), pickup)
         else:
             for plan in self.plan[at + 1:]:
