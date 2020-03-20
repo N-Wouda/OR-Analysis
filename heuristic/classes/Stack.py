@@ -108,6 +108,9 @@ class Stack:
         """
         return len(self.stack) - self.deliveries_in_stack()
 
+    def item_index(self, item: Item) -> int:
+        return self.stack.index(item)
+
     def insert_volume(self, at: int) -> float:
         """
         Computes the volume that needs to be moved in order to insert an item at

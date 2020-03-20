@@ -5,8 +5,6 @@ import numpy as np
 from heuristic.classes import Item, Problem, Route
 
 
-# TODO make all this cleaner.
-
 def in_route_item_reinsert(route: Route) -> Route:
     """
     Reinserts customer demands and pickups item in the optimal stack and
@@ -29,8 +27,8 @@ def in_route_item_reinsert(route: Route) -> Route:
         for stacks in new_route.plan[idx:]:
             stacks.find_stack(pickup).remove(pickup)
 
-        next_route = _insert_item(new_route, delivery, idx)
-        next_route = _insert_item(next_route, pickup, idx)
+        next_route = _insert_item(new_route, delivery)
+        next_route = _insert_item(next_route, pickup)
 
         if next_route.handling_cost() < route.handling_cost():
             return next_route
@@ -38,57 +36,36 @@ def in_route_item_reinsert(route: Route) -> Route:
     return route
 
 
-def _insert_item(route: Route,
-                 item: Item,
-                 idx_customer: int) -> Route:
+def _insert_item(route: Route, item: Item) -> Route:
+    """
+    Inserts the given item into the least-cost feasible position on this route.
+    """
+    idx_customer = route.indices[item.customer] + 1
+
+    if item.is_delivery():
+        stacks = route.plan[0]
+    else:
+        stacks = route.plan[idx_customer]
+
     copies = []
 
-    if item.is_delivery():
-        for idx_stack, stack in enumerate(route.plan[0].stacks):
-            for idx_item in range(len(stack) + 1):
-                copy = _play_forward(route,
-                                     item,
-                                     idx_customer,
-                                     idx_stack,
-                                     idx_item)
+    for idx_stack, stack in enumerate(stacks):
+        for idx_item in range(len(stack) + 1):
+            copy = deepcopy(route)
 
-                if copy:
-                    copies.append(copy)
-    else:
-        for idx_stack, stack in enumerate(route.plan[idx_customer].stacks):
-            for idx_item in range(len(stack) + 1):
-                copy = _play_forward(route,
-                                     item,
-                                     idx_customer,
-                                     idx_stack,
-                                     idx_item)
+            if item.is_delivery():
+                plan = copy.plan[:idx_customer]
+            else:
+                plan = copy.plan[idx_customer:]
 
-                if copy:
-                    copies.append(copy)
+            for stacks in plan:
+                stacks[idx_stack].push(idx_item, item)
 
+            if not all(stacks.is_feasible() for stacks in plan):
+                continue
+
+            copy.invalidate_handling_cache()
+            copies.append(copy)
+
+    assert len(copies) > 0
     return min(copies, key=lambda copy: copy.handling_cost())
-
-
-def _play_forward(route: Route,
-                  item: Item,
-                  idx_customer: int,
-                  idx_stack: int,
-                  idx_item: int):
-    copy = deepcopy(route)
-    problem = Problem()
-
-    if item.is_delivery():
-        for stacks in copy.plan[:idx_customer]:
-            stacks[idx_stack].push(idx_item, item)
-
-            if stacks[idx_stack].volume() > problem.stack_capacity:
-                return False
-    else:
-        for stacks in copy.plan[idx_customer:]:
-            stacks[idx_stack].push(idx_item, item)
-
-            if stacks[idx_stack].volume() > problem.stack_capacity:
-                return False
-
-    copy.invalidate_handling_cache()
-    return copy

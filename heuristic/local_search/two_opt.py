@@ -4,7 +4,7 @@ from heuristic.classes import Problem, Route, Stacks
 from heuristic.constants import DEPOT
 
 
-def in_route_two_opt(route: Route) -> Route:
+def two_opt(route: Route) -> Route:
     """
     Performs the best in-route two-opt swap, based on routing costs.
 
