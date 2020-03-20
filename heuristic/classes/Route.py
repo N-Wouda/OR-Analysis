@@ -184,21 +184,22 @@ class Route:
 
         # TODO test this as following:
         #  - break after the first demand item, as that is a new decision
-        #    moment.
-        #  - count all volume for all demands that is to be moved. That is the
-        #    current configuration.
+        #    moment. This is the current configuration.
+        #  - count all volume for all demands that is to be moved. Tested,
+        #    1289.23       1112.27         176.96
         volume = 0.
-        counter = 0.
 
         for item in islice(stack, len(stack) - len(front)):
             # If the item is a pick-up item, it will have to be moved for
             # subsequent delivery items. If it is a delivery item, the pick-up
             # item volume nearer to the rear will have to be moved.
             if item.is_pickup():
-                counter += item.volume
+                volume += item.volume
 
             if item.is_delivery():
-                volume += counter
+                break
+        else:
+            volume = 0.
 
         # The pickup item will have to be moved for each delivery item that's
         # currently in the stack, if we insert it in the rear.
