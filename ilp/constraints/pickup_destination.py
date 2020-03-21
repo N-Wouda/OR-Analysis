@@ -11,7 +11,7 @@ def pickup_destination(problem: Problem, solver):
             for stack in range(problem.num_stacks):
                 for index in range(MAX_STACK_INDEX):
                     for destination in range(1, problem.num_customers + 1):
-                        for origin in range(problem.num_customers):
+                        for origin in range(problem.num_customers + 1):
                             solver.add_constraint(solver.pickup_binary[
                                                       customer_1,
                                                       customer_2,

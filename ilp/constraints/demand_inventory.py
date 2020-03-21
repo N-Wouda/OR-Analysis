@@ -24,4 +24,4 @@ def demand_inventory(problem: Problem, solver):
                     for stack in range(problem.num_stacks)
                     for index in range(MAX_STACK_INDEX))
 
-            solver.add_constraint(demand_to_customer == demand_after_customer)
+                solver.add_constraint(demand_to_customer == demand_after_customer)

@@ -6,7 +6,7 @@ def handling_costs(problem: Problem, solver):
     """
     Sets handling costs.
     """
-    for customer_1 in range(problem.num_customers):
+    for customer_1 in range(problem.num_customers + 1):
         for stack in range(problem.num_stacks):
             for index in range(MAX_STACK_INDEX):
                 demand_cost = \
@@ -16,11 +16,26 @@ def handling_costs(problem: Problem, solver):
                                                     stack,
                                                     index,
                                                     destination,
-                                                    0]
+                                                    origin]
                                for customer_2 in
                                range(problem.num_customers + 1)
                                for destination in
-                               range(1, problem.num_customers + 1))
+                               range(1, problem.num_customers + 1)
+                               for origin in
+                               range(problem.num_customers + 1)) +\
+                    solver.sum(problem.demands[destination - 1].volume *
+                               solver.demand_binary[customer_2,
+                                                    customer_1,
+                                                    stack,
+                                                    index,
+                                                    destination,
+                                                    origin]
+                               for customer_2 in
+                               range(problem.num_customers + 1)
+                               for destination in
+                               range(1, problem.num_customers + 1)
+                               for origin in
+                               range(problem.num_customers + 1))
 
                 pickup_cost = \
                     solver.sum(problem.pickups[origin - 1].volume *
@@ -28,9 +43,24 @@ def handling_costs(problem: Problem, solver):
                                                     customer_2,
                                                     stack,
                                                     index,
-                                                    0,
+                                                    destination,
                                                     origin]
                                for customer_2 in
+                               range(problem.num_customers + 1)
+                               for destination in
+                               range(problem.num_customers + 1)
+                               for origin in
+                               range(1, problem.num_customers + 1)) + \
+                    solver.sum(problem.pickups[origin - 1].volume *
+                               solver.pickup_binary[customer_2,
+                                                    customer_1,
+                                                    stack,
+                                                    index,
+                                                    destination,
+                                                    origin]
+                               for customer_2 in
+                               range(problem.num_customers + 1)
+                               for destination in
                                range(problem.num_customers + 1)
                                for origin in
                                range(1, problem.num_customers + 1))
@@ -38,10 +68,7 @@ def handling_costs(problem: Problem, solver):
                 not_moved_reduction = M * (
                         1 - solver.is_moved[customer_1, stack, index])
 
-                handling_value = solver.max(demand_cost +
-                                            pickup_cost -
-                                            not_moved_reduction,
-                                            0)
+                handling_value = demand_cost + pickup_cost - not_moved_reduction
 
                 solver.add_constraint(
                     solver.handling_cost[customer_1, stack, index]

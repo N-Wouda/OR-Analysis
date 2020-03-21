@@ -8,7 +8,7 @@ def pickup_inventory(problem: Problem, solver):
     not delivered to this customer.
     """
     for customer_1 in range(1, problem.num_customers + 1):
-        for origin in range(1, problem.num_customers + 1):
+        for origin in range(problem.num_customers + 1):
             if customer_1 is not origin:
                 pickup_to_customer = solver.sum(
                     solver.pickup_binary[

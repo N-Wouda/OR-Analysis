@@ -4,7 +4,7 @@ from heuristic.constants import MAX_STACK_INDEX
 
 def demand_sum_from_depot(problem: Problem, solver):
     """
-    Ensures customer pickups are delivered to depot.
+    Ensures customer pickups are delivered to depot. kan ook zonder volume
     TODO in paper zetten indien nodig.
     """
     total_demand = solver.sum(

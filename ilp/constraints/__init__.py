@@ -12,7 +12,7 @@ from .once_from_customer import once_from_customer
 from .once_to_customer import once_to_customer
 from .pickup import pickup
 from .pickup_total import pickup_total
-from .pickups_to_depot import pickups_to_depot
+from .pickups_sum_to_depot import pickups_sum_to_depot
 from .pickup_destination import pickup_destination
 from .pickup_inventory import pickup_inventory
 from .same_number_in_vehicle import same_number_in_vehicle
@@ -25,22 +25,22 @@ CONSTRAINTS = [
     demand_inventory,
     demand_origin,
     demand_sum_from_depot,
-    demand_total,
+    # demand_total,
     edge_del_pick_dependence,
-    # moved,
-    # moved_lifo,
+    moved,
+    moved_lifo,
     handling_costs,
-    # index_from_rear,
+    index_from_rear,
     once_from_customer,
     once_to_customer,
     pickup,
     pickup_destination,
     pickup_inventory,
-    pickup_total,
-    pickups_to_depot,
-    stack_size,
+    # pickup_total,
+    pickups_sum_to_depot,
+    # stack_size,
     same_number_in_vehicle,
     sub_tour_elimination,
-    # total_items,
+    total_items,
     # TODO
 ]
