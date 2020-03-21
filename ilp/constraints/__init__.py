@@ -19,6 +19,7 @@ from .same_number_in_vehicle import same_number_in_vehicle
 from .stack_size import stack_size
 from .sub_tour_elimination import sub_tour_elimination
 from .total_items import total_items
+from .test import test
 
 CONSTRAINTS = [
     demand,
@@ -42,5 +43,6 @@ CONSTRAINTS = [
     same_number_in_vehicle,
     sub_tour_elimination,
     total_items,
+    test,
     # TODO
 ]

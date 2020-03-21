@@ -1,6 +1,7 @@
 import numpy as np
 from docplex.mp.model import Model
 from typing import List
+import cplex
 
 from heuristic.constants import M, MAX_STACK_INDEX
 from heuristic.classes import Problem, Solution
@@ -39,6 +40,8 @@ def ilp(problem: Problem) -> Solution:
         print(solver.objective_value)
         print()
 
+        # bd = solver.solution.infeasibility.bound_constraints(solver.solution.get_values())
+        # print(bd)
         return _to_state(problem, solver)
 
 
@@ -64,7 +67,7 @@ def _setup_objective(problem: Problem, solver: Model):
                                                           for pickup in
                                                           problem.pickups))
 
-    solver.minimize(routes_cost + handling_cost - unavoidable_costs)
+    solver.minimize(routes_cost + handling_cost)# - unavoidable_costs)
 
 
 def _setup_decision_variables(problem: Problem, solver: Model):

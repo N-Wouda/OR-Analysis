@@ -4,7 +4,7 @@ from heuristic.constants import MAX_STACK_INDEX
 
 def moved(problem: Problem, solver):
     """
-    If an item in at an index is not the same before and after visiting a
+    If an item in at an index is not the same after visiting a
     customer, it has been moved.
     """
     for customer_1 in range(problem.num_customers + 1):
@@ -31,3 +31,7 @@ def moved(problem: Problem, solver):
                         if before_pickup is not after_pickup:
                             solver.add_constraint(
                                 solver.is_moved[customer_1, stack, idx] == 1)
+
+                        if before_demand is after_demand and before_pickup is after_pickup: # TODO remove this
+                            solver.add_constraint(
+                                solver.is_moved[customer_1, stack, idx] == 0)
