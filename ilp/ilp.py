@@ -2,19 +2,19 @@ import numpy as np
 from docplex.mp.model import Model
 from typing import List
 
-from heuristic.constants import M, MAX_STACK_INDEX
-from heuristic.classes import Problem, Solution
+from heuristic.constants import DEPOT, MAX_STACK_INDEX
+from heuristic.classes import Problem, Route, Solution, Stacks, Stack
 from .constraints import CONSTRAINTS
 
 
 def ilp(problem: Problem) -> Solution:
     """
     Solves the integer linear programming (ilp) formulation of the VRPSPD-H.
-    From https://github.com/N-Wouda/PL-Heuristic/blob/master/ilp/ilp.py
+    Inspired by https://github.com/N-Wouda/PL-Heuristic/blob/master/ilp/ilp.py
     """
     with Model("VRPSPD-H") as solver:
         solver.parameters.threads = 20
-        # solver.time_limit = 100
+        # solver.time_limit = 40
 
         problem.distances[problem.distances == 0] = np.inf
 
@@ -35,9 +35,6 @@ def ilp(problem: Problem) -> Solution:
             # error. Logging should pick this up, but it is nearly impossible
             # for this to happen due to the problem structure.
             raise ValueError("Infeasible!")
-
-        print(solver.objective_value)
-        print()
 
         return _to_state(problem, solver)
 
@@ -99,174 +96,9 @@ def _setup_decision_variables(problem: Problem, solver: Model):
 
 
 def _to_state(problem: Problem, solver: Model) -> Solution:
-    print("edges")
-    for customer_1 in range(problem.num_customers + 1):
-        for customer_2 in range(problem.num_customers + 1):
-            print(int(solver.edges[customer_1, customer_2].solution_value),
-                  ' ',
-                  end='')
-        print()
-    print()
-    print("pickup_binaries")
-    for customer_1 in range(problem.num_customers + 1):
-        for customer_2 in range(problem.num_customers + 1):
-            print(int(sum(
-                solver.pickup_binary[
-                    customer_1, customer_2, stack, index, 0, origin].
-                    solution_value
-                for origin in range(problem.num_customers + 1)
-                for stack in range(problem.num_stacks) for index in
-                range(MAX_STACK_INDEX))),
-                ' ',
-                end='')
-        print()
-    print("demand_binary")
-    for customer_1 in range(problem.num_customers + 1):
-        for customer_2 in range(problem.num_customers + 1):
-            print(int(sum(
-                solver.demand_binary[
-                    customer_1, customer_2, stack, index, destination, 0].
-                    solution_value
-                for destination in range(problem.num_customers + 1)
-                for stack in range(problem.num_stacks) for index in
-                range(MAX_STACK_INDEX))),
-                ' ',
-                end='')
-        print()
-    print()
-    print("demand destination")
-    for customer_1 in range(problem.num_customers + 1):
-        for customer_2 in range(problem.num_customers + 1):
-            if solver.edges[customer_1, customer_2].solution_value == 1:
-                print(f"From {customer_1} to {customer_2} destinations: ",
-                      end='')
-                for stack in range(problem._num_stacks):
-                    for index in range(MAX_STACK_INDEX):
-                        for destination in range(problem.num_customers + 1):
-                            if solver.demand_binary[
-                                customer_1, customer_2, stack, index, destination, 0].solution_value == 1:
-                                print(f"{destination} ", end='')
-                print()
-    print()
-    print("pickup origin")
-    for customer_1 in range(problem.num_customers + 1):
-        for customer_2 in range(problem.num_customers + 1):
-            if solver.edges[customer_1, customer_2].solution_value == 1:
-                print(f"From {customer_1} to {customer_2} origins: ", end='')
-                for stack in range(problem._num_stacks):
-                    for index in range(MAX_STACK_INDEX):
-                        for origin in range(problem.num_customers + 1):
-                            if solver.pickup_binary[
-                                customer_1, customer_2, stack, index, 0, origin].solution_value == 1:
-                                print(f"{origin} ", end='')
-                print()
-
-    print()
-    print("items index")
-    for customer_1 in range(problem.num_customers + 1):
-        for customer_2 in range(problem.num_customers + 1):
-            if solver.edges[customer_1, customer_2].solution_value == 1:
-                print(f"From {customer_1} to {customer_2}: ")
-                for stack in range(problem._num_stacks):
-                    print(f"in stack: {stack} ", end='')
-                    for index in range(MAX_STACK_INDEX):
-                        for destination in range(problem.num_customers + 1):
-                            if solver.demand_binary[
-                                customer_1, customer_2, stack, index, destination, 0].solution_value == 1:
-                                print(f"index: {index} ", end='')
-                                print(f"d{destination} ", end='')
-                                for origin in range(1, problem.num_customers + 1):
-                                    if solver.demand_binary[customer_1, customer_2, stack, index, destination, origin].solution_value == 1:
-                                        print(f"error: origin {origin}")
-
-                        for origin in range(problem.num_customers + 1):
-                            if solver.pickup_binary[
-                                customer_1, customer_2, stack, index, 0, origin].solution_value == 1:
-                                print(f"index: {index} ", end="")
-                                print(f"p{origin} ", end='')
-                            for destination in range(1, problem.num_customers + 1):
-                                if solver.pickup_binary[customer_1, customer_2, stack, index, destination, origin].solution_value == 1:
-                                    print(f"error destination {destination} ")
-                    print()
-                print()
-    print()
-    print("is moved")
-    # bij 0 telt niet mee
-    for customer_1 in range(1, problem.num_customers + 1):
-        print(f"at customer {customer_1}: ")
-        for stack in range(problem.num_stacks):
-            print(f"stack: {stack}, indexes changed: ", end='')
-            for index in range(MAX_STACK_INDEX):
-                if solver.is_moved[customer_1, stack, index].solution_value == 1:
-                    print(f"{index} ", end='')
-            print()
-    print()
-    print("test wrong destinations")
-    for customer_1 in range(problem.num_customers + 1):
-        for customer_2 in range(problem.num_customers + 1):
-            for stack in range(problem.num_stacks):
-                for index in range(MAX_STACK_INDEX):
-                    for destination in range(problem.num_customers + 1):
-                        for origin in range(problem.num_customers + 1):
-                            if origin is not 0:
-                                if solver.demand_binary[customer_1, customer_2, stack, index, destination, origin].solution_value is not 0:
-                                    print(customer_1, customer_2, stack, index, destination, origin)
-    print()
-    print("test wrong origins")
-    for customer_1 in range(problem.num_customers + 1):
-        for customer_2 in range(problem.num_customers + 1):
-            for stack in range(problem.num_stacks):
-                for index in range(MAX_STACK_INDEX):
-                    for destination in range(problem.num_customers + 1):
-                        for origin in range(problem.num_customers + 1):
-                            if destination is not 0:
-                                if solver.pickup_binary[
-                                    customer_1, customer_2, stack, index, destination, origin].solution_value is not 0:
-                                    print(customer_1, customer_2, stack, index,
-                                          destination, origin)
-    print()
-    print("handling costs: ")
-    for customer_1 in range(1, problem.num_customers + 1):
-        print(f"at customer {customer_1}: ")
-        for stack in range(problem.num_stacks):
-            print(f"stack: {stack}, handling cost: ", end='')
-            for index in range(MAX_STACK_INDEX):
-                print(f"index {index}: {solver.handling_cost[customer_1, stack, index].solution_value} ", end='')
-            print()
-        print()
-    # print("edge 0-5 and 5-1")
-    # for destination in range(problem.num_customers + 1):
-    #     for origin in range(problem.num_customers + 1):
-    #         print(f"0-5: {destination} {origin}: {solver.pickup_binary[0, 5, 0, 4, destination, origin].solution_value} ", end='')
-    #         print(f"5-1: {destination} {origin}: {solver.pickup_binary[5, 1, 0, 4, destination, origin].solution_value} ")
-    #         print(f"0-5: {destination} {origin}: {solver.demand_binary[0, 5, 0, 4, destination, origin].solution_value} ", end='')
-    #         print(f"5-1: {destination} {origin}: {solver.demand_binary[5, 1, 0, 4, destination, origin].solution_value} ")
-    #     print()
-    # print("sums")
-    # for destination in range(problem.num_customers + 1):
-    #     for origin in range(problem.num_customers + 1):
-    #         print(f"0-5: {destination} {origin}: {sum(solver.pickup_binary[customer_2, 5, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1))} ", end='')
-    #         print(f"5-1: {destination} {origin}: {sum(solver.pickup_binary[5, customer_2, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1))} ")
-    #         print(f"0-5: {destination} {origin}: {sum(solver.demand_binary[customer_2, 5, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1))} ", end='')
-    #         print(f"5-1: {destination} {origin}: {sum(solver.demand_binary[5, customer_2, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1))} ")
-    #         if sum(solver.pickup_binary[customer_2, 5, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1)) != sum(solver.pickup_binary[5, customer_2, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1)):
-    #             print("not same pickup value")
-    #         if sum(solver.demand_binary[customer_2, 5, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1)) != sum(solver.demand_binary[5, customer_2, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1)):
-    #             print("not same demand value")
-    #     print()
-
-    print("stack_capacity: ", problem.stack_capacity)
-    print("demands: ", problem._demands)
-    print("pickups: ", problem._pickups)
-    print("distances: ")
-    for customer_1 in range(problem.num_customers + 1):
-        for customer_2 in range(problem.num_customers + 1):
-            print(problem.distances[customer_1, customer_2], " ", end='')
-        print()
-    num_routes = sum(solver.edges[0, customer].solution_value for customer in
-                     range(problem.num_customers + 1))
-    print(num_routes)
-
+    """"
+    Converts ILP solution to solution type
+    """
     def _route_append(route: List) -> List:
         for customer in range(1, problem.num_customers + 1):
             if solver.edges[route[-1], customer].solution_value == 1:
@@ -274,38 +106,41 @@ def _to_state(problem: Problem, solver: Model) -> Solution:
                 _route_append(route)
         return route
 
-    routes = []
+    ilp_routes = []
     for customer in range(problem.num_customers + 1):
         if solver.edges[0, customer].solution_value == 1:
-            route = [0, customer]
+            route = [customer]
             _route_append(route)
-            route.append(0)
-            routes.append(route)
-    print(routes)
-    for route_idx, route in enumerate(routes):
-        plan = f"V{route_idx},"
-        print(route[:-1])
-        for customer_idx, customer in enumerate(route[:-1]):
-            plan += f"{customer},"
-            for stack in range(problem.num_stacks):
-                plan += f"S{stack},"
+            route = [it - 1 for it in route]
+            ilp_routes.append(route)
+
+    routes = [Route(ilp_route, []) for ilp_route in ilp_routes]
+
+    for route in routes:
+        full_route = [DEPOT] + route.customers.to_list() + [DEPOT]
+        full_route = [it + 1 for it in full_route]
+
+        for idx_customer, customer in enumerate(full_route[:-1]):
+            route.plan.append(Stacks(problem.num_stacks))
+            for idx_stack in range(problem.num_stacks):
+                stack = route.plan[-1][idx_stack]
                 for index in range(MAX_STACK_INDEX):
-                    for destination in range(1, problem.num_customers + 1):
-                        for origin in range(1, problem.num_customers + 1):
+                    for destination in range(problem.num_customers + 1):
+                        for origin in range(problem.num_customers + 1):
                             if solver.demand_binary[customer,
-                                                    route[customer_idx + 1],
-                                                    stack,
+                                                    full_route[idx_customer + 1],
+                                                    idx_stack,
                                                     index,
                                                     destination,
                                                     origin].solution_value == 1:
-                                plan += f"d{destination}"
+                                stack.push_front(problem.demands[destination - 1])
 
                             if solver.pickup_binary[customer,
-                                                    route[customer_idx + 1],
-                                                    stack,
+                                                    full_route[idx_customer + 1],
+                                                    idx_stack,
                                                     index,
                                                     destination,
                                                     origin].solution_value == 1:
-                                plan += f"p{origin}"
-        print(plan)
-    pass
+                                stack.push_front(problem.pickups[origin - 1])
+
+    return Solution(routes, [])
