@@ -47,6 +47,8 @@ def main():
     result.plot_objectives(ax=ax, lw=2)
     plt.show()
 
+    print(solution.objective())
+
 
 if __name__ == "__main__":
     main()

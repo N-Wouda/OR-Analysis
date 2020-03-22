@@ -5,7 +5,7 @@ from heuristic.constants import M, MAX_STACK_INDEX
 def edge_del_pick_dependence(problem: Problem, solver):
     """
     Ensures an edge to a customer has to be traveled if a pickup or delivery
-    will take place at the customer. And that only there can only be 1 item
+    will take place at the customer. And that there can only be 1 item
     at each index in each stack.
     """
     for customer_1 in range(problem.num_customers + 1):

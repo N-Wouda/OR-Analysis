@@ -74,8 +74,9 @@ def _setup_decision_variables(problem: Problem, solver: Model):
     solver.edges = solver.binary_var_matrix(
         *assignment_problem[:2], name="edge_traveled")
 
-    solver.sub_tour = solver.binary_var_list(assignment_problem[0],
-                                             name="sub_tour")
+    solver.sub_tour = solver.integer_var_list(assignment_problem[0],
+                                              name="sub_tour",
+                                              ub=problem.num_customers)
 
     solver.demand_binary = solver.var_multidict(solver.binary_vartype,
                                                 assignment_problem,
@@ -165,8 +166,7 @@ def _to_state(problem: Problem, solver: Model) -> Solution:
     for customer_1 in range(problem.num_customers + 1):
         for customer_2 in range(problem.num_customers + 1):
             if solver.edges[customer_1, customer_2].solution_value == 1:
-                print(f"From {customer_1} to {customer_2}: ",
-                      end='')
+                print(f"From {customer_1} to {customer_2}: ")
                 for stack in range(problem._num_stacks):
                     print(f"in stack: {stack} ", end='')
                     for index in range(MAX_STACK_INDEX):
@@ -192,8 +192,8 @@ def _to_state(problem: Problem, solver: Model) -> Solution:
     print()
     print("is moved")
     # bij 0 telt niet mee
-    for customer_1 in range(problem.num_customers + 1):
-        print(f"{customer_1}: ", end='')
+    for customer_1 in range(1, problem.num_customers + 1):
+        print(f"at customer {customer_1}: ")
         for stack in range(problem.num_stacks):
             print(f"stack: {stack}, indexes changed: ", end='')
             for index in range(MAX_STACK_INDEX):
@@ -227,7 +227,7 @@ def _to_state(problem: Problem, solver: Model) -> Solution:
     print()
     print("handling costs: ")
     for customer_1 in range(1, problem.num_customers + 1):
-        print(f"{customer_1}: ", end='')
+        print(f"at customer {customer_1}: ")
         for stack in range(problem.num_stacks):
             print(f"stack: {stack}, handling cost: ", end='')
             for index in range(MAX_STACK_INDEX):
@@ -282,34 +282,30 @@ def _to_state(problem: Problem, solver: Model) -> Solution:
             route.append(0)
             routes.append(route)
     print(routes)
-    # for route in routes:
-    #     print(route)
-    # for index in range(MAX_STACK_INDEX):
-    #     if solver.demand_binary[customer,
-    #                             route[customer_idx + 1],
-    #                             stack,
-    #                             index].solution_value == 1:
-    #         owner = list(problem._demands).index(round(
-    #             solver.demand_volumes[customer,
-    #                                   route[customer_idx + 1],
-    #                                   stack,
-    #                                   index].solution_value, 5))
-    #
-    #         layout.append(f"d{owner}")
-    #
-    #     if solver.pickup_binary[customer,
-    #                             route[customer_idx + 1],
-    #                             stack,
-    #                             index].solution_value == 1:
-    #         owner = list(problem._pickups).index(
-    #             round(solver.pickup_volumes
-    #                   [customer,
-    #                    route[customer_idx + 1],
-    #                    stack,
-    #                    index].solution_value), 5)
-    #
-    #         layout.append(f"p{owner}")
-    # print(layout)
-    # print(plan)
+    for route_idx, route in enumerate(routes):
+        plan = f"V{route_idx},"
+        print(route[:-1])
+        for customer_idx, customer in enumerate(route[:-1]):
+            plan += f"{customer},"
+            for stack in range(problem.num_stacks):
+                plan += f"S{stack},"
+                for index in range(MAX_STACK_INDEX):
+                    for destination in range(1, problem.num_customers + 1):
+                        for origin in range(1, problem.num_customers + 1):
+                            if solver.demand_binary[customer,
+                                                    route[customer_idx + 1],
+                                                    stack,
+                                                    index,
+                                                    destination,
+                                                    origin].solution_value == 1:
+                                plan += f"d{destination}"
 
+                            if solver.pickup_binary[customer,
+                                                    route[customer_idx + 1],
+                                                    stack,
+                                                    index,
+                                                    destination,
+                                                    origin].solution_value == 1:
+                                plan += f"p{origin}"
+        print(plan)
     pass
