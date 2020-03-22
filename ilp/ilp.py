@@ -1,7 +1,6 @@
 import numpy as np
 from docplex.mp.model import Model
 from typing import List
-import cplex
 
 from heuristic.constants import M, MAX_STACK_INDEX
 from heuristic.classes import Problem, Solution
@@ -15,7 +14,7 @@ def ilp(problem: Problem) -> Solution:
     """
     with Model("VRPSPD-H") as solver:
         solver.parameters.threads = 20
-        # solver.time_limit = 50
+        # solver.time_limit = 100
 
         problem.distances[problem.distances == 0] = np.inf
 
@@ -40,8 +39,6 @@ def ilp(problem: Problem) -> Solution:
         print(solver.objective_value)
         print()
 
-        # bd = solver.solution.infeasibility.bound_constraints(solver.solution.get_values())
-        # print(bd)
         return _to_state(problem, solver)
 
 
@@ -60,14 +57,7 @@ def _setup_objective(problem: Problem, solver: Model):
         for k in range(problem.num_stacks)
         for g in range(MAX_STACK_INDEX))
 
-    unavoidable_costs = problem.handling_cost * (np.sum(demand.volume
-                                                        for demand in
-                                                        problem.demands)
-                                                 + np.sum(pickup.volume
-                                                          for pickup in
-                                                          problem.pickups))
-
-    solver.minimize(routes_cost + handling_cost)# - unavoidable_costs)
+    solver.minimize(routes_cost + handling_cost)
 
 
 def _setup_decision_variables(problem: Problem, solver: Model):
@@ -197,7 +187,7 @@ def _to_state(problem: Problem, solver: Model) -> Solution:
                             for destination in range(1, problem.num_customers + 1):
                                 if solver.pickup_binary[customer_1, customer_2, stack, index, destination, origin].solution_value == 1:
                                     print(f"error destination {destination} ")
-
+                    print()
                 print()
     print()
     print("is moved")
@@ -243,6 +233,28 @@ def _to_state(problem: Problem, solver: Model) -> Solution:
             for index in range(MAX_STACK_INDEX):
                 print(f"index {index}: {solver.handling_cost[customer_1, stack, index].solution_value} ", end='')
             print()
+        print()
+    # print("edge 0-5 and 5-1")
+    # for destination in range(problem.num_customers + 1):
+    #     for origin in range(problem.num_customers + 1):
+    #         print(f"0-5: {destination} {origin}: {solver.pickup_binary[0, 5, 0, 4, destination, origin].solution_value} ", end='')
+    #         print(f"5-1: {destination} {origin}: {solver.pickup_binary[5, 1, 0, 4, destination, origin].solution_value} ")
+    #         print(f"0-5: {destination} {origin}: {solver.demand_binary[0, 5, 0, 4, destination, origin].solution_value} ", end='')
+    #         print(f"5-1: {destination} {origin}: {solver.demand_binary[5, 1, 0, 4, destination, origin].solution_value} ")
+    #     print()
+    # print("sums")
+    # for destination in range(problem.num_customers + 1):
+    #     for origin in range(problem.num_customers + 1):
+    #         print(f"0-5: {destination} {origin}: {sum(solver.pickup_binary[customer_2, 5, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1))} ", end='')
+    #         print(f"5-1: {destination} {origin}: {sum(solver.pickup_binary[5, customer_2, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1))} ")
+    #         print(f"0-5: {destination} {origin}: {sum(solver.demand_binary[customer_2, 5, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1))} ", end='')
+    #         print(f"5-1: {destination} {origin}: {sum(solver.demand_binary[5, customer_2, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1))} ")
+    #         if sum(solver.pickup_binary[customer_2, 5, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1)) != sum(solver.pickup_binary[5, customer_2, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1)):
+    #             print("not same pickup value")
+    #         if sum(solver.demand_binary[customer_2, 5, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1)) != sum(solver.demand_binary[5, customer_2, 0, 4, destination, origin].solution_value for customer_2 in range(problem.num_customers + 1)):
+    #             print("not same demand value")
+    #     print()
+
     print("stack_capacity: ", problem.stack_capacity)
     print("demands: ", problem._demands)
     print("pickups: ", problem._pickups)
