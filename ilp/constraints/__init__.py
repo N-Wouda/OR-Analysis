@@ -39,10 +39,10 @@ CONSTRAINTS = [
     pickup_inventory,
     # pickup_total,
     pickups_sum_to_depot,
-    # stack_size,
+    stack_size,
     same_number_in_vehicle,
     sub_tour_elimination,
     total_items,
-    test,
+    # test,
     # TODO
 ]

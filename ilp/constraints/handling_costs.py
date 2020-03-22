@@ -42,11 +42,11 @@ def handling_costs(problem: Problem, solver):
                                range(1, problem.num_customers + 1)
                                if customer_1 is not origin)
 
-                # not_moved_reduction = M * (
-                #         1 - solver.is_moved[customer_1, stack, index])
+                not_moved_reduction = M * (
+                        1 - solver.is_moved[customer_1, stack, index])
 
-                # handling_value = demand_cost + pickup_cost - not_moved_reduction
-                handling_value = (demand_cost + pickup_cost) * solver.is_moved[customer_1, stack, index]
+                handling_value = demand_cost + pickup_cost - not_moved_reduction
+                # handling_value = (demand_cost + pickup_cost) * solver.is_moved[customer_1, stack, index]
 
                 solver.add_constraint(
                     solver.handling_cost[customer_1, stack, index]

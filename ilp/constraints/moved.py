@@ -18,9 +18,9 @@ def moved(problem: Problem, solver):
                         after_demand = solver.sum(solver.demand_binary[
                                                       customer_1, customer_2, stack, idx, destination, origin]
                                                   for customer_2 in range(problem.num_customers + 1))
-                        if before_demand is not after_demand:
-                            solver.add_constraint(
-                                solver.is_moved[customer_1, stack, idx] == 1)
+
+                        solver.add_constraint(
+                            solver.is_moved[customer_1, stack, idx] >= solver.abs(before_demand - after_demand))
 
                         before_pickup = solver.sum(solver.pickup_binary[
                                                        customer_2, customer_1, stack, idx, destination, origin]
@@ -28,10 +28,5 @@ def moved(problem: Problem, solver):
                         after_pickup = solver.sum(solver.pickup_binary[
                                                       customer_1, customer_2, stack, idx, destination, origin]
                                                   for customer_2 in range(problem.num_customers + 1))
-                        if before_pickup is not after_pickup:
-                            solver.add_constraint(
-                                solver.is_moved[customer_1, stack, idx] == 1)
-
-                        if before_demand is after_demand and before_pickup is after_pickup: # TODO remove this
-                            solver.add_constraint(
-                                solver.is_moved[customer_1, stack, idx] == 0)
+                        solver.add_constraint(
+                            solver.is_moved[customer_1, stack, idx] >= solver.abs(before_pickup - after_pickup))
