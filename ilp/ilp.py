@@ -3,7 +3,7 @@ from docplex.mp.model import Model
 from typing import List
 
 from heuristic.constants import DEPOT, MAX_STACK_INDEX
-from heuristic.classes import Problem, Route, Solution, Stacks, Stack
+from heuristic.classes import Problem, Route, Solution, Stacks
 from .constraints import CONSTRAINTS
 
 
@@ -14,7 +14,7 @@ def ilp(problem: Problem) -> Solution:
     """
     with Model("VRPSPD-H") as solver:
         solver.parameters.threads = 20
-        # solver.time_limit = 40
+        solver.time_limit = 40
 
         problem.distances[problem.distances == 0] = np.inf
 
@@ -128,15 +128,18 @@ def _to_state(problem: Problem, solver: Model) -> Solution:
                     for destination in range(problem.num_customers + 1):
                         for origin in range(problem.num_customers + 1):
                             if solver.demand_binary[customer,
-                                                    full_route[idx_customer + 1],
+                                                    full_route[
+                                                        idx_customer + 1],
                                                     idx_stack,
                                                     index,
                                                     destination,
                                                     origin].solution_value == 1:
-                                stack.push_front(problem.demands[destination - 1])
+                                stack.push_front(
+                                    problem.demands[destination - 1])
 
                             if solver.pickup_binary[customer,
-                                                    full_route[idx_customer + 1],
+                                                    full_route[
+                                                        idx_customer + 1],
                                                     idx_stack,
                                                     index,
                                                     destination,

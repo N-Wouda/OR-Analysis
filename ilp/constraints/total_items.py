@@ -6,7 +6,6 @@ def total_items(problem: Problem, solver):
     """
     Ensures the total number of items going and coming from the depot is
     equal to the number of customers.
-    # TODO in paper zetten indien nodig.
     """
     from_depot = solver.sum(
         solver.demand_binary[0, customer, stack, index, destination, origin] +

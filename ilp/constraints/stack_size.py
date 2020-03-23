@@ -15,6 +15,7 @@ def stack_size(problem: Problem, solver):
                         customer_1, customer_2, stack, index, destination, 0]
                     for index in range(MAX_STACK_INDEX)
                     for destination in range(problem.num_customers + 1))
+
                 pickups = solver.sum(
                     problem.pickups[origin - 1].volume *
                     solver.pickup_binary[

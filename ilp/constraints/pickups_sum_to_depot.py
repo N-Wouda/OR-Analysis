@@ -5,7 +5,6 @@ from heuristic.constants import MAX_STACK_INDEX
 def pickups_sum_to_depot(problem: Problem, solver):
     """
     Ensures customer pickups are delivered to depot.
-    # TODO in paper zetten indien nodig. kan ook zonder volume
     """
     total_pickup = solver.sum(problem.pickups[origin - 1].volume *
                               solver.pickup_binary[
