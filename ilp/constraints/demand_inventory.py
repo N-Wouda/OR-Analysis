@@ -12,14 +12,14 @@ def demand_inventory(problem: Problem, solver):
             if customer_1 is not destination:
                 demand_to_customer = solver.sum(
                     solver.demand_binary[
-                        customer_2, customer_1, stack, index, destination, 0]
+                        customer_2, customer_1, stack, index, destination]
                     for customer_2 in range(problem.num_customers + 1)
                     for stack in range(problem.num_stacks)
                     for index in range(MAX_STACK_INDEX))
 
                 demand_after_customer = solver.sum(
                     solver.demand_binary[
-                        customer_1, customer_2, stack, index, destination, 0]
+                        customer_1, customer_2, stack, index, destination]
                     for customer_2 in range(problem.num_customers + 1)
                     for stack in range(problem.num_stacks)
                     for index in range(MAX_STACK_INDEX))

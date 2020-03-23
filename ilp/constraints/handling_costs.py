@@ -15,14 +15,11 @@ def handling_costs(problem: Problem, solver):
                                                     customer_2,
                                                     stack,
                                                     index,
-                                                    destination,
-                                                    origin]
+                                                    destination]
                                for customer_2 in
                                range(problem.num_customers + 1)
                                for destination in
                                range(1, problem.num_customers + 1)
-                               for origin in
-                               range(problem.num_customers + 1)
                                if customer_1 is not destination)
                 pickup_cost = \
                     solver.sum(problem.pickups[origin - 1].volume *
@@ -30,11 +27,8 @@ def handling_costs(problem: Problem, solver):
                                                     customer_2,
                                                     stack,
                                                     index,
-                                                    destination,
                                                     origin]
                                for customer_2 in
-                               range(problem.num_customers + 1)
-                               for destination in
                                range(problem.num_customers + 1)
                                for origin in
                                range(1, problem.num_customers + 1)

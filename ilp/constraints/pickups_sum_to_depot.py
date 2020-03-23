@@ -8,7 +8,7 @@ def pickups_sum_to_depot(problem: Problem, solver):
     """
     total_pickup = solver.sum(problem.pickups[origin - 1].volume *
                               solver.pickup_binary[
-                                  customer, 0, stack, index, 0, origin]
+                                  customer, 0, stack, index, origin]
                               for customer in range(problem.num_customers + 1)
                               for stack in range(problem.num_stacks)
                               for index in range(MAX_STACK_INDEX)

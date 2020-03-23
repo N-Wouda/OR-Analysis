@@ -12,14 +12,14 @@ def stack_size(problem: Problem, solver):
                 demands = solver.sum(
                     problem.demands[destination - 1].volume *
                     solver.demand_binary[
-                        customer_1, customer_2, stack, index, destination, 0]
+                        customer_1, customer_2, stack, index, destination]
                     for index in range(MAX_STACK_INDEX)
                     for destination in range(problem.num_customers + 1))
 
                 pickups = solver.sum(
                     problem.pickups[origin - 1].volume *
                     solver.pickup_binary[
-                        customer_1, customer_2, stack, index, 0, origin]
+                        customer_1, customer_2, stack, index, origin]
                     for index in range(MAX_STACK_INDEX)
                     for origin in range(problem.num_customers + 1))
 

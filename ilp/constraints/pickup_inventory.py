@@ -12,14 +12,14 @@ def pickup_inventory(problem: Problem, solver):
             if customer_1 is not origin:
                 pickup_to_customer = solver.sum(
                     solver.pickup_binary[
-                        customer_2, customer_1, stack, index, 0, origin]
+                        customer_2, customer_1, stack, index, origin]
                     for customer_2 in range(problem.num_customers + 1)
                     for stack in range(problem.num_stacks)
                     for index in range(MAX_STACK_INDEX))
 
                 pickup_after_customer = solver.sum(
                     solver.pickup_binary[
-                        customer_1, customer_2, stack, index, 0, origin]
+                        customer_1, customer_2, stack, index, origin]
                     for customer_2 in range(problem.num_customers + 1)
                     for stack in range(problem.num_stacks)
                     for index in range(MAX_STACK_INDEX))

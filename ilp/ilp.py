@@ -14,7 +14,7 @@ def ilp(problem: Problem) -> Solution:
     """
     with Model("VRPSPD-H") as solver:
         solver.parameters.threads = 20
-        solver.time_limit = 40
+        # solver.time_limit = 40
 
         problem.distances[problem.distances == 0] = np.inf
 
@@ -65,7 +65,6 @@ def _setup_decision_variables(problem: Problem, solver: Model):
                           list(range(problem.num_customers + 1)),
                           list(range(problem.num_stacks)),
                           list(range(MAX_STACK_INDEX)),
-                          list(range(problem.num_customers + 1)),
                           list(range(problem.num_customers + 1))]
 
     solver.edges = solver.binary_var_matrix(
@@ -125,25 +124,20 @@ def _to_state(problem: Problem, solver: Model) -> Solution:
             for idx_stack in range(problem.num_stacks):
                 stack = route.plan[-1][idx_stack]
                 for index in range(MAX_STACK_INDEX):
-                    for destination in range(problem.num_customers + 1):
-                        for origin in range(problem.num_customers + 1):
-                            if solver.demand_binary[customer,
-                                                    full_route[
-                                                        idx_customer + 1],
-                                                    idx_stack,
-                                                    index,
-                                                    destination,
-                                                    origin].solution_value == 1:
-                                stack.push_front(
-                                    problem.demands[destination - 1])
+                    for target in range(problem.num_customers + 1):
+                        if solver.demand_binary[customer,
+                                                full_route[idx_customer + 1],
+                                                idx_stack,
+                                                index,
+                                                target].solution_value == 1:
+                            stack.push_front(
+                                problem.demands[target - 1])
 
-                            if solver.pickup_binary[customer,
-                                                    full_route[
-                                                        idx_customer + 1],
-                                                    idx_stack,
-                                                    index,
-                                                    destination,
-                                                    origin].solution_value == 1:
-                                stack.push_front(problem.pickups[origin - 1])
+                        if solver.pickup_binary[customer,
+                                                full_route[idx_customer + 1],
+                                                idx_stack,
+                                                index,
+                                                target].solution_value == 1:
+                            stack.push_front(problem.pickups[target - 1])
 
     return Solution(routes, [])

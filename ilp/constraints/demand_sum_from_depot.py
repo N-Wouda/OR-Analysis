@@ -7,7 +7,7 @@ def demand_sum_from_depot(problem: Problem, solver):
     Ensures customer pickups are delivered to depot.
     """
     total_demand = solver.sum(
-        solver.demand_binary[0, customer, stack, index, destination, 0] *
+        solver.demand_binary[0, customer, stack, index, destination] *
         problem.demands[destination - 1].volume
         for customer in range(1, problem.num_customers + 1)
         for stack in range(problem.num_stacks)

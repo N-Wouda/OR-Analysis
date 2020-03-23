@@ -10,12 +10,8 @@ def demand_origin(problem: Problem, solver):
         for customer_2 in range(problem.num_customers + 1):
             for stack in range(problem.num_stacks):
                 for index in range(MAX_STACK_INDEX):
-                    for destination in range(problem.num_customers + 1):
-                        for origin in range(1, problem.num_customers + 1):
-                            solver.add_constraint(solver.demand_binary[
-                                                      customer_1,
-                                                      customer_2,
-                                                      stack,
-                                                      index,
-                                                      destination,
-                                                      origin] == 0)
+                    solver.add_constraint(solver.demand_binary[customer_1,
+                                                               customer_2,
+                                                               stack,
+                                                               index,
+                                                               0] == 0)

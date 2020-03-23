@@ -17,8 +17,7 @@ def edge_del_pick_dependence(problem: Problem, solver):
                                                         customer_2,
                                                         stack,
                                                         index,
-                                                        destination,
-                                                        0]
+                                                        destination]
                                    for destination in
                                    range(problem.num_customers + 1))
                         +
@@ -26,7 +25,6 @@ def edge_del_pick_dependence(problem: Problem, solver):
                                                         customer_2,
                                                         stack,
                                                         index,
-                                                        0,
                                                         origin]
                                    for origin in
                                    range(problem.num_customers + 1))

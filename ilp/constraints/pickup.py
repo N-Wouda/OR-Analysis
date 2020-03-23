@@ -10,7 +10,7 @@ def pickup(problem: Problem, solver):
 
         demand_to_customer = solver.sum(
             solver.pickup_binary[
-                customer_1, customer_2, stack, index, 0, customer_1]
+                customer_1, customer_2, stack, index, customer_1]
             for customer_2 in range(problem.num_customers + 1)
             for stack in range(problem.num_stacks)
             for index in range(MAX_STACK_INDEX))
