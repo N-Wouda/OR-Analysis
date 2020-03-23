@@ -9,7 +9,7 @@ def main():
         raise ValueError(f"{sys.argv[0]}: expected file location.")
 
     problem = Problem.from_file(sys.argv[1], delimiter=',')
-    solution = Solution.from_file(f"solutions/oracs_{problem.instance}.csv")
+    solution = Solution.from_file(f"solutions/oracs_ILP_{problem.instance}.csv")
 
     is_feasible = True
 
