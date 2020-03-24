@@ -8,7 +8,7 @@ from .classes import Problem
 from .constants import CRITERION, DECAY, ITERATIONS, WEIGHTS
 from .destroy_operators import D_OPERATORS
 from .functions import initial_solution
-from .local_search import LocalSearch, L_OPERATORS
+from .local_search import LocalSearch, SOLUTION_OPERATORS, ROUTE_OPERATORS
 from .repair_operators import R_OPERATORS
 
 
@@ -28,8 +28,11 @@ def main():
 
     local_search = LocalSearch()
 
-    for op in L_OPERATORS:
-        local_search.add_operator(op)
+    for op in SOLUTION_OPERATORS:
+        local_search.add_solution_operator(op)
+
+    for op in ROUTE_OPERATORS:
+        local_search.add_route_operator(op)
 
     alns.on_best(local_search)
 

@@ -40,6 +40,13 @@ class Solution(State):
 
         raise LookupError(f"Customer {customer} is not understood.")
 
+    def cost(self) -> float:
+        """
+        Wrapper to play nice with the local search procedure. Returns the
+        objective value for this solution instance.
+        """
+        return self.objective()
+
     def objective(self) -> float:
         """
         Evaluates the current solution.

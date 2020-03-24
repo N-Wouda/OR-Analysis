@@ -32,8 +32,8 @@ def in_route_two_opt(route: Route) -> Route:
 
             # This is a better route than the one we have currently. Of course
             # that does not mean we can find a good handling configuration as
-            # well, so we create a route for this 2-opt move first and return
-            # if it is indeed better than the one we had before.
+            # well, so we attempt to create a route for this 2-opt move and skip
+            # if it is infeasible.
             best[first:second] = best[second - 1:first - 1:-1]
             new_route = Route([], [Stacks(problem.num_stacks)])
 
@@ -43,6 +43,8 @@ def in_route_two_opt(route: Route) -> Route:
 
                 new_route.insert_customer(customer, idx)
             else:
+                # Feasible 2-opt move, so we store this new route for evaluation
+                # below.
                 feasible_routes.push(new_route.cost(), new_route)
 
     _, best_route = feasible_routes.pop()
