@@ -1,6 +1,6 @@
 import numpy as np
 
-from heuristic.classes import Problem, Route, Stacks
+from heuristic.classes import Heap, Problem, Route, Stacks
 from heuristic.constants import DEPOT
 
 
@@ -15,6 +15,9 @@ def in_route_two_opt(route: Route) -> Route:
 
     best = np.array([DEPOT] + route.customers.to_list())
     best += 1
+
+    feasible_routes = Heap()
+    feasible_routes.push(route.cost(), route)
 
     for first in range(1, len(route.customers)):
         for second in range(first + 1, len(route.customers)):
@@ -40,7 +43,7 @@ def in_route_two_opt(route: Route) -> Route:
 
                 new_route.insert_customer(customer, idx)
             else:
-                if new_route.cost() < route.cost():
-                    return new_route
+                feasible_routes.push(new_route.cost(), new_route)
 
-    return route
+    _, best_route = feasible_routes.pop()
+    return best_route
