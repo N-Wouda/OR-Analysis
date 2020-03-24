@@ -1,6 +1,6 @@
 from heuristic.classes import Problem
 from heuristic.constants import M, MAX_STACK_INDEX
-
+#
 
 def handling_costs(problem: Problem, solver):
     """

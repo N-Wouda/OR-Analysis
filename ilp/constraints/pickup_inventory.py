@@ -1,6 +1,6 @@
 from heuristic.classes import Problem
 from heuristic.constants import MAX_STACK_INDEX
-
+#
 
 def pickup_inventory(problem: Problem, solver):
     """

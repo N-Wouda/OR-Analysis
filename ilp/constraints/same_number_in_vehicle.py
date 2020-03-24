@@ -1,11 +1,12 @@
 from heuristic.classes import Problem
 from heuristic.constants import MAX_STACK_INDEX
-
+#
 
 def same_number_in_vehicle(problem: Problem, solver):
     """
     Ensures the same number of items are in the truck at all points.
     """
+    # TODO remove? redundant.
     for customer_1 in range(1, problem.num_customers + 1):
         before_customer_demand = solver.sum(
             solver.demand_binary[
