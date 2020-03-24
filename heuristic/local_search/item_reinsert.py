@@ -5,7 +5,7 @@ import numpy as np
 from heuristic.classes import Item, Problem, Route
 
 
-def in_route_item_reinsert(route: Route) -> Route:
+def item_reinsert(route: Route) -> Route:
     """
     Reinserts customer demands and pickups item in the optimal stack and
     position. Stops once an improving move has been found.
