@@ -1,7 +1,5 @@
 from copy import deepcopy
 
-from numpy.random import RandomState
-
 from heuristic.classes import Solution
 
 
@@ -17,9 +15,8 @@ class LocalSearch:
     def add_solution_operator(self, operator):
         self._solution_operators.append(operator)
 
-    def __call__(self, current: Solution, rnd_state: RandomState) -> Solution:
-        improved = deepcopy(current)
-        improved = self._improve(improved, self._solution_operators)
+    def __call__(self, current: Solution, *args) -> Solution:
+        improved = self._improve(deepcopy(current), self._solution_operators)
 
         for idx, route in enumerate(improved.routes):
             improved.routes[idx] = self._improve(route, self._route_operators)
