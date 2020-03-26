@@ -25,7 +25,7 @@ CONSTRAINTS = [
     # demand_sum_from_depot,
     edge_del_pick_dependence,
     handling_costs,
-    # index_from_rear,
+    index_from_rear,
     moved,
     moved_lifo,
     once_from_customer,
