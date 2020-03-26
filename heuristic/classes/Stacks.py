@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from operator import methodcaller
 from typing import Callable, List, Optional
 
 from .Item import Item
@@ -91,7 +92,7 @@ class Stacks:
         raise LookupError(f"Item {item} not in any stacks.")
 
     def _first_stack(self, criterion: Callable[..., Stack]) -> Stack:
-        return criterion(self.stacks, key=lambda stack: stack.volume())
+        return criterion(self.stacks, key=methodcaller("volume"))
 
     def __str__(self):
         return ";".join(str(stack) for stack in self.stacks)

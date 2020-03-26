@@ -49,8 +49,7 @@ def _remove(destroyed: Solution,
 
     # Selects the customer and the direct neighbours before and after the
     # customer, should those exist.
-    selected = route.customers[max(idx - 1, 0)
-                               :min(idx + 2, len(route.customers))]
+    selected = route.customers[max(idx - 1, 0):min(idx + 2, len(route))]
 
     for candidate in selected:
         removed.append(candidate)

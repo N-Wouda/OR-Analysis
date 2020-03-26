@@ -1,5 +1,7 @@
 from copy import deepcopy
 
+import numpy as np
+
 from heuristic.classes import Problem, Route
 
 
@@ -7,20 +9,21 @@ def pickup_push_to_front(route: Route) -> Route:
     """
     Pushes pickup items to the front, at various legs of the route. This is
     somewhat preferred, as these items cannot get in the way if they are
-    positioned at the front. This is a rather expensive operation.
-
-    TODO investigate solution output.
+    positioned at the front.
     """
+    if np.isclose(route.handling_cost(), 0.):
+        return route
+
     problem = Problem()
 
-    for idx_customer, customer in enumerate(route.customers, 1):
+    for idx_customer, customer in enumerate(route, 1):
         pickup = problem.pickups[customer]
         idx_stack = route.plan[idx_customer].find_stack(pickup).index
 
         # This skips the last offset, as that would not be interesting anyway
         # (that is the leg towards the depot, where we have only pickups and
         # handling can no longer be improved).
-        for plan_offset in range(idx_customer, len(route.customers)):
+        for plan_offset in range(idx_customer, len(route)):
             new_route = deepcopy(route)
 
             for stacks in new_route.plan[plan_offset:]:

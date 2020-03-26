@@ -18,7 +18,7 @@ def handling_costs(sol: Solution) -> np.ndarray:
     costs = np.zeros(problem.num_customers)
 
     for route in sol.routes:
-        for idx, customer in enumerate(route.customers):
+        for idx, customer in enumerate(route):
             before, after = route.plan[idx], route.plan[idx + 1]
 
             # This is the handling cost for just this customer, as an

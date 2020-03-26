@@ -59,7 +59,7 @@ class Solution(State):
         """
         # Number of columns is customers + depot, and a final column for route
         # cost.
-        n_cols = max(len(route.customers) for route in self.routes) + 2
+        n_cols = max(len(route) for route in self.routes) + 2
         n_rows = len(self.routes)
 
         _, axes = plt.subplots(n_rows, n_cols, figsize=(2.5 * n_cols, n_rows),

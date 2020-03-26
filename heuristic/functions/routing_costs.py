@@ -16,7 +16,7 @@ def routing_costs(sol: Solution) -> np.ndarray:
     costs = np.zeros(problem.num_customers)
 
     for route in sol.routes:
-        for idx, customer in enumerate(route.customers):
+        for idx, customer in enumerate(route):
             costs[customer] = _customer_routing_cost(route, customer, idx)
 
     return costs
@@ -39,7 +39,7 @@ def _customer_routing_cost(route: Route, customer: int, idx: int) -> float:
         cost -= problem.distances[DEPOT + 1, customers[1] + 1]
         return cost
 
-    if idx == len(route.customers) - 1:
+    if idx == len(route) - 1:
         cost = problem.short_distances[customers[-2], customer, DEPOT]
         cost -= problem.distances[customers[-2] + 1, DEPOT + 1]
         return cost

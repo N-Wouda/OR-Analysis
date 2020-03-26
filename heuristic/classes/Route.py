@@ -33,6 +33,12 @@ class Route:
     def __contains__(self, customer: int) -> bool:
         return customer in self.customers
 
+    def __len__(self):
+        return len(self.customers)
+
+    def __iter__(self):
+        yield from self.customers
+
     def cost(self) -> float:
         """
         Returns the cost (objective) value of this route, based on the

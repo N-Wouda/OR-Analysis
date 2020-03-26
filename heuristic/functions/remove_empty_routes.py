@@ -14,7 +14,7 @@ def remove_empty_routes(operator: Callable[..., Solution]):
     def decorator(*args, **kwargs):
         destroyed = operator(*args, **kwargs)
         destroyed.routes = [route for route in destroyed.routes
-                            if len(route.customers) != 0]
+                            if len(route) != 0]
 
         return destroyed
 

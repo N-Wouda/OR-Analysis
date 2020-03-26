@@ -11,33 +11,26 @@ def in_route_two_opt(route: Route) -> Route:
     Intra 2-opt in Hornstra et al. (2020).
     """
     problem = Problem()
-    dist = problem.distances
 
-    best = np.array([DEPOT] + route.customers.to_list())
-    best += 1
+    tour = np.array([DEPOT] + route.customers.to_list())
+    tour += 1
 
     feasible_routes = Heap()
     feasible_routes.push(route.cost(), route)
 
-    for first in range(1, len(route.customers)):
-        for second in range(first + 1, len(route.customers)):
-            gain = dist[best[first - 1], best[second - 1]]
-            gain += dist[best[first], best[second]]
-
-            gain -= dist[best[first - 1], best[first]]
-            gain -= dist[best[second - 1], best[second]]
-
-            if gain >= 0:
+    for first in range(1, len(route)):
+        for second in range(first + 1, len(route)):
+            if _gain(tour, first, second) >= 0:
                 continue  # this is not a better move.
 
             # This is a better route than the one we have currently. Of course
             # that does not mean we can find a good handling configuration as
             # well, so we attempt to create a route for this 2-opt move and skip
             # if it is infeasible.
-            best[first:second] = best[second - 1:first - 1:-1]
+            tour[first:second] = tour[second - 1:first - 1:-1]
             new_route = Route([], [Stacks(problem.num_stacks)])
 
-            for idx, customer in enumerate(best[1:] - 1):
+            for idx, customer in enumerate(tour[1:] - 1):
                 if not new_route.can_insert(customer, idx):
                     break  # this is an infeasible 2-opt move.
 
@@ -49,3 +42,18 @@ def in_route_two_opt(route: Route) -> Route:
 
     _, best_route = feasible_routes.pop()
     return best_route
+
+
+def _gain(tour: np.ndarray, first: int, second: int):
+    problem = Problem()
+
+    # This would be the new situation.
+    total = problem.distances[tour[first - 1], tour[second - 1]]
+    total += problem.distances[tour[first], tour[second]]
+
+    # Old situation, which we subtract. If the total turns negative, we have
+    # found an improving move.
+    total -= problem.distances[tour[first - 1], tour[first]]
+    total -= problem.distances[tour[second - 1], tour[second]]
+
+    return total

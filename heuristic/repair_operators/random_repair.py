@@ -20,7 +20,7 @@ def random_repair(current: Solution, rnd_state: RandomState) -> Solution:
         # we insert into a random route, if that's feasible.
         for idx_route in rnd_state.permutation(len(current.routes)):
             route = current.routes[idx_route]
-            insert_idx = rnd_state.randint(len(route.customers))
+            insert_idx = rnd_state.randint(len(route))
 
             if route.can_insert(customer, insert_idx):
                 route.insert_customer(customer, insert_idx)

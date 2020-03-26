@@ -1,4 +1,5 @@
 from copy import deepcopy
+from operator import methodcaller
 
 import numpy as np
 
@@ -15,7 +16,7 @@ def item_reinsert(route: Route) -> Route:
 
     problem = Problem()
 
-    for idx, customer in enumerate(route.customers, 1):
+    for idx, customer in enumerate(route, 1):
         delivery = problem.demands[customer]
         pickup = problem.pickups[customer]
 
@@ -68,4 +69,4 @@ def _insert_item(route: Route, item: Item) -> Route:
             copies.append(copy)
 
     assert len(copies) > 0
-    return min(copies, key=lambda copy: copy.handling_cost())
+    return min(copies, key=methodcaller("handling_cost"))
