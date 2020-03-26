@@ -47,7 +47,7 @@ def relocate_customer(solution: Solution) -> Solution:
 
         if route is next_route and route.customers.index(customer) < insert_idx:
             # We re-insert into the same route, and the insert location will
-            # shift once we remove the customer. We need to account for that.
+            # shift once we remove the customer. This accounts for that.
             insert_idx -= 1
 
         route.remove_customer(customer)

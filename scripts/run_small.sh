@@ -8,4 +8,4 @@ do
   pipenv run python -m heuristic $instance
 done
 
-pipenv run python -m analysis "$instances" summary.csv
+pipenv run python -Om analysis "$instances" summary.csv
