@@ -44,13 +44,13 @@ def relocate_customer(solution: Solution) -> Solution:
         _, (customer, insert_idx, next_route) = insert_locations.pop()
 
         route = solution.find_route(customer)
-        route.remove_customer(customer)
 
-        if len(next_route) == 0:
-            # This can happen in earlier iterations: the best place to reinsert
-            # the customer is into its own route, which is now empty.
-            next_route.insert_customer(customer, 0)
-        else:
-            next_route.insert_customer(customer, insert_idx)
+        if route is next_route and route.customers.index(customer) < insert_idx:
+            # We re-insert into the same route, and the insert location will
+            # shift once we remove the customer. We need to account for that.
+            insert_idx -= 1
+
+        route.remove_customer(customer)
+        next_route.insert_customer(customer, insert_idx)
 
     return solution
