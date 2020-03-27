@@ -13,7 +13,7 @@ def ilp(problem: Problem) -> Solution:
     Inspired by https://github.com/N-Wouda/PL-Heuristic/blob/master/ilp/ilp.py
     """
     with Model("VRPSPD-H") as solver:
-        # solver.parameters.threads = 8
+        solver.parameters.threads = 8
         solver.time_limit = 172000 # slightly less than 2 days.
 
         problem.distances[problem.distances == 0] = np.inf
