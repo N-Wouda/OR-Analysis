@@ -66,6 +66,24 @@ class Route:
     def indices(self) -> Dict[int, int]:
         return {customer: idx for idx, customer in enumerate(self.customers)}
 
+    def attempt_append_tail(self, customers: List[int]) -> bool:
+        """
+        This method attempts to append the passed-in customers to this route.
+        It might fail if the capacity constraints cannot be respected (returns
+        False) - if it succeeds, the route is updated with the new customers
+        and True is returned.
+        """
+        for idx, customer in enumerate(customers):
+            if self.can_insert(customer, len(self)):
+                self.insert_customer(customer, len(self))
+            else:
+                for customer in customers[:idx]:
+                    self.remove_customer(customer)
+
+                return False
+
+        return True
+
     def invalidate_routing_cache(self):
         self._route_cost = None
 
