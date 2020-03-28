@@ -13,7 +13,6 @@ def in_route_two_opt(route: Route) -> Route:
     problem = Problem()
 
     tour = np.array([DEPOT] + route.customers.to_list())
-    tour += 1
 
     feasible_moves = Heap()
     feasible_moves.push(route.cost(), route)
@@ -30,23 +29,20 @@ def in_route_two_opt(route: Route) -> Route:
             tour[first:second] = tour[second - 1:first - 1:-1]
             new_route = Route([], [Stacks(problem.num_stacks)])
 
-            if new_route.attempt_append_tail(tour[1:] - 1):
+            if new_route.attempt_append_tail(tour[1:]):
                 feasible_moves.push(new_route.cost(), new_route)
 
     _, best_route = feasible_moves.pop()
     return best_route
 
 
-def _gain(tour: np.ndarray, first: int, second: int):
-    problem = Problem()
+def _gain(tour: np.ndarray, first: int, second: int) -> float:
+    # Proposed changes.
+    gain = Route.distance([tour[first - 1], tour[second - 1]])
+    gain += Route.distance([tour[first], tour[second]])
 
-    # This would be the new situation.
-    gain = problem.distances[tour[first - 1], tour[second - 1]]
-    gain += problem.distances[tour[first], tour[second]]
-
-    # Old situation, which we subtract. If the gain turns negative, we have
-    # found an improving move.
-    gain -= problem.distances[tour[first - 1], tour[first]]
-    gain -= problem.distances[tour[second - 1], tour[second]]
+    # Current situation.
+    gain -= Route.distance([tour[first - 1], tour[first]])
+    gain -= Route.distance([tour[second - 1], tour[second]])
 
     return gain

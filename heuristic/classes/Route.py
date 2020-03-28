@@ -72,6 +72,10 @@ class Route:
         It might fail if the capacity constraints cannot be respected (returns
         False) - if it succeeds, the route is updated with the new customers
         and True is returned.
+
+        The invariant is thus: if the method succeeds, this route has appended
+        the passed-in customers. If the method fails, the route remains
+        unchanged.
         """
         for idx, customer in enumerate(customers):
             if self.can_insert(customer, len(self)):

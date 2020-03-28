@@ -1,5 +1,7 @@
 from copy import copy, deepcopy
 
+import numpy as np
+
 from heuristic.classes import Heap, Route, Solution
 from heuristic.constants import DEPOT
 from heuristic.functions import remove_empty_routes, routing_costs
@@ -21,9 +23,9 @@ def relocate_customer(solution: Solution) -> Solution:
     improvements = Heap()
     costs = routing_costs(solution)
 
-    for curr_route in solution.routes:
+    for idx_route, curr_route in enumerate(solution.routes):
         for customer in curr_route:
-            for idx_route, route in enumerate(solution.routes):
+            for route in solution.routes[idx_route:]:
                 for idx in range(len(route) + 1):
                     gain = _gain(costs, route, idx, customer)
 
@@ -44,7 +46,7 @@ def relocate_customer(solution: Solution) -> Solution:
                     proposed = old_route.cost() + new_route.cost()
 
                     if proposed < current:
-                        improvements.push(gain, (customer, idx, route))
+                        improvements.push(proposed, (customer, idx, route))
 
     if len(improvements) != 0:
         _, (customer, insert_idx, next_route) = improvements.pop()
@@ -63,11 +65,8 @@ def relocate_customer(solution: Solution) -> Solution:
     return solution
 
 
-def _gain(costs, route, idx, customer):
+def _gain(costs: np.ndarray, route: Route, idx: int, customer: int) -> float:
     pred = DEPOT if idx == 0 else route.customers[idx - 1]
     succ = DEPOT if idx == len(route) else route.customers[idx]
 
-    gain = Route.distance([pred, customer, succ])
-    gain -= costs[customer]
-
-    return gain
+    return Route.distance([pred, customer, succ]) - costs[customer]

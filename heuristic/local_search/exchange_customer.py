@@ -1,9 +1,11 @@
 from copy import copy, deepcopy
 from itertools import product
 
-from heuristic.classes import Heap, Problem, Solution
+import numpy as np
+
+from heuristic.classes import Heap, Route, Solution
 from heuristic.constants import DEPOT
-from heuristic.functions import remove_empty_routes
+from heuristic.functions import remove_empty_routes, routing_costs
 
 
 @remove_empty_routes
@@ -18,30 +20,33 @@ def exchange_customer(solution: Solution) -> Solution:
       146-154.
     """
     improvements = Heap()
+    costs = routing_costs(solution)
 
     for idx1, route1 in enumerate(solution.routes):
         for idx2, route2 in enumerate(solution.routes[idx1 + 1:], idx1 + 1):
-            for first, second in product(enumerate(route1), enumerate(route2)):
-                if _gain(route1, *first, route2, *second) >= 0:
-                    continue
+            iterable = product(range(len(route1)), range(len(route2)))
 
-                c_idx1, customer1 = first
-                c_idx2, customer2 = second
+            for idx_cust1, idx_cust2 in iterable:
+                if _gain(costs, route1, idx_cust1, route2, idx_cust2) >= 0:
+                    continue
 
                 new_route1 = deepcopy(route1)
                 new_route2 = deepcopy(route2)
 
+                customer1 = route1.customers[idx_cust1]
+                customer2 = route2.customers[idx_cust2]
+
                 new_route1.remove_customer(customer1)
                 new_route2.remove_customer(customer2)
 
-                if not new_route1.can_insert(customer2, c_idx1):
+                if not new_route1.can_insert(customer2, idx_cust1):
                     continue
 
-                if not new_route2.can_insert(customer1, c_idx2):
+                if not new_route2.can_insert(customer1, idx_cust2):
                     continue
 
-                new_route1.insert_customer(customer2, c_idx1)
-                new_route2.insert_customer(customer1, c_idx2)
+                new_route1.insert_customer(customer2, idx_cust1)
+                new_route2.insert_customer(customer1, idx_cust2)
 
                 current = route1.cost() + route2.cost()
                 proposed = new_route1.cost() + new_route2.cost()
@@ -61,19 +66,23 @@ def exchange_customer(solution: Solution) -> Solution:
     return solution
 
 
-def _gain(route1, idx1, customer1, route2, idx2, customer2):
+def _gain(costs: np.ndarray,
+          route1: Route,
+          idx1: int,
+          route2: Route,
+          idx2: int) -> float:
     prev1 = DEPOT if idx1 == 0 else route1.customers[idx1 - 1]
     next1 = DEPOT if idx1 == len(route1) - 1 else route1.customers[idx1 + 1]
 
     prev2 = DEPOT if idx1 == 0 else route2.customers[idx2 - 1]
     next2 = DEPOT if idx2 == len(route2) - 1 else route2.customers[idx2 + 1]
 
-    problem = Problem()
+    # Proposed changes.
+    gain = Route.distance([prev1, route2.customers[idx2], next1])
+    gain += Route.distance([prev2, route1.customers[idx1], next2])
 
-    gain = problem.short_distances[prev1 + 1, customer2 + 1, next1 + 1]
-    gain += problem.short_distances[prev2 + 1, customer1 + 1, next2 + 1]
-
-    gain -= problem.short_distances[prev1 + 1, customer1 + 1, next1 + 1]
-    gain -= problem.short_distances[prev2 + 1, customer2 + 1, next2 + 1]
+    # Current situation.
+    gain -= costs[route1.customers[idx1]]
+    gain -= costs[route2.customers[idx2]]
 
     return gain

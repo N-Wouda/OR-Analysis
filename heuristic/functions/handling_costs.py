@@ -3,7 +3,7 @@ import numpy as np
 from heuristic.classes import Problem, Solution, Stacks
 
 
-def handling_costs(sol: Solution) -> np.ndarray:
+def handling_costs(solution: Solution) -> np.ndarray:
     """
     Computes handling costs for each customer. This is an approximation: only
     the handling costs *at* the customer are computed, any costs made at other
@@ -17,7 +17,7 @@ def handling_costs(sol: Solution) -> np.ndarray:
     problem = Problem()
     costs = np.zeros(problem.num_customers)
 
-    for route in sol.routes:
+    for route in solution.routes:
         for idx, customer in enumerate(route):
             before, after = route.plan[idx], route.plan[idx + 1]
 
