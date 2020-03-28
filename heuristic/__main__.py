@@ -38,7 +38,6 @@ def main():
 
     init = initial_solution()
     result = alns.iterate(init, WEIGHTS, DECAY, CRITERION, ITERATIONS)
-    # TODO post-processing?
 
     # noinspection PyTypeChecker
     solution: Solution = result.best_state

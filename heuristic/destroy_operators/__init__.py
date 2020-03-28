@@ -21,5 +21,4 @@ D_OPERATORS: List[Callable[[Solution, RandomState], Solution]] = [
     worst_cost,
     worst_distance,
     worst_handling,
-    # TODO
 ]

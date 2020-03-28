@@ -13,5 +13,4 @@ RULES: List[Callable[[Solution], Tuple[bool, str]]] = [
     all_pickups_are_satisfied,
     stack_capacity_is_respected,
     vehicle_capacity_is_respected,
-    # TODO
 ]

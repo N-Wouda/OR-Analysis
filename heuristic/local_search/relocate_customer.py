@@ -14,6 +14,8 @@ def relocate_customer(solution: Solution) -> Solution:
     such moves, the best is performed and the updated solution is returned.
     O(n^2), where n is the number of customers.
 
+    Similar to reinsertion in Hornstra et al. (2020).
+
     References
     ----------
     - Savelsbergh, Martin W. P. 1992. "The Vehicle Routing Problem with Time

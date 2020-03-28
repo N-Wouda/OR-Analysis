@@ -9,9 +9,9 @@ from heuristic.functions import remove_empty_routes
 @remove_empty_routes
 def cross_customer_exchange(solution: Solution) -> Solution:
     """
-    Tries to remove crossing links between routes.
-    TODO neighbourhood size
-    TODO best move? First better?
+    Tries to remove crossing links between routes. Of all such moves, the best
+    is performed and the updated solution is returned. O(n^2), where n is the
+    number of customers.
 
     References
     ----------

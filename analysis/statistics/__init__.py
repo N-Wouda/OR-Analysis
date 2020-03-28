@@ -11,5 +11,4 @@ STATISTICS: List[Callable[[Solution], float]] = [
     objective,
     routing_cost,
     handling_cost,
-    # TODO
 ]

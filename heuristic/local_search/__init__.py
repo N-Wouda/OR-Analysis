@@ -13,7 +13,6 @@ SOLUTION_OPERATORS: List[Callable[[Solution], Solution]] = [
     relocate_customer,
     exchange_customer,
     cross_customer_exchange,
-    # TODO more routing options
 ]
 
 ROUTE_OPERATORS: List[Callable[[Route], Route]] = [

@@ -172,6 +172,4 @@ class Stack:
         front (first item) to rear (last). O(n), where n is the number of stack
         items.
         """
-        # TODO this might not be correct for the output file. Look into it once
-        #  we have the output check with dr. Bakir.
         return ",".join(str(item) for item in reversed(self.stack))

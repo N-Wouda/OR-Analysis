@@ -11,7 +11,11 @@ from heuristic.functions import remove_empty_routes, routing_costs
 @remove_empty_routes
 def exchange_customer(solution: Solution) -> Solution:
     """
-    TODO
+    Performs exchange moves between two customers. Of all such moves, the best
+    is performed and the updated solution is returned. O(n^2), where n is the
+    number of customers.
+
+    Similar to exchange in Hornstra et al. (2020).
 
     References
     ----------

@@ -11,5 +11,4 @@ R_OPERATORS: List[Callable[[Solution, RandomState], Solution]] = [
     greedy_insert,
     perturbed_greedy_insert,
     random_repair,
-    # TODO
 ]
