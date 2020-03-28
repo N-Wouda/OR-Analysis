@@ -3,8 +3,10 @@ from itertools import product
 
 from heuristic.classes import Heap, Problem, Solution
 from heuristic.constants import DEPOT
+from heuristic.functions import remove_empty_routes
 
 
+@remove_empty_routes
 def exchange_customer(solution: Solution) -> Solution:
     """
     TODO
