@@ -17,7 +17,7 @@ def exchange_customer(solution: Solution) -> Solution:
       Windows: Minimizing Route Duration." *ORSA Journal on Computing* 4 (2):
       146-154.
     """
-    feasible_moves = Heap()
+    improvements = Heap()
 
     for idx1, route1 in enumerate(solution.routes):
         for idx2, route2 in enumerate(solution.routes[idx1 + 1:], idx1 + 1):
@@ -47,11 +47,11 @@ def exchange_customer(solution: Solution) -> Solution:
                 proposed = new_route1.cost() + new_route2.cost()
 
                 if proposed < current:
-                    feasible_moves.push(new_route1.cost() + new_route2.cost(),
-                                        (idx1, new_route1, idx2, new_route2))
+                    improvements.push(proposed,
+                                      (idx1, new_route1, idx2, new_route2))
 
-    if len(feasible_moves) != 0:
-        _, (idx1, new_route1, idx2, new_route2) = feasible_moves.pop()
+    if len(improvements) != 0:
+        _, (idx1, new_route1, idx2, new_route2) = improvements.pop()
 
         solution = copy(solution)
 
