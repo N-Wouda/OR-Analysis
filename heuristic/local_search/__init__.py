@@ -10,9 +10,9 @@ from .pickup_push_to_front import pickup_push_to_front
 from .relocate_customer import relocate_customer
 
 SOLUTION_OPERATORS: List[Callable[[Solution], Solution]] = [
-    cross_customer_exchange,
     relocate_customer,
     exchange_customer,
+    cross_customer_exchange,
     # TODO more routing options
 ]
 
