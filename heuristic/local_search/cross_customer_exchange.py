@@ -1,4 +1,4 @@
-from copy import deepcopy
+from copy import copy, deepcopy
 from itertools import product
 
 from heuristic.classes import Heap, Problem, Solution
@@ -55,6 +55,8 @@ def cross_customer_exchange(solution: Solution) -> Solution:
 
     if len(feasible_moves) != 0:
         _, (idx1, new_route1, idx2, new_route2) = feasible_moves.pop()
+
+        solution = copy(solution)
 
         solution.routes[idx1] = new_route1
         solution.routes[idx2] = new_route2

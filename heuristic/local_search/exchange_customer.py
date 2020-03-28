@@ -1,7 +1,7 @@
-from copy import deepcopy
+from copy import copy, deepcopy
 from itertools import product
 
-from heuristic.classes import Heap, Problem, Solution, Route
+from heuristic.classes import Heap, Problem, Solution
 from heuristic.constants import DEPOT
 
 
@@ -16,8 +16,7 @@ def exchange_customer(solution: Solution) -> Solution:
       146-154.
     """
     feasible_moves = Heap()
-    print()
-    print(solution.objective())
+
     for idx1, route1 in enumerate(solution.routes):
         for idx2, route2 in enumerate(solution.routes[idx1 + 1:], idx1 + 1):
             for first, second in product(enumerate(route1), enumerate(route2)):
@@ -52,10 +51,11 @@ def exchange_customer(solution: Solution) -> Solution:
     if len(feasible_moves) != 0:
         _, (idx1, new_route1, idx2, new_route2) = feasible_moves.pop()
 
+        solution = copy(solution)
+
         solution.routes[idx1] = new_route1
         solution.routes[idx2] = new_route2
 
-    print(solution.objective())
     return solution
 
 

@@ -1,3 +1,5 @@
+from copy import copy
+
 from heuristic.classes import Heap, Problem, Route, Solution
 from heuristic.constants import DEPOT
 from heuristic.functions import remove_empty_routes, routing_costs
@@ -37,6 +39,8 @@ def relocate_customer(solution: Solution) -> Solution:
                     feasible_moves.push(gain, (customer, idx, route))
 
     if len(feasible_moves) != 0:
+        solution = copy(solution)
+
         # We do not check for the handling effects here - although that is of
         # course a serious consideration, getting customers into the proper
         # routes counts a lot more at the solution level. The route based
