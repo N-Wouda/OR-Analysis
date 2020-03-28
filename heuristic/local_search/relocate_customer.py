@@ -1,6 +1,6 @@
 from copy import copy, deepcopy
 
-from heuristic.classes import Heap, Problem, Route, Solution
+from heuristic.classes import Heap, Route, Solution
 from heuristic.constants import DEPOT
 from heuristic.functions import remove_empty_routes, routing_costs
 
@@ -18,36 +18,33 @@ def relocate_customer(solution: Solution) -> Solution:
       Windows: Minimizing Route Duration." *ORSA Journal on Computing* 4 (2):
       146-154.
     """
-    problem = Problem()
-
     improvements = Heap()
     costs = routing_costs(solution)
 
-    for customer in range(problem.num_customers):
-        curr_route = solution.find_route(customer)
+    for curr_route in solution.routes:
+        for customer in curr_route:
+            for idx_route, route in enumerate(solution.routes):
+                for idx in range(len(route) + 1):
+                    gain = _gain(costs, route, idx, customer)
 
-        for idx_route, route in enumerate(solution.routes):
-            for idx in range(len(route) + 1):
-                gain = _gain(costs, route, idx, customer)
+                    if gain >= 0 or not route.can_insert(customer, idx):
+                        # This is either infeasible, or not an improving move.
+                        continue
 
-                if gain >= 0 or not route.can_insert(customer, idx):
-                    # This is either infeasible, or not an improving move.
-                    continue
+                    # The following performs the proposed move on a copy of the
+                    # two routes involved. If the move is an improvement, it is
+                    # added to the pool of improving moves.
+                    old_route = deepcopy(curr_route)
+                    new_route = deepcopy(route)
 
-                # The following performs the proposed move on a copy of the
-                # two routes involved. If the move is an improvement, it is
-                # added to the pool of improving moves.
-                old_route = deepcopy(curr_route)
-                new_route = deepcopy(route)
+                    old_route.remove_customer(customer)
+                    new_route.insert_customer(customer, idx)
 
-                old_route.remove_customer(customer)
-                new_route.insert_customer(customer, idx)
+                    current = route.cost() + curr_route.cost()
+                    proposed = old_route.cost() + new_route.cost()
 
-                current = route.cost() + curr_route.cost()
-                proposed = old_route.cost() + new_route.cost()
-
-                if proposed < current:
-                    improvements.push(gain, (customer, idx, route))
+                    if proposed < current:
+                        improvements.push(gain, (customer, idx, route))
 
     if len(improvements) != 0:
         _, (customer, insert_idx, next_route) = improvements.pop()
