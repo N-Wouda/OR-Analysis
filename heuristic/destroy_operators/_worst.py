@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import numpy as np
 from numpy.random import RandomState
 
@@ -14,7 +16,7 @@ def _worst(costs: np.ndarray, current: Solution,
 
     Internal - should not be exposed outside this module.
     """
-    destroyed = current.copy()
+    destroyed = deepcopy(current)
 
     # First we sort the costs to obtain the customers by increasing cost. We
     # then randomly select customers, favouring worst customers.

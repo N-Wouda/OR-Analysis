@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import pickle
+from operator import methodcaller
 from typing import Callable, List, Optional
 
 from .Item import Item
@@ -9,7 +9,6 @@ from .Stack import Stack
 
 
 class Stacks:
-
     __slots__ = ['stacks']
 
     stacks: List[Stack]
@@ -29,9 +28,6 @@ class Stacks:
     def __setitem__(self, idx: int, stack: Stack):
         self.stacks[idx] = stack
 
-    def copy(self) -> Stacks:
-        return pickle.loads(pickle.dumps(self, pickle.HIGHEST_PROTOCOL))
-
     @staticmethod
     def cost(customer: int,
              before: Stacks,
@@ -45,36 +41,11 @@ class Stacks:
         if problem is None:  # problem might be passed-in for testing.
             problem = Problem()
 
-        # Below we count the total volume moved, but this includes the customer
-        # demand item, which is not an additional operation. We compensate for
-        # this here.
+        # We count the total volume moved. This includes the customer demand
+        # item, which is not an additional operation. We subtract this here.
         volume = -problem.demands[customer].volume
-
-        for idx_stack in range(problem.num_stacks):
-            # For each stack, we look from the front to the rear and compare
-            # if anything has changed. If it has, that implies all subsequent
-            # items have been moved, and we can add the total cost of such an
-            # action. Only removals are counted - insertions are not, as those
-            # must have been removed from some other stack (we do not want to
-            # count twice).
-            it_before = reversed(before[idx_stack])
-            it_after = reversed(after[idx_stack])
-
-            for (idx, b_item), a_item in zip(enumerate(it_before, 1), it_after):
-                idx = len(before[idx_stack]) - idx
-
-                if b_item != a_item:
-                    # This implies all items up to this point must have been
-                    # moved out of the truck, which is exactly the volume that
-                    # must be moved to insert an item at this index.
-                    volume += before[idx_stack].insert_volume(idx + 1)
-                    break
-            else:
-                if len(before[idx_stack]) > len(after[idx_stack]):
-                    # This implies some items have been moved out of the stack,
-                    # and we should count those.
-                    num_moved = len(before[idx_stack]) - len(after[idx_stack])
-                    volume += before[idx_stack].insert_volume(num_moved)
+        volume += sum(Stack.moved_volume(before[idx_stack], after[idx_stack])
+                      for idx_stack in range(problem.num_stacks))
 
         assert volume >= 0.
         return problem.handling_cost * volume
@@ -121,7 +92,7 @@ class Stacks:
         raise LookupError(f"Item {item} not in any stacks.")
 
     def _first_stack(self, criterion: Callable[..., Stack]) -> Stack:
-        return criterion(self.stacks, key=lambda stack: stack.volume())
+        return criterion(self.stacks, key=methodcaller("volume"))
 
     def __str__(self):
         return ";".join(str(stack) for stack in self.stacks)

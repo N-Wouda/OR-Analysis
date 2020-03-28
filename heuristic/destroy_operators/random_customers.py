@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from numpy.random import RandomState
 
 from heuristic.classes import Problem, Solution
@@ -12,7 +14,7 @@ def random_customers(current: Solution, rnd_state: RandomState) -> Solution:
 
     Random removal in Hornstra et al. (2020).
     """
-    destroyed = current.copy()
+    destroyed = deepcopy(current)
 
     for customer in rnd_state.choice(Problem().num_customers,
                                      customers_to_remove(),

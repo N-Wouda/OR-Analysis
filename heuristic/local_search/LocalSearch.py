@@ -1,46 +1,41 @@
-import numpy as np
-from numpy.random import RandomState
+from copy import deepcopy
 
-from heuristic.classes import Problem, Route, Solution, Stacks
-from heuristic.constants import DEPOT
-from .held_karp import held_karp
+from heuristic.classes import Solution
 
 
 class LocalSearch:
 
-    def __call__(self, current: Solution, rnd_state: RandomState) -> Solution:
-        improved = current.copy()
+    def __init__(self):
+        self._solution_operators = []
+        self._route_operators = []
+
+    def add_route_operator(self, operator):
+        self._route_operators.append(operator)
+
+    def add_solution_operator(self, operator):
+        self._solution_operators.append(operator)
+
+    def __call__(self, current: Solution, *args) -> Solution:
+        improved = self._improve(deepcopy(current), self._solution_operators)
 
         for idx, route in enumerate(improved.routes):
-            new_route = self._improve_route(route)
-
-            if new_route.cost() < route.cost():
-                improved.routes[idx] = new_route
+            improved.routes[idx] = self._improve(route, self._route_operators)
 
         assert improved.objective() <= current.objective()
         return improved
 
-    def _improve_route(self, route: Route):
-        # TODO check all this *very* carefully, and expand upon it where needed
-        #  - we should probably also do something about handling!
-        return self._opt_tour(route)
-
     @staticmethod
-    def _opt_tour(route: Route):
-        if len(route.customers) == 1 or len(route.customers) > 15:
-            return route  # this is either too small a route, or too large.
+    def _improve(entity, operators):
+        """
+        Generic local search procedure. Improves the passed-in entity using
+        the given routes.
+        """
+        while True:
+            for operator in operators:
+                new_entity = operator(entity)
 
-        problem = Problem()
-
-        customers = np.array([DEPOT] + route.customers.to_list())
-        distances = problem.distances[np.ix_(customers + 1, customers + 1)]
-
-        candidate = Route([], [Stacks(problem.num_stacks)])
-
-        for customer in reversed(customers[held_karp(distances)]):
-            if not candidate.can_insert(customer, len(candidate.customers)):
-                return route  # candidate is infeasible.
-
-            candidate.insert_customer(customer, len(candidate.customers))
-
-        return candidate
+                if new_entity.cost() < entity.cost():
+                    entity = new_entity
+                    break
+            else:
+                return entity

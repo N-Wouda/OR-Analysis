@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import copy
-import pickle
+from copy import copy, deepcopy
 from typing import List
 
 import matplotlib.pyplot as plt
@@ -15,7 +14,6 @@ from .Stacks import Stacks
 
 
 class Solution(State):
-
     __slots__ = ['routes', 'unassigned']
 
     routes: List[Route]
@@ -25,16 +23,11 @@ class Solution(State):
         self.routes = routes
         self.unassigned = unassigned
 
-    def copy(self, shallow: bool = False) -> Solution:
-        """
-        Returns a copy of the current Solution object. If the shallow parameter
-        is true, this copy is shallow, else it is a deep, full copy.
-        """
-        if shallow:
-            return Solution(copy.copy(self.routes),
-                            copy.copy(self.unassigned))
+    def __copy__(self):
+        return Solution(copy(self.routes), copy(self.unassigned))
 
-        return pickle.loads(pickle.dumps(self, pickle.HIGHEST_PROTOCOL))
+    def __deepcopy__(self, memodict={}):
+        return Solution(deepcopy(self.routes), deepcopy(self.unassigned))
 
     def find_route(self, customer: int) -> Route:
         """
@@ -46,6 +39,13 @@ class Solution(State):
                 return route
 
         raise LookupError(f"Customer {customer} is not understood.")
+
+    def cost(self) -> float:
+        """
+        Wrapper to play nice with the local search procedure. Returns the
+        objective value for this solution instance.
+        """
+        return self.objective()
 
     def objective(self) -> float:
         """
@@ -59,7 +59,7 @@ class Solution(State):
         """
         # Number of columns is customers + depot, and a final column for route
         # cost.
-        n_cols = max(len(route.customers) for route in self.routes) + 2
+        n_cols = max(len(route) for route in self.routes) + 2
         n_rows = len(self.routes)
 
         _, axes = plt.subplots(n_rows, n_cols, figsize=(2.5 * n_cols, n_rows),

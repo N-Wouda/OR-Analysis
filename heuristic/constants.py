@@ -22,4 +22,4 @@ else:
     DECAY = 0.6
 
     ITERATIONS = 25000
-    CRITERION = RecordToRecordTravel(250, 0, step=250 / ITERATIONS)
+    CRITERION = RecordToRecordTravel(200, 0, step=200 / ITERATIONS)

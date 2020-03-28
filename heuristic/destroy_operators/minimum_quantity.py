@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from numpy.random import RandomState
 
 from heuristic.classes import Problem, Solution
@@ -15,7 +17,7 @@ def minimum_quantity(current: Solution, rnd_state: RandomState) -> Solution:
     al. (2020).
     """
     problem = Problem()
-    destroyed = current.copy()
+    destroyed = deepcopy(current)
 
     indices = random_selection(rnd_state)
     customers = problem.smallest_quantity_customers[indices]
