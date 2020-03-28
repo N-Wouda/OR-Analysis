@@ -43,10 +43,10 @@ def exchange_customer(solution: Solution) -> Solution:
                 new_route1.insert_customer(customer2, c_idx1)
                 new_route2.insert_customer(customer1, c_idx2)
 
-                new = new_route1.cost() + new_route2.cost()
-                old = route1.cost() + route2.cost()
+                current = route1.cost() + route2.cost()
+                proposed = new_route1.cost() + new_route2.cost()
 
-                if new < old:
+                if proposed < current:
                     feasible_moves.push(new_route1.cost() + new_route2.cost(),
                                         (idx1, new_route1, idx2, new_route2))
 

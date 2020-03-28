@@ -1,4 +1,4 @@
-from copy import copy
+from copy import copy, deepcopy
 
 from heuristic.classes import Heap, Problem, Route, Solution
 from heuristic.constants import DEPOT
@@ -20,33 +20,39 @@ def relocate_customer(solution: Solution) -> Solution:
     """
     problem = Problem()
 
-    feasible_moves = Heap()
-    routing = routing_costs(solution)
+    improvements = Heap()
+    costs = routing_costs(solution)
 
     for customer in range(problem.num_customers):
-        for route in solution.routes:
+        curr_route = solution.find_route(customer)
+
+        for idx_route, route in enumerate(solution.routes):
             for idx in range(len(route) + 1):
-                if not route.can_insert(customer, idx):
+                gain = _gain(costs, route, idx, customer)
+
+                if gain >= 0 or not route.can_insert(customer, idx):
+                    # This is either infeasible, or not an improving move.
                     continue
 
-                pred = DEPOT if idx == 0 else route.customers[idx - 1]
-                succ = DEPOT if idx == len(route) else route.customers[idx]
+                # The following performs the proposed move on a copy of the
+                # two routes involved. If the move is an improvement, it is
+                # added to the pool of improving moves.
+                old_route = deepcopy(curr_route)
+                new_route = deepcopy(route)
 
-                gain = Route.distance([pred, customer, succ])
-                gain -= routing[customer]
+                old_route.remove_customer(customer)
+                new_route.insert_customer(customer, idx)
 
-                if gain < 0:
-                    feasible_moves.push(gain, (customer, idx, route))
+                current = route.cost() + curr_route.cost()
+                proposed = old_route.cost() + new_route.cost()
 
-    if len(feasible_moves) != 0:
+                if proposed < current:
+                    improvements.push(gain, (customer, idx, route))
+
+    if len(improvements) != 0:
+        _, (customer, insert_idx, next_route) = improvements.pop()
+
         solution = copy(solution)
-
-        # We do not check for the handling effects here - although that is of
-        # course a serious consideration, getting customers into the proper
-        # routes counts a lot more at the solution level. The route based
-        # operators will likely repair any inefficiencies due to handling.
-        _, (customer, insert_idx, next_route) = feasible_moves.pop()
-
         route = solution.find_route(customer)
 
         if route is next_route and route.customers.index(customer) < insert_idx:
@@ -58,3 +64,13 @@ def relocate_customer(solution: Solution) -> Solution:
         next_route.insert_customer(customer, insert_idx)
 
     return solution
+
+
+def _gain(costs, route, idx, customer):
+    pred = DEPOT if idx == 0 else route.customers[idx - 1]
+    succ = DEPOT if idx == len(route) else route.customers[idx]
+
+    gain = Route.distance([pred, customer, succ])
+    gain -= costs[customer]
+
+    return gain
