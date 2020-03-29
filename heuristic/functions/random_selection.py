@@ -1,11 +1,11 @@
 import numpy as np
-from numpy.random import RandomState
+from numpy.random import Generator
 
 from heuristic.classes import Problem
 from .customers_to_remove import customers_to_remove
 
 
-def random_selection(rnd_state: RandomState) -> np.ndarray:
+def random_selection(rnd_state: Generator) -> np.ndarray:
     """
     Implements a random selection mechanism, which selects random indices for
     a certain list of num_customers length (e.g., for a cost computation),

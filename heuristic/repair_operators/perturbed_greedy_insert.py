@@ -1,4 +1,4 @@
-from numpy.random import RandomState
+from numpy.random import Generator
 
 from heuristic.classes import Solution
 from heuristic.constants import NEARNESS
@@ -6,7 +6,7 @@ from ._near_best_insert import _near_best_insert
 
 
 def perturbed_greedy_insert(current: Solution,
-                            rnd_state: RandomState) -> Solution:
+                            rnd_state: Generator) -> Solution:
     """
     Sequentially inserts each a random permutation of the unassigned customers
     into a near-best feasible route at a locally optimal leg of the tour. This

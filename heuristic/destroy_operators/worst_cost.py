@@ -1,11 +1,11 @@
-from numpy.random import RandomState
+from numpy.random import Generator
 
 from heuristic.classes import Solution
 from heuristic.functions import handling_costs, routing_costs
 from ._worst import _worst
 
 
-def worst_cost(current: Solution, rnd_state: RandomState) -> Solution:
+def worst_cost(current: Solution, rnd_state: Generator) -> Solution:
     """
     Randomly removes customers based on their cost: the additional routing and
     handling costs of having said customer in the solution. The random sample

@@ -1,14 +1,14 @@
 import sys
 
 from alns import ALNS
-from numpy.random import RandomState
+from numpy.random import default_rng
 
 from heuristic.classes import Solution
 from .classes import Problem
 from .constants import CRITERION, DECAY, ITERATIONS, WEIGHTS
 from .destroy_operators import D_OPERATORS
 from .functions import initial_solution
-from .local_search import LocalSearch, SOLUTION_OPERATORS, ROUTE_OPERATORS
+from .local_search import LocalSearch, ROUTE_OPERATORS, SOLUTION_OPERATORS
 from .repair_operators import R_OPERATORS
 
 
@@ -18,7 +18,7 @@ def main():
 
     problem = Problem.from_file(sys.argv[1], delimiter=',')
 
-    alns = ALNS(RandomState(problem.instance))
+    alns = ALNS(default_rng(problem.instance))
 
     for op in D_OPERATORS:
         alns.add_destroy_operator(op)

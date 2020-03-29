@@ -1,14 +1,14 @@
 from copy import deepcopy
 from typing import Set
 
-from numpy.random import RandomState
+from numpy.random import Generator
 
 from heuristic.classes import Problem, SetList, Solution
 from heuristic.functions import customers_to_remove, remove_empty_routes
 
 
 @remove_empty_routes
-def cross_route(current: Solution, rnd_state: RandomState) -> Solution:
+def cross_route(current: Solution, rnd_state: Generator) -> Solution:
     """
     Selects two customers that are nearest to each other and their neighbours
     and removes them from the solution. See ``customers_to_remove`` for the

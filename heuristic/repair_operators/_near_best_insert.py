@@ -1,5 +1,4 @@
-import numpy as np
-from numpy.random import RandomState
+from numpy.random import Generator
 
 from heuristic.classes import Heap, Problem, Solution
 from heuristic.constants import DEPOT
@@ -8,7 +7,7 @@ from heuristic.functions import create_single_customer_route
 
 def _near_best_insert(nearness: int,
                       current: Solution,
-                      rnd_state: RandomState) -> Solution:
+                      rnd_state: Generator) -> Solution:
     """
     Sequentially inserts a random permutation of the unassigned customers
     into a near-best feasible route. The distance is controlled by the nearness

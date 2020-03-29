@@ -1,13 +1,13 @@
 from copy import deepcopy
 
-from numpy.random import RandomState
+from numpy.random import Generator
 
 from heuristic.classes import Problem, SetList, Solution
 from heuristic.functions import customers_to_remove, remove_empty_routes
 
 
 @remove_empty_routes
-def random_nearest(current: Solution, rnd_state: RandomState) -> Solution:
+def random_nearest(current: Solution, rnd_state: Generator) -> Solution:
     """
     Removes customers from the solution that are near each other in distance.
     See ``customers_to_remove`` for the degree of destruction done.

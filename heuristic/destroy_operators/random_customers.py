@@ -1,13 +1,13 @@
 from copy import deepcopy
 
-from numpy.random import RandomState
+from numpy.random import Generator
 
 from heuristic.classes import Problem, Solution
 from heuristic.functions import customers_to_remove, remove_empty_routes
 
 
 @remove_empty_routes
-def random_customers(current: Solution, rnd_state: RandomState) -> Solution:
+def random_customers(current: Solution, rnd_state: Generator) -> Solution:
     """
     Removes a number of randomly selected customers from the passed-in solution.
     See ``customers_to_remove`` for the degree of destruction done.

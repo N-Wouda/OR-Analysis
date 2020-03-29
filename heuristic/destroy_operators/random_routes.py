@@ -1,12 +1,12 @@
 from copy import copy, deepcopy
 
-from numpy.random import RandomState
+from numpy.random import Generator
 
 from heuristic.classes import Solution
 from heuristic.functions import customers_to_remove
 
 
-def random_routes(current: Solution, rnd_state: RandomState) -> Solution:
+def random_routes(current: Solution, rnd_state: Generator) -> Solution:
     """
     Randomly removes a routes from the current solution. See
     ``customers_to_remove`` for the degree of destruction done - at least this
@@ -20,7 +20,7 @@ def random_routes(current: Solution, rnd_state: RandomState) -> Solution:
     destroyed = copy(current)
 
     while len(destroyed.unassigned) < customers_to_remove():
-        idx_route = rnd_state.randint(len(destroyed.routes))
+        idx_route = rnd_state.integers(len(destroyed.routes))
         destroyed.unassigned.extend(destroyed.routes[idx_route].customers)
 
         del destroyed.routes[idx_route]

@@ -1,13 +1,13 @@
 from copy import deepcopy
 
-from numpy.random import RandomState
+from numpy.random import Generator
 
 from heuristic.classes import Problem, Solution
 from heuristic.functions import random_selection, remove_empty_routes
 
 
 @remove_empty_routes
-def minimum_quantity(current: Solution, rnd_state: RandomState) -> Solution:
+def minimum_quantity(current: Solution, rnd_state: Generator) -> Solution:
     """
     Removes customers based on quantity (demand + pickup). Randomly selects q
     customers based on a distribution over these quantities, favouring smaller

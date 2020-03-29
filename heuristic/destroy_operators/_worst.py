@@ -1,15 +1,16 @@
 from copy import deepcopy
 
 import numpy as np
-from numpy.random import RandomState
+from numpy.random import Generator
 
 from heuristic.classes import Solution
 from heuristic.functions import random_selection, remove_empty_routes
 
 
 @remove_empty_routes
-def _worst(costs: np.ndarray, current: Solution,
-           rnd_state: RandomState) -> Solution:
+def _worst(costs: np.ndarray,
+           current: Solution,
+           rnd_state: Generator) -> Solution:
     """
     Randomly removes the worst customers based on the passed-in costs array.
     The random distribution is skewed to favour worst-cost customers.
