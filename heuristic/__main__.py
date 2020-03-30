@@ -41,7 +41,6 @@ def main():
 
     # noinspection PyTypeChecker
     solution: Solution = result.best_state
-
     solution.to_file(f"solutions/oracs_{problem.instance}.csv")
 
 
