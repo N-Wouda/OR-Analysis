@@ -1,6 +1,6 @@
 from heuristic.classes import Problem
 from heuristic.constants import M, MAX_STACK_INDEX
-#
+
 
 def handling_costs(problem: Problem, solver):
     """
@@ -38,7 +38,6 @@ def handling_costs(problem: Problem, solver):
                         1 - solver.is_moved[customer_1, stack, index])
 
                 handling_value = demand_cost + pickup_cost - not_moved_reduction
-                # handling_value = (demand_cost + pickup_cost) * solver.is_moved[customer_1, stack, index]
 
                 solver.add_constraint(
                     solver.handling_cost[customer_1, stack, index]

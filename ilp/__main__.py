@@ -14,10 +14,6 @@ def main():
 
     solution.to_file(f"solutions/oracs_ILP_{problem.instance}.csv")
 
-    # import matplotlib.pyplot as plt
-    # solution.plot()
-    # plt.show()
-
     print(solution.objective())
 
 

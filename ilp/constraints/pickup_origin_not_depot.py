@@ -1,6 +1,6 @@
 from heuristic.classes import Problem
 from heuristic.constants import MAX_STACK_INDEX
-#
+
 
 def pickup_origin_not_depot(problem: Problem, solver):
     """

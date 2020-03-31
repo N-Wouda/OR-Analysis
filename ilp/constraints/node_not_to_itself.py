@@ -1,5 +1,5 @@
 from heuristic.classes import Problem
-#
+
 
 def node_not_to_itself(problem: Problem, solver):
     """
