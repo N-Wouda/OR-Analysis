@@ -1,4 +1,4 @@
-# VRPSPD-H (OR Analysis of Complex Systems)
+# VRPSPDMD-H (OR Analysis of Complex Systems)
 
 [![Build Status](https://travis-ci.com/N-Wouda/OR-Analysis.svg?branch=master)](https://travis-ci.com/N-Wouda/OR-Analysis)
 
@@ -18,9 +18,14 @@ and there are σ stacks, hence maximum length of a stack is Q/σ. When loading
 items, it can be decided which stack(s) to put the item(s) in. Also when 
 reconfiguring, a choice of stack must be made. 
 
+A full report on our solution to this problem is made available in 
+`heuristic/report.pdf`.
+
 ## How to use
 
-TODO
+For the heuristic, see `heuristic/README.md`. For the validator, see 
+`validator/README.md`. Both assume the packages listed in the `Pipfile` are
+available.
 
 ## References
 

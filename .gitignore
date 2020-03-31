@@ -404,6 +404,7 @@ TSWLatexianTemp*
 
 # Compiled documents
 *.pdf
+!/heuristic/*.pdf
 
 # Code files for handing in
 *.zip
